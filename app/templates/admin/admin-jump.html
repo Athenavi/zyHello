@@ -1,0 +1,23 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<title></title>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="main-content container-fluid">
+ For Jump Only 
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      $(function () {
+        $('.sidebar-elements a[href]')[0].click()
+      })
+    </script>
+</body>
+</html>

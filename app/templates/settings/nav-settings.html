@@ -1,0 +1,164 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<title>[[${bundle.L('导航菜单')}]]</title>
+<style>
+      .dd3-content > .zmdi {
+        position: absolute;
+        margin-left: -22px;
+        font-size: 1.45rem;
+        margin-top: 1px;
+      }
+      .dd3-content > .mdi {
+        font-size: 1.385rem;
+        margin-top: 0;
+        margin-left: -24px;
+      }
+      .dd3-content {
+        padding-left: 64px !important;
+        cursor: default;
+      }
+      .dd-item > ul {
+        margin-left: 17px;
+        padding-left: 0;
+        position: relative;
+      }
+      .input-group-prepend .input-group-text {
+        background-color: #fff;
+        cursor: pointer;
+        font-size: 1.3rem;
+        height: 37px;
+        overflow: hidden;
+      }
+      .input-group-prepend .input-group-text:hover {
+        background-color: #f5f5f5;
+      }
+      .topnav-list > div {
+        margin: 0 15px;
+        background-color: #f5f5f5;
+        margin-bottom: 8px;
+        padding: 3px;
+        border-radius: 2px;
+      }
+      .topnav-list > div .nav-name-text,
+      .topnav-list > div .nav-name-edit {
+        cursor: move;
+        display: block;
+        padding-left: 18px;
+        position: relative;
+      }
+      .topnav-list > div .nav-name-text::before,
+      .topnav-list > div .nav-name-edit::before {
+        font-family: 'Material Design Icons', serif;
+        content: '\F01DD';
+        color: #999;
+        position: absolute;
+        font-size: 18px;
+        left: 0;
+        top: 6px;
+      }
+      .topnav-list > div .nav-name-text > a {
+        position: absolute;
+        font-size: 16px;
+        right: 3px;
+        top: 8px;
+        display: none;
+        color: #444;
+        opacity: 0.8;
+      }
+      .topnav-list > div .nav-name-text:hover > a {
+        display: inline-block;
+      }
+      .topnav-list > div .nav-name-text > a:hover {
+        opacity: 1;
+      }
+      .J_edit-tips {
+        display: none;
+      }
+      .J_edit-menu.hide + .J_edit-tips {
+        display: block;
+      }
+      .J_bindFilter > a > span {
+        display: none;
+        margin-left: 4px;
+      }
+      .J_bindFilter > a[data-filter]:not([data-filter='']) > span {
+        display: inline-block;
+      }
+    </style>
+</head>
+<body class="dialog">
+<div class="main-content">
+<div class="row m-0">
+<div class="col-5 mt-2 pr-0 pl-2">
+<div class="sortable-box h380 rb-scroller">
+<ol class="dd-list J_config" th:_title="${bundle.L('无')}"></ol>
+</div>
+<div class="actions">
+<button class="btn btn-secondary btn-sm J_add-menu" type="button">+ [[${bundle.L('添加菜单项')}]]</button>
+</div>
+</div>
+<div class="col-7 mt-2 pl-5 pr-2">
+<div class="J_edit-menu hide">
+<div class="tab-container">
+<ul class="nav nav-tabs">
+<li class="nav-item"><a class="nav-link pt-0 J_menuType active" data-toggle="tab" href="#ENTITY">[[${bundle.L('关联项')}]]</a></li>
+<li class="nav-item"><a class="nav-link pt-0 J_menuType" data-toggle="tab" href="#URL">[[${bundle.L('外部地址')}]]</a></li>
+</ul>
+<div class="tab-content m-0 p-0 pt-3 pb-3">
+<div class="tab-pane active" id="ENTITY">
+<select class="form-control form-control-sm J_menuEntity">
+<option value>[[${bundle.L('选择关联项')}]]</option>
+<optgroup th:label="${bundle.L('业务实体')}">
+ Biz entities 
+</optgroup>
+<optgroup id="sys-built" th:label="${bundle.L('系统内置')}">
+<option data-icon="chart-donut" value="$FEEDS$">[[${bundle.L('动态')}]]</option>
+<option data-icon="folder" value="$FILEMRG$">[[${bundle.L('文件')}]]</option>
+<option data-icon="account-box-phone" value="$CONTACT$">[[${bundle.L('通讯录')}]]</option>
+<option data-icon="shape" value="$PROJECT$">[[${bundle.L('项目')}]]</option>
+<option data-icon="chart" value="$DASHBOARD$">[[${bundle.L('仪表盘')}]]</option>
+<option data-icon="menu" value="$PARENT$">[[${bundle.L('父级菜单')}]]</option>
+</optgroup>
+</select>
+<div class="input-group mt-2 J_parentOption" style="display: none">
+<label class="custom-control custom-checkbox custom-control-inline custom-control-sm mb-0">
+<input class="custom-control-input" id="defaultOpen" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('默认展开')}]]</span>
+</label>
+</div>
+<div class="J_bindFilter mt-1" style="margin-bottom: -4px; display: none">
+<a class="btn btn-link btn-sm pl-0"><i class="icon mdi mdi-filter"></i> [[${bundle.L('默认查询')}]]<span> ([[${bundle.L('已设置')}]])</span></a>
+</div>
+</div>
+<div class="tab-pane" id="URL">
+<input class="form-control form-control-sm J_menuUrl" maxlength="600" placeholder="{{ bundle.L('输入外部地址') }}" type="text">
+<div class="form-text">[[${bundle.L('支持绝对地址或相对地址')}]]</div>
+</div>
+</div>
+</div>
+<div class="input-group mb-3">
+<span class="input-group-prepend">
+<span class="input-group-text J_menuIcon" title="{{ bundle.L('选择图标') }}"><i class="zmdi zmdi-texture"></i></span>
+</span>
+<input class="form-control form-control-sm J_menuName" maxlength="100" placeholder="{{ bundle.L('菜单名称') }}" type="text">
+</div>
+<div>
+<button class="btn btn-primary btn-outline J_menuConfirm" type="button">[[${bundle.L('确定')}]]</button>
+</div>
+</div>
+<div class="text-muted J_edit-tips">[[${bundle.L('点击左侧菜单项进行编辑')}]]</div>
+</div>
+</div>
+<div class="dialog-footer">
+<div class="float-left ml-1">
+<div class="shareTo--wrap" id="shareTo"></div>
+</div>
+<button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide('/p/settings/nav-settings')" type="button">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ nav ~ '-' ~ settings.js }}" type="text/babel"></script>
+</body>
+</html>

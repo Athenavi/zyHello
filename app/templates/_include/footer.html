@@ -1,0 +1,41 @@
+
+<script th:src="@{/assets/lib/jquery.min.js?v=3.7.1}"></script>
+<script th:src="@{/assets/lib/popper.min.js}"></script>
+<script th:src="@{/assets/lib/bootstrap.min.js}"></script>
+<script th:src="@{/assets/lib/widget/perfect-scrollbar.jquery.min.js}"></script>
+<script th:src="@{/assets/lib/widget/mprogress.min.js}"></script>
+<script th:src="@{/assets/lib/moment-with-locales.min.js?v=2.27.0}"></script>
+<script th:src="@{/assets/lib/widget/bootstrap-datetimepicker.min.js?v=2.4.4}"></script>
+<script th:src="@{/assets/lib/jquery.html5uploader.js?v=310}"></script>
+<script th:src="@{/assets/lib/qiniu.min.js?v=3.4.1}"></script>
+<script th:src="@{/assets/lib/widget/select2.js?v=4.0.13.fix2}"></script>
+<script th:src="@{/assets/lib/jquery-ui.min.js?v=1.13.2.fix1}"></script>
+<script th:src="@{/assets/lib/widget/easymde.min.js}"></script>
+<script th:src="@{/assets/lib/widget/marked.min.js?15.0.0}"></script>
+<script th:src="@{/assets/lib/jquery.textarea.js}"></script>
+<script th:src="@{/assets/lib/react/babel.js?v=6.26.0}"></script>
+<script th:src="@{/assets/lib/react/react.development.js?v=16.14.0}"></script>
+<script th:src="@{/assets/lib/react/react-dom.development.js?v=16.14.0}"></script>
+<script th:src="@{/language/use-bundle}"></script>
+<script th:src="@{/assets/js/rb-base.js}"></script>
+<script th:src="@{/assets/js/rb-page.js}"></script>
+<script th:src="@{/assets/js/rb-components.js}" type="text/babel"></script>
+<script th:src="@{/assets/js/file-preview.js}" type="text/babel"></script>
+<script th:src="@{/assets/js/media-capturer.js}" type="text/babel"></script>
+<script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
+{%- if commercial is defined and commercial > 1 -%}
+<script th:src="@{/assets/js/frontjs/frontjs-sdk.js}" type="text/babel"></script>
+<script th:src="@{/commons/frontjs/use-frontjs}" type="text/babel"></script>
+{%- endif -%}
+{%- if user is not none and session.showStartTour is not none -%}
+<link rel="stylesheet" th:href="@{/assets/lib/introjs.min.css}" type="text/css">
+<script th:src="@{/assets/lib/intro.min.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/rebuild-tour.css}" type="text/css">
+<script th:src="@{/assets/js/rebuild-tour.js}" type="text/babel"></script>
+{%- endif -%}
+<script th:src="@{/assets/js/aibot/chat.js}" type="text/babel"></script>
+<script th:src="@{/assets/js/aibot/aibot.js}" type="text/babel"></script>
+
+
+<!-- <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script> -->
+

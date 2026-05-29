@@ -1,0 +1,135 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/integration-wxwork" name="page-help">
+<title>[[${bundle.L('企业微信')}]]</title>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="main-content container-fluid syscfg">
+<div class="row">
+<div class="col-lg-9 col-12">
+<div class="card">
+<div class="card-header pb-1">
+                  [[${bundle.L('企业微信')}]]
+                  <a class="float-right J_edit" href="###"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+<a class="float-right J_save hide" href="###"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
+</div>
+<div class="card-body">
+<h5>[[${bundle.L('应用凭证')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">AgentId</td>
+<td data-id="WxworkAgentid" th:data-value="${WxworkAgentid ?:''}">[[${WxworkAgentid ?:bundle.L('未设置')}]]</td>
+</tr>
+<tr>
+<td>Secret</td>
+<td data-id="WxworkSecret" th:data-value="${WxworkSecret ?:''}">[[${WxworkSecret ?:bundle.L('未设置')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('企业 ID')}]]</td>
+<td data-id="WxworkCorpid" th:data-value="${WxworkCorpid ?:''}">[[${WxworkCorpid ?:bundle.L('未设置')}]]</td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('企业微信侧配置')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('应用主页')}]]</td>
+<td>
+                          [[${_WxworkHomeUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_WxworkHomeUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('可信域名')}]]</td>
+<td>
+                          [[${_WxworkAuthCallUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_WxworkAuthCallUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('可信域名效验文件')}]]</td>
+<td>
+<a class="J_authFile hide-empty mr-1 link" target="_blank">[[${WxworkAuthFile}]]</a>
+<button class="btn btn-light btn-sm J_authFile" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传')}]]</button>
+<input accept=".txt" class="hide J_authFile" data-local="true" type="file">
+</td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('数据同步')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
+<td data-id="WxworkSyncUsers" th:data-value="${WxworkSyncUsers}">
+<span>[[${WxworkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
+<button class="btn btn-light btn-sm J_syncUsers" type="button"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('同步用户匹配方式')}]]</td>
+<td data-id="WxworkSyncUsersMatch" th:data-form-text="${bundle.L('通过何种方式匹配已存在用户，如无匹配则新建')}" th:data-value="${WxworkSyncUsersMatch}">
+{%- if WxworkSyncUsersMatch == 'ID' -%}[[${bundle.L('默认')}]]{%- endif -%}
+{%- if WxworkSyncUsersMatch == 'EMAIL' -%}[[${bundle.L('邮箱')}]]{%- endif -%}
+{%- if WxworkSyncUsersMatch == 'NAME' -%}[[${bundle.L('用户名/账号')}]]{%- endif -%}
+{%- if WxworkSyncUsersMatch == 'NAME2' -%}[[${bundle.L('姓名')}]]{%- endif -%}
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('用户默认角色')}]]</td>
+<td data-id="WxworkSyncUsersRole" th:data-form-text="${bundle.L('如不指定，新建用户将不可用，直到你为他们指定了角色')}" th:data-value="${WxworkSyncUsersRole}">
+                          [[${WxworkSyncUsersRoleLabel ?:bundle.L('无')}]]
+                        </td>
+</tr>
+</tbody>
+</table>
+<div class="edit-footer">
+<button class="btn btn-link">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-3 col-12"></div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ clipboard.min.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ syscfg.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ syscfg ~ '-' ~ sync.js }}" type="text/babel"></script>
+<script type="text/babel">
+      $(document).ready(() => {
+        const $input = $('input.J_authFile')
+        $createUploader($input, null, (res) => {
+          const fileKey = res.key
+          $.post(location.href, JSON.stringify({ WxworkAuthFile: fileKey }), (res) => {
+            if (res.error_code === 0) {
+              renderAuthFile(fileKey)
+              RbHighbar.success($L('上传成功'))
+            } else {
+              RbHighbar.error(res.error_msg)
+            }
+          })
+        })
+        $('button.J_authFile').on('click', () => $input[0].click())
+
+        const key = $('a.J_authFile').text()
+        if (key) renderAuthFile(key)
+      })
+
+      const renderAuthFile = function (key) {
+        const file = $fileCutName(key)
+        $('a.J_authFile').text(file).attr('href', `${rb.baseUrl}/${file}`)
+      }
+    </script>
+</body>
+</html>

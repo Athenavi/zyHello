@@ -1,0 +1,12 @@
+{% raw %}<th:block xmlns:th="http://www.thymeleaf.org">
+  <!-- Convert Thymeleaf nav-top HTML to Jinja2 equivalents -->
+  <nav class="navbar navbar-expand fixed-top rb-top-header">
+    <div class="container-fluid">
+      <!-- Add Jinja2 logic for user, notifications, etc. -->
+      {% if user %}
+        <a class="nav-link dropdown-toggle" href="{{ url_for('settings_user') }}" data-toggle="dropdown">{{ user.name }}</a>
+        <!-- More navigation items -->
+      {% endif %}
+    </div>
+  </nav>
+</th:block>{% endraw %}

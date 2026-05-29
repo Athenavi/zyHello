@@ -1,0 +1,224 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/entity/" name="page-help">
+<title>[[${bundle.L('基本信息')}]]</title>
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ meta ~ '-' ~ edit.css }}" rel="stylesheet" type="text/css">
+<style>
+      .custom-control-label .support-plat2 {
+        margin-top: 1px;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-aside', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<aside class="page-aside">
+<div class="rb-scroller-aside rb-scroller">
+<div class="aside-content">
+<div class="content">
+<div class="aside-header dropdown">
+<span class="title">[[${entityLabel}]]</span>
+<p class="description">[[${comments}]]</p>
+</div>
+</div>
+{%- include "/admin/metadata/subnav-entity.html" -%}
+</div>
+</div>
+</aside>
+<div class="page-head">
+<div class="page-head-title">[[${bundle.L('基本信息')}]]</div>
+</div>
+<div class="main-content container-fluid pt-1">
+{%- if detailEntity != none -%}<ul class="nav nav-tabs nav-tabs-classic">
+<li class="nav-item" th:data-name="${mainEntity}"><a class="nav-link" href="|../{{ mainEntity }}/base|">[[${bundle.L('主实体')}]]</a></li>
+<li class="nav-item" th:data-name="${detailEntity}">
+<a class="nav-link J_for-details" href="|../{{ detailEntity }}/base|">[[${bundle.L('明细实体')}]]</a>
+{%- if detailEntities.length &gt; 1 -%}<div class="dropdown-menu J_details">
+{%- for e in detailEntities -%}<a class="dropdown-item" href="|../{{ e[1] }}/base|" th:data-name="${e[1]}"><i class="|icon zmdi zmdi-{{ e[3] }}|"></i> [[${e[2]}]]</a>{%- endfor -%}
+</div>{%- endif -%}
+</li>
+</ul>{%- endif -%}
+<div class="card mb-0">
+<div class="card-body pt-4">
+<form class="simple">
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('图标')}]]</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<a id="entityIcon" th:data-o="${icon}" title="更换图标"><i class="|icon zmdi zmdi-{{ icon }}|"></i></a>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('实体名称')}]]</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<input class="form-control form-control-sm" id="entityLabel" maxlength="40" th:data-o="${entityLabel}" type="text" value="{{ entityLabel }}">
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('内部标识')}]]</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<input class="form-control form-control-sm" id="entityName" readonly type="text" value="{{ entityName + ' (' + entityCode + ')' }}">
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('名称字段')}]]</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<select class="form-control form-control-sm" id="nameField" th:data-o="${nameField}"></select>
+<p class="form-text mb-0">[[${bundle.L('名称字段应该清晰的体现记录本身，如客户中的客户名称')}]]</p>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('快速查询字段')}]]</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<select class="form-control form-control-sm" id="quickFields"></select>
+<p class="form-text mb-0">[[${bundle.L('用于列表、表单引用字段等处的快速查询')}]]</p>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('备注')}]]</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<textarea class="form-control form-control-sm row2x" id="comments" placeholder="{{ bundle.L('(选填)') }}" th:data-o="${comments}">[[${comments}]]</textarea>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('分组标签')}]]</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<select class="form-control form-control-sm" id="tags"></select>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">
+<span class="adv-options hide">[[${bundle.L('高级选项')}]] <sup class="rbv"></sup></span>
+</label>
+<div class="col-md-12 col-xl-6 col-lg-8">
+<a class="adv-options-btn" href="javascript:;">[[${bundle.L('展开高级选项')}]] <i class="mdi mdi-chevron-double-down"></i> <sup class="rbv"></sup></a>
+<div class="adv-options hide">
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline bosskey-show">
+<input class="custom-control-input" id="enabledListEditable" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('启用列表页单字段编辑')}]] (LAB) <i class="support-plat2 mdi mdi-monitor" title="{{ bundle.L('PC 端适用') }}"></i></span>
+</label>
+</div>
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="hideViewAside" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('隐藏详情页侧栏')}]] <i class="support-plat2 mdi mdi-monitor" title="{{ bundle.L('PC 端适用') }}"></i></span>
+</label>
+</div>
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="disabledViewEditable" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('禁用详情页单字段编辑')}]] <i class="support-plat2 mdi mdi-monitor" title="{{ bundle.L('PC 端适用') }}"></i></span>
+</label>
+</div>
+{%- if currentEntity == mainEntity or detailEntity == none -%}<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="enableRecordMerger" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('启用记录合并功能')}]] <i class="support-plat2 mdi mdi-monitor" title="{{ bundle.L('PC 端适用') }}"></i></span>
+</label>
+</div>{%- endif -%}
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="repeatFieldsCheckMode" type="checkbox">
+<span class="custom-control-label">
+                            [[${bundle.L('&ldquo;允许重复&rdquo;检查全部字段')}]]
+                            <a href="https://getrebuild.com/docs/admin/entity/opt-features#%E2%80%9C%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D%E2%80%9D%E6%A3%80%E6%9F%A5%E5%85%A8%E9%83%A8%E5%AD%97%E6%AE%B5" target="_blank" title="{{ bundle.L('查看帮助') }}">
+<i class="zmdi zmdi-help zicon down-1 cursor-pointer"></i>
+</a>
+</span>
+</label>
+</div>
+{%- if currentEntity == detailEntity -%}
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="detailsGlobalRepeat" type="checkbox">
+<span class="custom-control-label">
+                              [[${bundle.L('&ldquo;允许重复&rdquo;检查全部数据')}]]
+                              <a href="https://getrebuild.com/docs/admin/entity/opt-features#%E2%80%9C%E5%85%81%E8%AE%B8%E9%87%8D%E5%A4%8D%E2%80%9D%E6%A3%80%E6%9F%A5%E5%85%A8%E9%83%A8%E6%95%B0%E6%8D%AE" target="_blank" th:title="${bundle.L('查看帮助')}">
+<i class="zmdi zmdi-help zicon down-1 cursor-pointer"></i>
+</a>
+</span>
+</label>
+</div>
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="detailsNotEmpty" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('明细不允许为空')}]]</span>
+</label>
+</div>
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="detailsShowAt2" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('明细显示在详情页下方')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+</label>
+</div>
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" id="detailsCopiable" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('明细启用复制功能')}]] <i class="support-plat2 mdi mdi-monitor" th:title="${bundle.L('PC 端适用')}"></i></span>
+</label>
+</div>
+<div>
+<div class="row">
+<div class="col-5 pr-2">
+<label class="mb-1">[[${bundle.L('显示位置')}]]</label>
+<select class="form-control form-control-sm" id="detailsSeq">
+<option value>[[${bundle.L('默认')}]]</option>
+<option value="1">1.</option>
+<option value="2">2.</option>
+<option value="3">3.</option>
+<option value="4">4.</option>
+<option value="5">5.</option>
+<option value="6">6.</option>
+<option value="7">7.</option>
+<option value="8">8.</option>
+<option value="9">9.</option>
+</select>
+</div>
+<div class="col-5 pl-2 pr-2">
+<label class="mb-1">[[${bundle.L('是否隐藏')}]]</label>
+<select class="form-control form-control-sm" id="detailsHide">
+<option value>[[${bundle.L('默认')}]]</option>
+<option value="1">新建时隐藏</option>
+<option value="2">编辑时隐藏</option>
+<option value="3">总是隐藏</option>
+</select>
+</div>
+</div>
+</div>
+{%- endif -%}
+</div>
+</div>
+</div>
+<div class="form-group row footer">
+<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
+<div class="J_action hide">
+<button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+<div class="alert alert-warning alert-icon mb-0 hide">
+<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+<div class="message">[[${bundle.L('系统内置，不允许修改')}]]</div>
+</div>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        metaId: '[[${entityMetaId}]]',
+        entity: '[[${entityName}]]',
+        nameField: '[[${nameField}]]',
+        extConfig: [(${entityExtConfig ?:'null'})],
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entity ~ '-' ~ edit.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entity ~ '-' ~ switch.js }}" type="text/babel"></script>
+</body>
+</html>

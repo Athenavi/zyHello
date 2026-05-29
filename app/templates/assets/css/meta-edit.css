@@ -1,0 +1,264 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.col-form-label {
+  padding-bottom: 8px;
+}
+
+.sortable-box {
+  height: 208px;
+  max-width: 325px;
+}
+
+.sortable-box .dd-list {
+  height: 200px;
+}
+
+.sortable-box .dd-list .dd-item,
+.sortable-box .dd-list .dd-handle {
+  background-color: #fff !important;
+  color: #404040 !important;
+  border-color: #dedede !important;
+}
+
+.sortable-box .no-item {
+  padding: 9px;
+  text-align: center;
+  color: #999;
+}
+
+.sortable-box .default .dd-handle {
+  background-color: #dedede !important;
+}
+
+.sortable-box .default .dd-handle::before {
+  color: #4285f4;
+}
+
+.dt-MULTISELECT .dd-handle,
+.dt-PICKLIST .dd-handle,
+.dt-TAG .dd-handle {
+  padding-left: 31px !important;
+}
+
+.dt-MULTISELECT .dd-handle::before,
+.dt-PICKLIST .dd-handle::before,
+.dt-TAG .dd-handle::before {
+  position: absolute;
+  font-family: 'Material-Design-Iconic-Font', serif;
+  font-size: 20px;
+  color: #ddd;
+  left: 10px;
+  content: '\f279';
+}
+
+.dt-MULTISELECT .default .dd-handle::before,
+.dt-TAG .default .dd-handle::before {
+  content: '\f26a';
+}
+
+.dt-PICKLIST .dd-handle::before {
+  font-size: 18px;
+  margin-top: -1px;
+  content: '\f26c';
+}
+
+.dt-PICKLIST .default .dd-handle::before {
+  content: '\f269';
+}
+
+.dt-TAG .dd-handle > a {
+  float: right;
+  color: #a1a1a1;
+  font-size: 1.23rem;
+  display: none;
+}
+
+.dt-TAG .dd-handle > a:hover {
+  color: gray;
+}
+
+.dt-TAG .dd-handle:hover > a {
+  display: inline-block;
+}
+
+.form-text.help b {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  color: #4285f4;
+}
+
+.calc-expr {
+  border-radius: 3px;
+  padding: 10px 0;
+  background-color: #eee;
+}
+
+.calc-expr .col-4 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.J_defaultValue[readonly] {
+  background-color: #fff;
+  cursor: text;
+}
+
+.J_defaultValue-clear {
+  position: absolute;
+  display: inline-block;
+  height: 32px;
+  width: 1.4rem;
+  right: 40px;
+  top: 1px;
+  text-align: center;
+  padding-top: 6px;
+  color: #737373 !important;
+  font-size: 1.308rem;
+}
+
+.J_defaultValue-clear:hover {
+  opacity: 0.8;
+}
+
+.form-control-plaintext.formula {
+  border: 1px dotted #4c8bf5 !important;
+  border-radius: 4px;
+  background-color: #fff;
+  padding: 9px 10px 8px;
+  min-height: 37px !important;
+  cursor: text;
+}
+
+.form-control-plaintext.formula:empty {
+  border: 1px dotted #bdc0c7 !important;
+}
+
+.form-control-plaintext.formula:empty::after {
+  content: attr(_title);
+  color: #878787;
+}
+
+/* for Entity */
+
+a#entityIcon {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background-color: #e3e3e3;
+  text-align: center;
+  border-radius: 2px;
+}
+
+a#entityIcon .icon {
+  font-size: 26px;
+  color: #555;
+  line-height: 36px;
+}
+
+a#entityIcon:hover {
+  opacity: 0.8;
+}
+
+.input-group-append > .btn-secondary + .btn-secondary {
+  border-top-right-radius: 2px !important;
+  border-bottom-right-radius: 2px !important;
+}
+
+select.underline-sm,
+input.underline-sm {
+  width: 60px;
+  padding: 1px;
+  border: 0 none;
+  border-bottom: 1px solid #ccc;
+  appearance: none;
+  outline: none;
+  background-color: #fff;
+  text-align-last: center;
+}
+
+input.underline-sm {
+  text-align: center;
+}
+
+select.underline-sm:focus,
+input.underline-sm:focus {
+  border-color: #4285f4;
+}
+
+.main-content > .nav-tabs-classic > li.nav-item a.nav-link > span.indicator {
+  display: inline-block;
+  width: auto;
+}
+
+.main-content > .nav-tabs-classic > li.nav-item a.nav-link > span.indicator::after {
+  content: '';
+  background-color: #fbbc05;
+  border-radius: 50%;
+  height: 6px;
+  width: 6px;
+  float: right;
+  margin-left: 3px;
+}
+
+.bslider.form-control {
+  border: 0 none;
+  padding: 0;
+  max-height: 24px;
+}
+
+.form-text > b {
+  color: #222;
+}
+
+.adv-options .custom-control {
+  margin-bottom: 0.8rem;
+}
+
+div.series-starts {
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+div.series-starts > input {
+  border-width: 0;
+  background-color: #eee;
+}
+
+div.series-starts > input:focus {
+  background-color: #ccc;
+}
+
+/* via: triggers.css */
+
+.fields ul li.flag-DECIMAL > a::before,
+.fields ul li.flag-NUMBER > a::before,
+.fields ul li.flag-DATE > a::before,
+.fields ul li.flag-DATETIME > a::before,
+.fields ul li.flag-TIME > a::before,
+.fields ul li.flag-NOW > a::before {
+  content: '#';
+  width: 15px;
+  display: inline-block;
+  color: #4285f4;
+  font-size: 0.9rem;
+  font-style: normal;
+}
+
+.fields ul li.flag-DECIMAL > a::before,
+.fields ul li.flag-NUMBER > a::before {
+  content: 'N';
+}
+
+.fields ul li.flag-DATE > a::before,
+.fields ul li.flag-DATETIME > a::before,
+.fields ul li.flag-TIME > a::before {
+  content: 'D';
+}
+
+.fields ul li.flag-NOW > a::before {
+  color: #fbbc05;
+}

@@ -1,0 +1,105 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ list ~ '-' ~ page.css }}" rel="stylesheet" type="text/css">
+<title>{{ title }}</title>
+<style>
+      .form-wrap .modal {
+        position: relative;
+        display: block;
+        z-index: 1;
+        margin-top: 44px;
+        border-top: 2px solid var(--rb-theme-color);
+      }
+      .form-wrap .modal .modal-dialog,
+      .form-wrap .modal .modal-dialog .modal-content {
+        margin: 0;
+        box-shadow: none;
+      }
+      .form-wrap .modal .modal-header,
+      .form-wrap .modal .dialog-footer .btn-secondary {
+        display: none;
+      }
+      .quick-filter-tabs a.dropdown-item {
+        background-color: #f5f5f5;
+        border-radius: 2px !important;
+      }
+      .quick-filter-tabs a.dropdown-item:hover {
+        background-color: #ddd;
+      }
+      .modal-dialog.modal-dialog-maximize {
+          padding: 0;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left.html" -%}
+<div class="rb-loading rb-loading-active must-center J_dock-load">
+{%- include "/_include/spinner.html" -%}
+</div>
+<div class="rb-content">
+<div class="main-content container-fluid">
+<div class="quick-filter-tabs">
+<div>
+<a class="dropdown-item" href="|../{{ entityName }}/list|">[[${bundle.L('返回列表')}]]</a>
+</div>
+</div>
+<div class="form-wrap"></div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        entity: '[[${entityName}]]',
+        entityLabel: '[[${entityLabel}]]',
+        entityIcon: '[[${entityIcon}]]',
+        id: '[[${id}]]',
+      }
+    </script>
+{%- include "/_include/forms.html" -%}
+<script type="text/babel">
+      class RbFormModal2 extends RbFormModal {
+        constructor(props) {
+          super(props)
+          this.state._maximize = true
+        }
+
+        componentDidMount() {
+          this.getFormModel()
+          $('.J_dock-load').remove()
+        }
+      }
+
+      $(document).ready(() => {
+        const wpc = window.__PageConfig
+        setTimeout(() => {
+          const props = {
+            id: wpc.id || null,
+            title: wpc.id ? $L('编辑%s', wpc.entityLabel) : $L('新建%s', wpc.entityLabel),
+            entity: wpc.entity,
+            icon: wpc.entityIcon,
+            maximize: true,
+            postAfter: function (id) {
+              setTimeout(() => {
+                const after = $urlp('after')
+                if (after === 'view') location.replace(`./view?id=${id}`)
+                else if (after === 'edit') location.replace(`./form?id=${id}`)
+                else if (after === 'list') location.replace(`../${wpc.entity}/list`)
+                else if (after === 'close') window.close()
+                else location.reload()
+              }, 400)
+            },
+          }
+
+          let modelComp
+          renderRbcomp(<RbFormModal2 {...props} />, $('.form-wrap')[0], function () {
+            modelComp = this
+          })
+        }, 40)
+      })
+    </script>
+</body>
+</html>

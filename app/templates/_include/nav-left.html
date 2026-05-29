@@ -1,0 +1,22 @@
+
+<div class="rb-left-sidebar v2">
+<div class="left-sidebar-wrapper">
+<a class="left-sidebar-toggle">REBUILD</a>
+<div class="left-sidebar-spacer">
+<div class="left-sidebar-scroll rb-scroller">
+<div class="left-sidebar-content no-divider">
+<ul class="sidebar-elements">
+<li th:class="${active == 'dashboard-home'} ? 'active'">
+<a th:href="@{/dashboard/home}"><i class="icon zmdi zmdi-home"></i><span>[[${bundle.L('首页')}]]</span></a>
+</li>
+<th:block th:utext="${nav3012}" th:with="nav3012=${T(com.rebuild.core.configuration.NavBuilder).renderNav(#request, active)}"></th:block>
+</ul>
+</div>
+</div>
+</div>
+<div class="bottom-widget" th:if="${AllowCustomNav}">
+<a class="nav-settings" th:title="${bundle.L('导航菜单配置')}"><i class="icon zmdi zmdi-apps"></i></a>
+</div>
+</div>
+</div>
+

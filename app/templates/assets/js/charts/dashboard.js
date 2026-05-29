@@ -1,0 +1,713 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+/* eslint-disable react/no-string-refs */
+
+let dashid = null
+let dash_editable = false
+let on_resizestart = false
+
+let refresh_timeout = 0
+let refresh_timer = null
+
+let rendered_charts = []
+const rendered_charts_reload = function () {
+  rendered_charts.forEach((c) => c.loadChartData())
+}
+
+window.dash_filter_user = null
+window.dash_filter_date = null
+window.dash_filter_custom = null
+
+$(document).ready(() => {
+  // v4.2 分享的
+  if (rb.shareKey) return
+
+  const d = $urlp('d')
+  if (d) $storage.set('DashDefault', d)
+
+  let dash_list = null
+  $.get('/dashboard/dash-gets', (res) => {
+    typeof window.startTour === 'function' && window.startTour(1000)
+
+    dash_list = res.data
+    if (!dash_list || dash_list.length === 0) {
+      $('.chart-grid').removeClass('invisible')
+      $('.J_dash-load').remove()
+
+      renderRbcomp(<RbAlertBox message={$L('暂无仪表盘')} />, $('.chart-grid')[0])
+      return
+    }
+
+    let use = dash_list[0] // default
+    if (dash_list.length > 1) {
+      let dset = d
+      if (dset) $.removeCookie('AppHome.Dash')
+      else dset = $.cookie('AppHome.Dash') || $storage.get('DashDefault')
+
+      if (dset) {
+        for (let i = 0; i < res.data.length; i++) {
+          if (res.data[i][0] === dset) {
+            use = res.data[i]
+            break
+          }
+        }
+      }
+    }
+
+    dashid = use[0]
+    dash_editable = use[2]
+    render_dashboard(use[3])
+    $('.dash-list h4').text(use[4])
+
+    if (location.hash && location.hash.length > 20) {
+      if (location.hash.substr(0, 5) === '#del=') {
+        RbHighbar.success($L('仪表盘已删除'))
+        location.hash = ''
+      } else {
+        const high = $(`#chart-${location.hash.substr(1)}`).addClass('high')
+        if (high.length > 0) {
+          high.on('mouseleave', () => {
+            high.removeClass('high').off('mouseleave')
+          })
+          $gotoSection(high.offset().top - 65)
+        }
+      }
+    }
+
+    if (dash_editable !== true) {
+      $('.J_dash-edit, .J_chart-adds').remove()
+      $('.chart-grid').addClass('uneditable')
+    }
+
+    $('.J_dash-new').on('click', () => dlgShow('DlgDashAdd'))
+    $('.J_dash-edit').on('click', () => dlgShow('DlgDashSettings', { title: use[4], shareTo: use[1] }))
+    $('.J_chart-new').on('click', () => dlgShow('DlgAddChart'))
+    $('.J_dash-select').on('click', () => dlgShow('DashSelect', { dashList: dash_list }))
+    $('.J_dash-share').on('click', () => {
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<FileShare file={dashid} title={$L('分享仪表盘')} />)
+    })
+    if (!rb.isAdminUser) $('.J_dash-share').remove()
+
+    const $refreshs = $('.J_dash-refresh .dropdown-item').on('click', function () {
+      $refreshs.removeClass('check')
+      const $a = $(this).addClass('check')
+      refresh_timeout = ~~$a.data('time')
+      $('.J_dash-refresh .btn span').text(refresh_timeout > 0 ? $a.text() : $L('自动刷新'))
+
+      if (refresh_timer) {
+        clearInterval(refresh_timer)
+        refresh_timer = null
+      }
+      if (refresh_timeout > 0) {
+        refresh_timer = setInterval(rendered_charts_reload, refresh_timeout * 1000)
+      }
+    })
+
+    let dlgChartSelect
+    $('.J_chart-select').on('click', () => {
+      const appended = []
+      $('.grid-stack-item-content').each(function () {
+        appended.push($(this).attr('id').substr(6))
+      })
+
+      if (dlgChartSelect) {
+        dlgChartSelect.show()
+        dlgChartSelect.setState({ appended: appended })
+        return
+      }
+
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ChartSelect
+          select={(c) => {
+            c.w = c.h = 4
+            if (['017-9000000000000004', '017-9000000000000005', '017-9000000000000006'].includes(c.id)) {
+              const init = {
+                entity: 'User',
+                type: 'DataList',
+                title: $L('数据列表'),
+              }
+              if ('017-9000000000000005' === c.id) {
+                init.type = 'HeadingText'
+                init.title = $L('标题文字')
+                c.size_x = 12
+                c.size_y = 1
+              } else if ('017-9000000000000006' === c.id) {
+                init.type = 'EmbedFrame'
+                init.title = $L('嵌入页面')
+              }
+
+              $.post(`/dashboard/builtin-chart-save?source=${c.id}`, JSON.stringify(init), (res) => {
+                c.id = c.chart = res.data
+                c.isManageable = true
+                add_widget(c)
+              })
+            } else {
+              add_widget(c)
+            }
+          }}
+        />,
+        function () {
+          dlgChartSelect = this
+          this.setState({ appended: appended })
+        },
+      )
+    })
+  })
+
+  $('.J_dash-fullscreen').on('click', () => {
+    const $body = $(document.body)
+    if ($body.hasClass('fullscreen')) {
+      $fullscreen.exit()
+    } else {
+      $fullscreen.open()
+      $body.addClass('darkmode')
+    }
+    $body.toggleClass('fullscreen')
+  })
+
+  $addResizeHandler(() => {
+    if (on_resizestart === true) return
+
+    rendered_charts.forEach((x) => x.resize())
+    // eslint-disable-next-line no-undef
+    BaseChart.currentFullscreen && BaseChart.currentFullscreen.toggleFullscreen(true)
+  })
+
+  $('.J_darkmode button').on('click', () => $(document.body).toggleClass('darkmode'))
+
+  // check:LastRebuildVer
+  if (window.localStorage && rb.isAdminUser) {
+    const lastVer = window.localStorage.getItem('LastRebuildVer')
+    if (lastVer) {
+      // eslint-disable-next-line eqeqeq
+      if (lastVer != rb.ver) {
+        setTimeout(() => {
+          RbGritter.create(
+            <RF>
+              {$L('REBUILD 已成功更新至 %s 版本', rb.ver)}
+              <br />
+              <a href={`https://getrebuild.com/docs/dev/changelog?ver=${rb.ver}`} target="_blank" className="text-white link">
+                {$L('查看详情')}
+              </a>
+            </RF>,
+            {
+              timeout: 30 * 1000,
+              type: 'success',
+              icon: 'mdi-cog-counterclockwise animated rotateIn',
+            },
+          )
+          window.localStorage.setItem('LastRebuildVer', rb.ver)
+        }, 1500)
+      }
+    } else {
+      window.localStorage.setItem('LastRebuildVer', rb.ver)
+    }
+  }
+
+  const $filterUser = $('.J_dash-filter a[data-user]').on('click', function () {
+    $filterUser.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_user = $a.data('user')
+    rendered_charts_reload()
+  })
+  const $filterDate = $('.J_dash-filter a[data-date]').on('click', function () {
+    $filterDate.removeClass('check')
+    let $a = $(this).addClass('check')
+    window.dash_filter_date = $a.data('date')
+    rendered_charts_reload()
+  })
+  let dash_Filter
+  const $filterCustom = $('.J_dash-filter a[data-custom]').on('click', function () {
+    if (dash_Filter) {
+      dash_Filter.show()
+    } else {
+      let keepFilter = $storage.get('dash_filter_custom')
+      try {
+        if (keepFilter) keepFilter = JSON.parse(keepFilter)
+      } catch (e) {
+        keepFilter = null
+      }
+
+      keepFilter = window.dash_filter_custom || keepFilter || null
+      let keepEntity = 'SystemCommon'
+      if (keepFilter) keepEntity = keepFilter.entity
+
+      renderRbcomp(
+        <AdvFilterWithEntity
+          title={$L('仪表盘过滤条件')}
+          entity={keepEntity}
+          filter={keepFilter}
+          onConfirm={(s) => {
+            if (s && s.items && s.items.length) $filterCustom.addClass('check')
+            else $filterCustom.removeClass('check')
+
+            window.dash_filter_custom = s
+            $storage.set('dash_filter_custom', JSON.stringify(s))
+            rendered_charts_reload()
+          }}
+          inModal
+          canNoFilters
+        />,
+        function () {
+          dash_Filter = this
+        },
+      )
+    }
+  })
+})
+
+// 全屏工具
+const $fullscreen = {
+  open: function () {
+    const element = document.documentElement
+    if (element.requestFullscreen) element.requestFullscreen()
+    else if (element.msRequestFullscreen) element.msRequestFullscreen()
+    else if (element.mozRequestFullScreen) element.mozRequestFullScreen()
+    else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen()
+  },
+  exit: function () {
+    if (document.exitFullscreen) document.exitFullscreen()
+    else if (document.msExitFullscreen) document.msExitFullscreen()
+    else if (document.mozCancelFullScreen) document.mozCancelFullScreen()
+    else if (document.webkitExitFullscreen) document.webkitExitFullscreen()
+  },
+  is: function () {
+    return !!(document.fullscreenElement || document.msFullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement)
+  },
+}
+
+const dlgRefs = {}
+const dlgShow = (t, props) => {
+  props = props || {}
+  props.dashid = props.dashid || dashid
+  if (dlgRefs[t]) {
+    dlgRefs[t].show()
+  } else if (t === 'DlgAddChart') {
+    if (dash_editable) {
+      renderRbcomp(<DlgAddChart {...props} />, function () {
+        dlgRefs[t] = this
+      })
+    } else {
+      RbHighbar.create($L('你无权添加图表到此仪表盘'))
+    }
+  } else if (t === 'DlgDashAdd') {
+    renderRbcomp(<DlgDashAdd {...props} />, function () {
+      dlgRefs[t] = this
+    })
+  } else if (t === 'DlgDashSettings') {
+    renderRbcomp(<DlgDashSettings {...props} />, function () {
+      dlgRefs[t] = this
+    })
+  } else if (t === 'DashSelect') {
+    renderRbcomp(<DashSelect {...props} />, function () {
+      dlgRefs[t] = this
+    })
+  }
+}
+
+let gridstack
+let gridstack_serialize
+const render_dashboard = function (init) {
+  gridstack = $('.grid-stack')
+    .gridstack({
+      cellHeight: 60,
+      handleClass: 'chart-title',
+      animate: true,
+      auto: false,
+      verticalMargin: 10,
+      disableDrag: !dash_editable,
+      disableResize: !dash_editable,
+    })
+    .data('gridstack')
+
+  gridstack_serialize = init
+  init.forEach((item) => add_widget(item))
+
+  if (rendered_charts.length === 0) {
+    const gsi = `<div class="grid-stack-item"><div id="chart-add" class="grid-stack-item-content"><a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a></div></div>`
+    const $gsi = gridstack.addWidget(gsi, 0, 0, 2, 2)
+    $gsi.find('a').on('click', () => {
+      if ($('.J_chart-new').length === 0) $('.J_chart-select').trigger('click')
+      else dlgShow('DlgAddChart')
+    })
+    gridstack.disable()
+  }
+
+  // When resize/re-postion/remove
+  $('.grid-stack')
+    .on('change', () => {
+      $setTimeout(save_dashboard, 500, 'save_dashboard')
+    })
+    .on('resizestart', () => {
+      on_resizestart = true
+    })
+    .on('gsresizestop', () => {
+      $(rendered_charts).each((idx, item) => item.resize())
+      on_resizestart = false
+    })
+
+  $('.chart-grid').removeClass('invisible')
+  $('.J_dash-load').remove()
+}
+
+const add_widget = function (item) {
+  const chid = `chart-${item.chart}`
+  if ($(`#${chid}`)[0]) return false // exsist
+
+  const chart_add = $('#chart-add')
+  if (chart_add.length > 0) gridstack.removeWidget(chart_add.parent())
+
+  const hwLimit = item.type === 'HeadingText' ? [1, 120] : [2, 120] // 宽高限制
+  const gsi = `<div class="grid-stack-item ${item.bgcolor && 'bgcolor'}"><div id="${chid}" class="grid-stack-item-content" ${
+    item.bgcolor ? `style="background-color:${item.bgcolor}` : ''
+  }"></div></div>`
+  if (item.size_x || item.size_y) {
+    gridstack.addWidget(gsi, (item.col || 1) - 1, (item.row || 1) - 1, item.size_x || 2, item.size_y || 2, true, 2, 12, hwLimit[0], hwLimit[1])
+  } else {
+    gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, hwLimit[0], hwLimit[1])
+  }
+
+  item.editable = dash_editable
+  // eslint-disable-next-line no-undef
+  renderRbcomp(detectChart(item, item.chart), chid, function () {
+    rendered_charts.push(this)
+  })
+}
+
+const save_dashboard = function () {
+  if (dash_editable !== true) return
+
+  const s = []
+  $('.chart-grid .grid-stack-item').each(function () {
+    const $this = $(this)
+    const chid = $this.find('.grid-stack-item-content').attr('id')
+    if (chid && chid.length > 20) {
+      s.push({
+        x: $this.attr('data-gs-x'),
+        y: $this.attr('data-gs-y'),
+        w: $this.attr('data-gs-width'),
+        h: $this.attr('data-gs-height'),
+        chart: chid.substr(6),
+      })
+    }
+  })
+
+  gridstack_serialize = s
+  $setTimeout(
+    () => {
+      $.post(`/dashboard/dash-config?id=${dashid}`, JSON.stringify(gridstack_serialize), () => {
+        if (rb.env === 'dev') console.log('Saved dashboard : ' + JSON.stringify(gridstack_serialize))
+      })
+    },
+    500,
+    'save-dashboard',
+  )
+}
+
+// 添加图表
+class DlgAddChart extends RbFormHandler {
+  render() {
+    return (
+      <RbModal title={$L('添加图表')} ref="dlg">
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
+            <div className="col-sm-7">
+              <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+                {this.state._entities &&
+                  this.state._entities.map((item) => {
+                    if ($isSysMask(item.label)) return null
+                    return (
+                      <option key={item.name} value={item.name}>
+                        {item.label}
+                      </option>
+                    )
+                  })}
+              </select>
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.next()}>
+                {$L('下一步')}
+              </button>
+              <button className="btn btn-link" type="button" onClick={() => this.hide()}>
+                {$L('取消')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  componentDidMount() {
+    $.get('/commons/metadata/entities?detail=true', (res) => {
+      this.setState({ _entities: res.data || [] }, () => {
+        this.__select2 = $(this._$entity).select2({
+          allowClear: false,
+          placeholder: $L('选择数据来源'),
+        })
+      })
+    })
+  }
+
+  next() {
+    const e = this.__select2.val()
+    if (!e) return
+    location.href = `${rb.baseUrl}/dashboard/chart-design?source=${e}&dashid=${this.props.dashid}`
+  }
+}
+
+// 仪表盘设置
+class DlgDashSettings extends RbFormHandler {
+  constructor(props) {
+    super(props)
+    $logRBAPI(props.dashid, 'Dashboard')
+  }
+
+  render() {
+    return (
+      <RbModal title={$L('设置仪表盘')} ref="dlg">
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+            <div className="col-sm-7">
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('默认仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
+            </div>
+          </div>
+          {rb.isAdminUser && (
+            <div className="form-group row pt-0">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <div className="shareTo--wrap">
+                  <Share2 ref={(c) => (this._Share2 = c)} shareTo={this.props.shareTo} id={this.props.dashid} noSwitch />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={() => this.save()}>
+                {$L('确定')}
+              </button>
+              <button className="btn btn-danger btn-outline ml-2" type="button" onClick={() => this.delete()}>
+                <i className="zmdi zmdi-delete icon" /> {$L('删除')}
+              </button>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  save() {
+    const _data = {
+      title: this.state.title || $L('默认仪表盘'),
+      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
+      metadata: {
+        id: this.props.dashid,
+        entity: 'DashboardConfig',
+      },
+    }
+
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
+      if (res.error_code === 0) {
+        $('.dash-head h4').text(_data.title)
+        if (dlgRefs['DashSelect']) {
+          dlgRefs['DashSelect'].setState({ dashTitle: _data.title })
+        }
+        this.hide()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  delete() {
+    RbAlert.create(<b>{$L('确认删除此仪表盘？')}</b>, {
+      type: 'danger',
+      confirmText: $L('删除'),
+      confirm: function () {
+        this.disabled(true)
+        $.post(`/app/entity/common-delete?id=${dashid}`, function (res) {
+          // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
+          if (res.error_code === 0) location.reload()
+          else RbHighbar.error(res.error_msg)
+        })
+      },
+    })
+  }
+}
+
+// 添加仪表盘
+class DlgDashAdd extends RbFormHandler {
+  constructor(props) {
+    super(props)
+    this._defaultName = rb.isAdminUser ? $L('默认仪表盘') : $L('我的仪表盘')
+  }
+
+  render() {
+    return (
+      <RbModal title={$L('添加仪表盘')} ref="dlg">
+        <div className="form">
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
+            <div className="col-sm-7">
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={this._defaultName} data-id="title" onChange={this.handleChange} maxLength="40" />
+            </div>
+          </div>
+          {rb.isAdminUser && (
+            <div className="form-group row pt-0">
+              <label className="col-sm-3 col-form-label text-sm-right" />
+              <div className="col-sm-7">
+                <div className="shareTo--wrap">
+                  <Share2 ref={(c) => (this._Share2 = c)} noSwitch shareTo="ALL" />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="form-group row pt-1">
+            <label className="col-sm-3 col-form-label text-sm-right" />
+            <div className="col-sm-7">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
+                <input className="custom-control-input" type="checkbox" checked={this.state.copy === true} data-id="copy" onChange={this.handleChange} />
+                <span className="custom-control-label">{$L('复制当前仪表盘')}</span>
+              </label>
+            </div>
+          </div>
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3">
+              <button className="btn btn-primary" type="button" onClick={this.save}>
+                {$L('确定')}
+              </button>
+              <a className="btn btn-link" onClick={this.hide}>
+                {$L('取消')}
+              </a>
+            </div>
+          </div>
+        </div>
+      </RbModal>
+    )
+  }
+
+  save = () => {
+    const _data = {
+      title: this.state.title || this._defaultName,
+      shareTo: this._Share2 ? this._Share2.getData().shareTo : 'SELF',
+      metadata: {
+        entity: 'DashboardConfig',
+      },
+    }
+    if (this.state.copy === true) _data.__copy = gridstack_serialize
+
+    $.post('/dashboard/dash-new', JSON.stringify(_data), (res) => {
+      if (res.error_code === 0) location.href = `?d=${res.data.id}`
+      else RbHighbar.error(res.error_msg)
+    })
+  }
+}
+
+// 选择默认仪表盘
+class DashSelect extends React.Component {
+  render() {
+    return (
+      <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={this.hide} title={`${$L('关闭')} (Esc)`}>
+                <span className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div>
+                <ul className="list-unstyled">
+                  {(this.props.dashList || []).map((item) => {
+                    return (
+                      <li key={item[0]}>
+                        <a href={`?d=${item[0]}`}>
+                          {item[4]}
+                          <i className="icon zmdi zmdi-arrow-right" />
+                        </a>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount = () => $(this._dlg).modal({ show: true, keyboard: true })
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
+}
+
+class AdvFilterWithEntity extends AdvFilter {
+  renderAction() {
+    let c = super.renderAction()
+    c = React.cloneElement(c, { className: 'item float-left' })
+    return (
+      <RF>
+        {c}
+        <div className="float-right" style={{ width: 200 }}>
+          <select className="form-control form-control-sm" ref={(c) => (this._$entity = c)}>
+            <option value="SystemCommon">{$L('通用字段')}</option>
+            <optgroup label={$L('业务实体')}>
+              {this.state.entities &&
+                this.state.entities.map((item) => {
+                  return (
+                    <option key={item.name} value={item.name}>
+                      {item.label}
+                    </option>
+                  )
+                })}
+            </optgroup>
+          </select>
+        </div>
+        <div className="clearfix" />
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount && super.componentDidMount()
+
+    $.get('/commons/metadata/entities?detail=yes', (res) => {
+      this.setState({ entities: res.data }, () => {
+        let $s = $(this._$entity).select2({
+          allowClear: false,
+        })
+
+        this.props.entity && $s.val(this.props.entity).trigger('change')
+        $s.on('change', (e) => {
+          this.reset43({ entity: e.target.value || 'SystemCommon' })
+        })
+      })
+    })
+  }
+}
+
+// v4.3.1 保持全屏（有技术限制）
+window.addEventListener('beforeunload', function () {
+  if ($fullscreen.is() && $(document.body).hasClass('fullscreen')) {
+    window.sessionStorage && window.sessionStorage.setItem('fullscreen-requested', true)
+  } else {
+    window.sessionStorage && window.sessionStorage.removeItem('fullscreen-requested')
+  }
+})
+$(document).ready(function () {
+  if (window.sessionStorage && window.sessionStorage.getItem('fullscreen-requested')) {
+    $('.J_dash-fullscreen').trigger('click')
+  }
+})

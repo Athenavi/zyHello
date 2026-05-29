@@ -1,0 +1,30 @@
+fastapi
+uvicorn[standard]
+jinja2
+sqlalchemy
+databases
+alembic
+pyyaml
+loguru
+fastapi-users
+python-multipart
+aiofiles
+openpyxl
+pandas
+apscheduler
+httpx
+passlib[bcrypt]
+pydantic-settings
+PyJWT
+pydantic[email]
+pytest
+# --- Utilities (replacing Java libraries) ---
+cryptography          # AES encryption (javax.crypto)
+pillow                # Image generation (Java AWT)
+psutil                # System monitoring (OSHI)
+markdown              # Markdown→HTML (flexmark)
+beautifulsoup4        # HTML parsing / cleaning (Jsoup)
+pypdf                 # PDF manipulation (Apache PDFBox)
+ratelimit             # Rate limiting (ratelimitj)
+redis                 # Optional: distributed rate limiting
+python-jose[cryptography]  # JWT alternative

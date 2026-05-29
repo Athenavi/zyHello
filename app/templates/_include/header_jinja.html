@@ -1,0 +1,67 @@
+{% raw %}<th:block xmlns:th="http://www.thymeleaf.org">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="renderer" content="webkit" />
+  <meta http-equiv="x-ua-compatible" content="IE=edge" />
+  <link rel="manifest" href="{{ url_for('static', filename='assets/manifest.json') }}" />
+  <meta name="theme-color" content="{{ themeColor if themeColor else '#4285f4' }}" />
+  <link rel="shortcut icon" href="{{ url_for('static', filename='assets/img/favicon.png') }}" />
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='assets/img/favicon.png') }}" />
+  {% if css != 'none' %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/material-design-iconic-font.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/mdi7/css/materialdesignicons.min-rb.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/widget/perfect-scrollbar.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/widget/bootstrap-datetimepicker.min.css?v=2.4.4') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/animate.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/widget/select2.min.css?v=4.0.13') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/widget/mprogress.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/jquery-ui.min.css?v=1.13.2') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/widget/easymde.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/lib/widget/flatpickr.min.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/rb-base.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/rb-page.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/rb-general40.css') }}" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/chat.css') }}" />
+    {% if user %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='commons/theme/use-theme') }}" />
+    {% endif %}
+  {% endif %}
+  <meta name="rb.env" content="{{ env }}" />
+  <meta name="rb.ver" content="{{ AppBuild }}" />
+  <meta name="rb.commercial" content="{{ commercial }}" />
+  <meta name="rb.locale" content="{{ locale }}" />
+  <meta name="rb.baseUrl" content="{{ baseUrl }}" />
+  <meta name="rb.appName" content="{{ appName }}" />
+  <meta name="rb.storageUrl" content="{{ storageUrl }}" />
+  <meta name="rb.fileSharable" content="{{ fileSharable }}" />
+  <meta name="rb.csrfToken" content="{{ csrfToken }}" />
+  <meta name="rb.authToken" content="{{ authToken }}" />
+  {% if user %}
+    <meta name="rb.currentUser" content="{{ user.getId() }}" />
+    <meta name="rb.isAdminUser" content="{{ user.isAdmin() }}" />
+    <meta name="rb.isAdminVerified" content="{{ T(com.rebuild.utils.AppUtils).isAdminVerified(request) }}" />
+    <meta name="rb.currentUserRoles" content="{{ T(com.rebuild.core.privileges.UserHelper).getRolesOfUser(user.getId()) }}" />
+    <meta name="rb.currentUserTeams" content="{{ T(com.rebuild.core.privileges.UserHelper).getTeamsOfUser(user.getId()) }}" />
+    <meta name="rb.currentUserName" content="{{ user.getName() }}" />
+    <meta name="rb.currentUserFullname" content="{{ user.getFullName() }}" />
+  {% endif %}
+  <meta name="rb._baiduMapAk" content="{{ PortalBaiduMapAk }}" />
+  <meta name="rb._officePreviewUrl" content="{{ PortalOfficePreviewUrl }}" />
+  <meta name="rb._uploadMaxSize" content="{{ PortalUploadMaxSize }}" />
+  {% if session.rbTempAuth %}
+    <meta name="rb._rbTempAuth" content="true" />
+  {% endif %}
+  {% if markWatermarkText %}
+    <meta name="rb._markWatermarkText" content="{{ markWatermarkText }}" />
+  {% endif %}
+  {% if _AiBot %}
+    <meta name="rb._aibotName" content="{{ _AiBot }}" />
+  {% endif %}
+  <!--[if IE]><script>location.href = '{{ baseUrl }}/error/unsupported-browser'</script><![endif]-->
+  {% if markWatermark == 'true' or session.rbTempAuth %}
+    <script src="{{ url_for('static', filename='assets/lib/watermark.js?v=310') }}"></script>
+  {% endif %}
+  {% if PageMourningMode %}
+    <style>html{-webkit-filter:grayscale(100%);-moz-filter:grayscale(100%);-ms-filter:gray(100%);-o-filter:grayscale(100%);filter:grayscale(100%);filter:gray;filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1)}</style>
+  {% endif %}
+</th:block>{% endraw %}

@@ -1,0 +1,104 @@
+
+<nav class="navbar navbar-expand fixed-top rb-top-header">
+<div class="container-fluid">
+<div class="rb-navbar-header">
+<a class="navbar-brand" th:href="@{/dashboard/home}"></a>
+<a class="rb-toggle-left-sidebar" th:title="${bundle.L('展开/收起')}"><span class="icon zmdi zmdi-menu"></span></a>
+</div>
+<div class="navbar-collapse collapse">
+<ul class="navbar-nav">
+<th:block th:utext="${topNav32}" th:with="topNav32=${T(com.rebuild.core.configuration.NavBuilder).renderTopNav(#request)}"></th:block>
+<li class="nav-item navbar-more41 hide">
+<a class="nav-link" data-toggle="dropdown"><i class="icon mdi mdi-dots-horizontal"></i></a>
+<div class="dropdown-menu"></div>
+</li>
+</ul>
+</div>
+<div class="search-container hide">
+<div class="global-search dropdown">
+<input autocomplete="off" class="form-control form-control-sm search-input-gs dropdown-toggle" data-toggle="dropdown" name="search" th:placeholder="${bundle.L('搜索')}" type="search">
+<kbd>/</kbd>
+<div class="dropdown-menu dropdown-menu-right" th:_title="${bundle.L('无可搜索项')}"></div>
+</div>
+</div>
+<div class="rb-right-navbar">
+<ul class="nav navbar-nav float-right rb-user-nav">
+<li class="nav-item dropdown J_top-user">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown" th:href="@{/settings/user}">
+<img alt="Avatar" th:src="|${baseUrl}/account/user-avatar?${session.davatarTime ?:''}|">
+<span class="user-name" th:text="${user.getFullName()}">USER</span>
+</a>
+<div class="dropdown-menu">
+<div class="user-info">
+<div class="user-name" th:text="${user.getFullName()}">NAME</div>
+<div class="user-id" th:data-user="${user.getId()}">[[${user.getEmail() ?: bundle.L('邮箱未设置')}]]</div>
+</div>
+<a class="dropdown-item" th:href="@{/settings/user}"><i class="icon zmdi zmdi-account-box"></i>[[${bundle.L('个人设置')}]]</a>
+<a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('退出')}]]</a>
+<div class="use-theme">
+<div>[[${bundle.L('选择主题')}]]</div>
+<ul class="list-inline list-unstyled mt-1">
+<li><a class="theme-default" data-theme="default" th:title="${bundle.L('默认')}"></a></li>
+<li><a class="theme-dark" data-theme="dark" th:title="${bundle.L('深色')}"></a></li>
+<li><a class="theme-blue" data-theme="blue" th:title="${bundle.L('蓝色')}"></a></li>
+<li><a class="theme-blue2" data-theme="blue2" th:title="${bundle.L('浅蓝')}"></a></li>
+<li><a class="theme-purple" data-theme="purple" th:title="${bundle.L('紫色')}"></a></li>
+<li><a class="theme-purple2" data-theme="purple2" th:title="${bundle.L('蓝紫')}"></a></li>
+<li><a class="theme-red" data-theme="red" th:title="${bundle.L('红色')}"></a></li>
+<li><a class="theme-green" data-theme="green" th:title="${bundle.L('绿色')}"></a></li>
+</ul>
+</div>
+<div class="dev-show use-language">
+<a href="?locale=zh_CN">中文</a>
+<a href="?locale=zh_TW">繁体</a>
+<a href="?locale=en">English</a>
+</div>
+</div>
+</li>
+</ul>
+<div class="page-title hide"><span>REBUILD</span></div>
+<ul class="nav navbar-nav float-right rb-icons-nav">
+<li class="nav-item dropdown aibot-show" th:if="${_AiBot != null && _AllowUseAiBot != null}" th:title="|${_AiBot} (Shift+/)|">
+<a class="nav-link"><i class="icon mdi mdi-shimmer"></i></a>
+</li>
+<li class="nav-item dropdown global-search2" th:title="${bundle.L('搜索')}">
+<a class="nav-link"><i class="icon zmdi zmdi-search"></i></a>
+</li>
+<li class="nav-item dropdown global-create2" th:title="${bundle.L('新建')}">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i></a>
+<div class="dropdown-menu dropdown-menu-right" th:_title="${bundle.L('无可新建项')}"></div>
+</li>
+<li class="nav-item dropdown admin-danger hide">
+<a class="nav-link"><i class="icon zmdi zmdi-alert-octagon text-danger animated infinite flash slower"></i></a>
+</li>
+<li class="nav-item dropdown admin-show admin-settings" th:title="${bundle.L('管理中心')}">
+<a class="nav-link" th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i></a>
+</li>
+<li class="nav-item dropdown page-help" th:title="${bundle.L('查看适用于本页的帮助')}">
+<a class="nav-link" href="https://getrebuild.com/docs/" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
+</li>
+<li class="nav-item dropdown J_top-notifications" th:title="${bundle.L('通知')}">
+<a class="nav-link dropdown-toggle" data-toggle="dropdown" th:href="@{/notifications}">
+<i class="icon zmdi zmdi-notifications"></i>
+<span class="indicator hide"></span>
+</a>
+<ul class="dropdown-menu rb-notifications">
+<li>
+<div class="title text-uppercase">[[${bundle.L('未读')}]] <span class="badge badge-pill">0</span></div>
+<div class="list">
+<div class="rb-scroller">
+<div class="content">
+<ul></ul>
+</div>
+</div>
+</div>
+<div class="footer"><a th:href="@{/notifications}">[[${bundle.L('查看全部')}]]</a></div>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</nav>
+<div class="rb-scroll-top"></div>
+

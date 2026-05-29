@@ -1,0 +1,247 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<link href="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ widget ~ '/' ~ cropper.min.css }}" rel="stylesheet" type="text/css">
+<title>[[${bundle.L('个人设置')}]]</title>
+<style>
+      .avatar-wrap {
+        height: 256px;
+        padding-top: 45px;
+        background-color: rgb(245, 247, 249);
+        border-radius: 4px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
+      .avatar {
+        position: relative;
+        width: 160px;
+        height: 160px;
+        line-height: 1;
+        font-size: 0;
+        background-color: #eee;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto;
+      }
+      .avatar > img {
+        width: 100%;
+        height: 100%;
+      }
+      .avatar > label {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: none;
+        font-size: 14px;
+        text-align: center;
+        padding-top: 50px;
+        color: #fff !important;
+        line-height: 1.5;
+      }
+      .avatar:hover > label {
+        display: block;
+        cursor: pointer;
+      }
+      .avatar > label i.zmdi {
+        font-size: 28px;
+      }
+      .avatar > label input {
+        display: none;
+      }
+      form .form-group.row {
+        margin-left: 5px;
+        margin-right: 5px;
+        padding: 8px 0;
+        border-bottom: 1px dotted #e6e9f0;
+      }
+      #logs thead th {
+        font-weight: normal;
+        color: #777;
+      }
+      .support-plat2.mdi-cellphone-marker {
+        margin-top: 1px;
+        color: var(--rb-theme-color);
+      }
+    </style>
+</head>
+<body>
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left.html" -%}
+<div class="rb-content">
+<div class="main-content container">
+<div class="card">
+<div class="card-body">
+<div class="tab-container">
+<ul class="nav nav-tabs">
+<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#base">[[${bundle.L('个人信息')}]]</a></li>
+<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#secure">[[${bundle.L('安全设置')}]]</a></li>
+<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#logs">[[${bundle.L('登录日志')}]]</a></li>
+</ul>
+<div class="tab-content m-0">
+<div class="tab-pane active" id="base">
+<div class="row">
+<div class="col-md-4 col-12">
+<div class="avatar-wrap">
+<div class="avatar text-center">
+<img alt="Avatar" id="avatar-img" src="|{{ baseUrl }}/account/user-avatar?w=200&{{ session.davatarTime  or '' }}|">
+<label>
+<i class="zmdi zmdi-camera"></i>
+<br>[[${bundle.L('修改头像')}]]
+                              <input accept=".jpg,.jpeg,.gif,.png,.bpm" data-local="temp" data-maxsize="10485760" id="avatar-input" type="file">
+</label>
+</div>
+</div>
+</div>
+<div class="col-md-8 col-12">
+<form>
+<div class="form-group row">
+<label class="col-4 col-form-label">[[${bundle.L('用户名')}]]</label>
+<div class="col-8">
+<div class="form-control-plaintext">{{ user.getName() }}</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-4 col-form-label">[[${bundle.L('所属部门')}]]</label>
+<div class="col-8">
+<div class="form-control-plaintext">{{ user.getOwningBizUnit().getName() }}</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-4 col-form-label">[[${bundle.L('加入团队')}]]</label>
+<div class="col-8">
+<div class="form-control-plaintext">
+{%- for team in user.getOwningTeams() -%}
+<span class="badge badge-info fs-12 up-2">
+<i class="icon mdi mdi-briefcase-account"></i>
+<th:block th:text="${team.getName()}"></th:block>
+</span>
+{%- endfor -%}
+{%- if user.getOwningTeams().isEmpty() -%}<em class="text-muted">[[${bundle.L('未加入任何团队')}]]</em>{%- endif -%}
+</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-4 col-form-label">[[${bundle.L('姓名')}]]</label>
+<div class="col-8">
+<input class="form-control form-control-sm" id="fullName" th:data-o="${user.getFullName()}" type="text" value="{{ user.getFullName() }}">
+</div>
+</div>
+<div class="form-group row">
+<label class="col-4 col-form-label">[[${bundle.L('工作电话')}]]</label>
+<div class="col-8">
+<input class="form-control form-control-sm" id="workphone" placeholder="{{ bundle.L('无') }}" th:data-o="${user.getWorkphone()}" type="text" value="{{ user.getWorkphone() }}">
+</div>
+</div>
+<div class="form-group row border-none mt-3">
+<div class="col-8 offset-sm-4">
+<button class="btn btn-primary J_save" type="button">[[${bundle.L('确定')}]]</button>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+<div class="tab-pane" id="secure">
+<form>
+<div class="form-group row">
+<label class="col-2 col-form-label">[[${bundle.L('修改邮箱')}]]</label>
+<div class="col-7 pl-0">
+<div class="form-control-plaintext text-muted J_email-account">{{ user.getEmail()  or  bundle.L('邮箱未设置') }}</div>
+</div>
+<div class="col-3 text-right">
+<button class="btn btn-primary btn-outline J_email" type="button">[[${bundle.L('修改')}]]</button>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-2 col-form-label">[[${bundle.L('修改密码')}]]</label>
+<div class="col-7 pl-0">
+<div class="form-control-plaintext text-muted">[[${bundle.L('建议 90 天更改一次密码')}]]</div>
+</div>
+<div class="col-3 text-right">
+<button class="btn btn-primary btn-outline J_passwd" type="button">[[${bundle.L('修改')}]]</button>
+</div>
+</div>
+{%- if dingtalkUser != none -%}<div class="form-group row">
+<label class="col-2 col-form-label">[[${bundle.L('钉钉授权')}]]</label>
+<div class="col-7 pl-0">
+<div class="form-control-plaintext text-muted">[[${dingtalkUser}]]</div>
+</div>
+<div class="col-3 text-right">
+<button class="btn btn-danger btn-outline J_unauth-dingtalk" data-type="1" type="button">[[${bundle.L('取消授权')}]]</button>
+</div>
+</div>{%- endif -%}
+{%- if wxworkUser != none -%}<div class="form-group row">
+<label class="col-2 col-form-label">[[${bundle.L('企业微信授权')}]]</label>
+<div class="col-7 pl-0">
+<div class="form-control-plaintext text-muted">[[${wxworkUser}]]</div>
+</div>
+<div class="col-3 text-right">
+<button class="btn btn-danger btn-outline J_unauth-wxwork" data-type="2" type="button">[[${bundle.L('取消授权')}]]</button>
+</div>
+</div>{%- endif -%}
+{%- if feishuUser != none -%}<div class="form-group row">
+<label class="col-2 col-form-label">[[${bundle.L('飞书授权')}]]</label>
+<div class="col-7 pl-0">
+<div class="form-control-plaintext text-muted">[[${feishuUser}]]</div>
+</div>
+<div class="col-3 text-right">
+<button class="btn btn-danger btn-outline J_unauth-feishu" data-type="3" type="button">[[${bundle.L('取消授权')}]]</button>
+</div>
+</div>{%- endif -%}
+<div class="form-group row">
+<label class="col-2 col-form-label">[[${bundle.L('临时授权')}]]</label>
+<div class="col-7 pl-0">
+<div class="form-control-plaintext text-muted">[[${bundle.L('临时授权管理员或其他可信人员登录你的账号')}]]</div>
+</div>
+<div class="col-3 text-right">
+<button class="btn btn-primary btn-outline J_temp-auth" type="button">[[${bundle.L('获取')}]]</button>
+</div>
+</div>
+<div class="form-group row bosskey-show">
+<label class="col-2 col-form-label">[[${bundle.L('客户端权限')}]] (LAB)</label>
+<div class="col-5 pl-0">
+<div class="form-control-plaintext text-muted">[[${bundle.L('包括获取您的位置信息，以及通知推送')}]]</div>
+</div>
+<div class="col-5 text-right">
+<button class="btn btn-primary btn-outline J_location" type="button">[[${bundle.L('获取位置')}]]</button>
+<button class="btn btn-primary btn-outline ml-1 J_notification" type="button">[[${bundle.L('推送通知')}]]</button>
+<button class="btn btn-primary btn-outline ml-1 J_clearcache" type="button">[[${bundle.L('清除缓存')}]]</button>
+</div>
+</div>
+</form>
+</div>
+<div class="tab-pane" id="logs">
+<table class="table table-fixed">
+<thead>
+<tr>
+<th width="50"></th>
+<th width="24%">[[${bundle.L('登录时间')}]]</th>
+<th>[[${bundle.L('IP 地址')}]]</th>
+<th>[[${bundle.L('客户端')}]]</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        userid: '[[${user.getId()}]]',
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ widget ~ '/' ~ cropper.min.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ media ~ '-' ~ capturer.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ user ~ '-' ~ settings.js }}" type="text/babel"></script>
+</body>
+</html>

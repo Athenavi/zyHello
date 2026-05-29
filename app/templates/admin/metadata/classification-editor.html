@@ -1,0 +1,40 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/entity/field-classification#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE" name="page-help">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ classification.css }}" rel="stylesheet" type="text/css">
+<title>[[${bundle.L('分类数据')}]]</title>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="page-head">
+<div class="float-left">
+<div class="page-head-title">[[${bundle.L('分类数据')}]]<span class="sub-title">[[${name}]]</span></div>
+</div>
+<div class="float-right pt-1">
+<button class="btn btn-secondary J_imports" type="button"><i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('导入')}]]</button>
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="main-content container-fluid pt-0">
+<div class="card mb-0">
+<div class="card-body rb-loading rb-loading-active" id="boxes">
+{%- include "/_include/spinner.html" -%}
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        id: '[[${dataId}]]',
+        openLevel: ~~'[[${openLevel}]]',
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ classification ~ '-' ~ editor.js }}" type="text/babel"></script>
+</body>
+</html>

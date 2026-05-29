@@ -1,0 +1,44 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/entity/field-classification#%E5%88%86%E7%B1%BB%E6%95%B0%E6%8D%AE" name="page-help">
+<title>[[${bundle.L('分类数据')}]]</title>
+<style>
+      .modal.rbmodal .modal-dialog .modal-body {
+        min-height: auto;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="page-head">
+<div class="float-left"><div class="page-head-title">[[${bundle.L('分类数据')}]]</div></div>
+<div class="float-right pt-1">
+<button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="main-content container-fluid pt-0" id="list">
+<div class="card ph">
+<div class="card-body">
+<div class="ph-item">
+<div class="ph-col-12">
+<div class="ph-row">
+<div class="ph-col-8"></div>
+<div class="ph-col-4 empty"></div>
+<div class="ph-col-12"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ classification ~ '-' ~ list.js }}" type="text/babel"></script>
+</body>
+</html>

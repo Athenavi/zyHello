@@ -1,0 +1,80 @@
+html
+<title>CodeMirror: JSX mode</title>
+<meta charset="utf-8">
+<link href="../../doc/docs.css" rel="stylesheet">
+<link href="../../lib/codemirror.css" rel="stylesheet">
+<script src="../../lib/codemirror.js"></script>
+<script src="../javascript/javascript.js"></script>
+<script src="../xml/xml.js"></script>
+<script src="jsx.js"></script>
+<style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id="nav">
+<a href="https://codemirror.net/5"><h1>CodeMirror</h1><img alt id="logo" src="../../doc/logo.png"></a>
+<ul>
+<li><a href="../../index.html">Home</a>
+<li><a href="../../doc/manual.html">Manual</a>
+<li><a href="https://github.com/codemirror/codemirror5">Code</a>
+</li></li></li></ul>
+<ul>
+<li><a href="../index.html">Language modes</a>
+<li><a class="active" href="#">JSX</a>
+</li></li></ul>
+</div>
+<article>
+<h2>JSX mode</h2>
+<div><textarea id="code" name="code">// Code snippets from http://facebook.github.io/react/docs/jsx-in-depth.html
+
+// Rendering HTML tags
+var myDivElement = &lt;div className="foo" /&gt;;
+ReactDOM.render(myDivElement, document.getElementById('example'));
+
+// Rendering React components
+var MyComponent = React.createClass({/*...*/});
+var myElement = &lt;MyComponent someProperty={true} /&gt;;
+ReactDOM.render(myElement, document.getElementById('example'));
+
+// Namespaced components
+var Form = MyFormComponent;
+
+var App = (
+  &lt;Form&gt;
+    &lt;Form.Row&gt;
+      &lt;Form.Label /&gt;
+      &lt;Form.Input /&gt;
+    &lt;/Form.Row&gt;
+  &lt;/Form&gt;
+);
+
+// Attribute JavaScript expressions
+var person = &lt;Person name={window.isLoggedIn ? window.name : ''} /&gt;;
+
+// Boolean attributes
+&lt;input type="button" disabled /&gt;;
+&lt;input type="button" disabled={true} /&gt;;
+
+// Child JavaScript expressions
+var content = &lt;Container&gt;{window.isLoggedIn ? &lt;Nav /&gt; : &lt;Login /&gt;}&lt;/Container&gt;;
+
+// Comments
+var content = (
+  &lt;Nav&gt;
+    {/* child comment, put {} around */}
+    &lt;Person
+      /* multi
+         line
+         comment */
+      name={window.isLoggedIn ? window.name : ''} // end of line comment
+    /&gt;
+  &lt;/Nav&gt;
+);
+</textarea></div>
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  lineNumbers: true,
+  mode: "jsx"
+})
+</script>
+<p>JSX Mode for <a href="http://facebook.github.io/react">React</a>'s
+JavaScript syntax extension.</p>
+<p><strong>MIME types defined:</strong> <code>text/jsx</code>, <code>text/typescript-jsx</code>.</p>
+</article>

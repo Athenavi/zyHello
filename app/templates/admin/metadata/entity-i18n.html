@@ -1,0 +1,104 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/i18n" name="page-help">
+<title>[[${bundle.L('多语言')}]]</title>
+<style>
+      .data-list .table th,
+      .data-list .table td {
+        padding: 9px;
+      }
+      #i18nList td {
+        padding-top: 4px;
+        padding-bottom: 4px;
+      }
+      #i18nList td textarea {
+        padding-top: 7px;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-aside', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<aside class="page-aside">
+<div class="rb-scroller-aside rb-scroller">
+<div class="aside-content">
+<div class="content">
+<div class="aside-header">
+<button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+<span class="title">[[${entityLabel}]]</span>
+<p class="description">[[${comments}]]</p>
+</div>
+</div>
+{%- include "/admin/metadata/subnav-entity.html" -%}
+</div>
+</div>
+</aside>
+<div class="page-head">
+<div class="float-left"><div class="page-head-title">[[${bundle.L('多语言')}]]</div></div>
+<div class="float-right pt-1">
+<span class="J_show-locales">
+<button class="btn btn-light w-auto dropdown-toggle ml-1" data-toggle="dropdown" type="button">
+<i class="icon mdi mdi-translate-variant"></i>
+</button>
+<div class="dropdown-menu dropdown-menu-right p-0">
+<div class="m-3">
+<h5>[[${bundle.L('选择翻译语言')}]]</h5>
+{%- for L in availableLangs -%}<label class="custom-control custom-control-sm custom-checkbox mb-2">
+<input checked class="custom-control-input" type="checkbox" value="{{ L[0] }}">
+<span class="custom-control-label">{{ L[1] }}</span>
+</label>{%- endfor -%}
+</div>
+</div>
+</span>
+<button class="btn btn-primary J_save ml-1" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="main-content container-fluid pt-0">
+<div class="card card-table">
+<div class="card-body">
+<div class="dataTables_wrapper container-fluid">
+<div class="row rb-datatable-body">
+<div class="col-sm-12">
+<div class="rb-loading rb-loading-active data-list">
+<table class="table table-hover table-fixed" id="i18nList">
+<thead>
+<tr>
+<th data-locale="_def" width="25%">[[${bundle.L('实体')}]]/[[${bundle.L('字段')}]]</th>
+{%- for L in availableLangs -%}<th th:data-locale="${L[0]}">{{ L[1] }}</th>{%- endfor -%}
+</tr>
+</thead>
+<tbody>
+<tr class="hide">
+<td data-locale="_def"></td>
+{%- for L in availableLangs -%}<td th:data-locale="${L[0]}">
+<textarea class="form-control form-control-sm row1x" placeholder="{{ bundle.L('默认') }}"></textarea>
+</td>{%- endfor -%}
+</tr>
+</tbody>
+</table>
+{%- include "/_include/spinner.html" -%}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        id: '[[${entityMetaId}]]',
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+        entityName: '[[${entityName}]]',
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entity ~ '-' ~ switch.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entity ~ '-' ~ i18n.js }}" type="text/babel"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ view ~ '-' ~ page.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ approvals.css }}" rel="stylesheet" type="text/css">
+<title>[[${bundle.L('审批流程')}]]</title>
+<style>
+      .rbflow-design .box-scale.preview button,
+      .rbflow-design .box-scale.preview .aclose,
+      .rbflow-design .box-scale.preview .arrow {
+        display: none !important;
+      }
+      .rbflow-design .box-scale.preview .auto-judge,
+      .rbflow-design .box-scale.preview .node-wrap-box {
+        cursor: default;
+      }
+    </style>
+</head>
+<body class="view-body" style="background-color: #f5f5f7">
+<div class="view-header">
+<i class="header-icon mdi mdi-progress-check"></i>
+<h3 class="title">[[${bundle.L('审批流程')}]]</h3>
+<span>
+<a class="close J_close" title="{{ bundle.L('关闭') }}"><i class="zmdi zmdi-close"></i></a>
+<a class="close sm J_back hide" title="{{ bundle.L('回退') }}"><i class="zmdi mdi-arrow-u-left-top"></i></a>
+<a class="close sm admin-show" href="|{{ baseUrl }}/admin/robot/approval/{{ approvalId }}|" target="_blank" title="{{ bundle.L('流程设计') }}"><i class="zmdi zmdi-settings"></i></a>
+</span>
+</div>
+<div class="main-content container-fluid p-0">
+<div class="rbflow-design preview" id="rbflow"></div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ config ~ '-' ~ comps.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ approval ~ '-' ~ design.js }}" type="text/babel"></script>
+<script>
+      window.__PageConfig = {
+        id: '[[${approvalId}]]',
+      }
+    </script>
+<script type="text/babel">
+      // clear
+      window.$addResizeHandler__cbs = []
+
+      $(document).ready(function () {
+        // 无关闭按钮
+        if (parent && parent.RbViewModal && parent.RbViewModal.hideClose) $('.J_close').remove()
+        // 回退按钮
+        if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
+          $('.J_back')
+            .removeClass('hide')
+            .on('click', () => {
+              // parent.RbViewModal.holder(this.__id, 'LOADING')
+              history.back()
+            })
+        }
+
+        const id = window.__PageConfig.id
+
+        const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(id) : null
+        $('.J_close').on('click', () => {
+          if (ph) ph.hide()
+          else window.close()
+        })
+
+        $.get(`/app/entity/approval/flow-definition?id=${id}`, function (res) {
+          ph && ph.hideLoading()
+          if (res.error_code !== 0) {
+            RbHighbar.error(res.error_msg)
+          } else {
+            // @see `wpc` in approval-design.js
+            wpc = { ...res.data, preview: true }
+            renderRbcomp(<RbFlowCanvas />, 'rbflow', function () {
+              if (id === '028-0000000000000000') {
+                $('.start-node .text').text($L('系统用户'))
+              }
+            })
+          }
+        })
+      })
+    </script>
+</body>
+</html>

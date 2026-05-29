@@ -1,0 +1,29 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.theme-default,
+.theme-dark,
+.theme-red,
+.theme-green,
+.theme-blue,
+.theme-blue2,
+.theme-purple,
+.theme-purple2 {
+  background-color: transparent;
+}
+
+.navbar-more41 .dropdown-menu {
+  background-color: #fff;
+}
+
+.navbar-more41 .dropdown-menu a {
+  color: inherit;
+}
+
+.navbar-collapse .nav-item.active .nav-link::after {
+  background-color: var(--rb-theme-color);
+}

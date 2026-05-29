@@ -1,0 +1,94 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<title>[[${title ?:'REBUILD'}]]</title>
+<style>
+      html,
+      body {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        background-color: #fff;
+      }
+      .md-content {
+        padding: 10px 15px;
+      }
+    </style>
+</head>
+<body>
+<div id="viewer" style="width: 100%; height: 100%" th:data-fileid="${fileid}">
+<textarea class="hide" id="editor">[[${content}]]</textarea>
+</div>
+<input accept="image/*" class="hide" id="_fieldValue__upload" type="file">
+{%- include "/_include/footer.html" -%}
+<script type="text/babel">
+      let _lastContent = null
+      let _EasyMDE
+
+      $(document).ready(() => {
+        $createUploader(document.getElementById('_fieldValue__upload'), null, (res) => {
+          let text = `![](${rb.baseUrl}/filex/img/${res.key})`
+          const pos = _EasyMDE.codemirror.getCursor()
+          _EasyMDE.codemirror.setSelection(pos, pos)
+          _EasyMDE.codemirror.replaceSelection(text)
+        })
+
+        let toolbar = DEFAULT_MDE_TOOLBAR({
+          _fieldValue__upload: document.getElementById('_fieldValue__upload'),
+        })
+        toolbar = toolbar.filter((i) => {
+          return !(i.name === 'preview' || i.name === 'fullscreen')
+        })
+        toolbar.push({
+          name: 'side-by-side',
+          action: EasyMDE.toggleSideBySide,
+          className: 'mdi mdi-view-agenda-outline mdi-rotate-90',
+          title: $L('分屏预览'),
+        })
+        toolbar.push({
+          name: 'save',
+          action: (e) => {
+            const data = {
+              id: $('#viewer').data('fileid'),
+              content: _EasyMDE.value(),
+            }
+
+            const $save = $('.editor-toolbar button.save').attr('disabled', true)
+            if (_lastContent == data.content) {
+              setTimeout(() => $save.attr('disabled', false), 1000)
+              return
+            }
+
+            $.post('/commons/md-editor-save', JSON.stringify(data), (res) => {
+              setTimeout(() => $save.attr('disabled', false), 1000)
+              if (res.error_code === 0) {
+                _lastContent = data.content
+                // RbHighbar.success($L('保存成功'))
+              } else {
+                RbHighbar.error(res.error_msg)
+              }
+            })
+          },
+          className: 'mdi mdi-content-save',
+          title: $L('保存'),
+        })
+
+        _EasyMDE = new EasyMDE({
+          element: document.getElementById('editor'),
+          status: false,
+          spellChecker: false,
+          toolbar: toolbar,
+          previewClass: 'md-content',
+          autoDownloadFontAwesome: false,
+        })
+        _EasyMDE.toggleFullScreen()
+        _lastContent = _EasyMDE.value()
+      })
+
+      window.onbeforeunload = function () {
+        if (_EasyMDE.value() === _lastContent) return undefined
+        return 'SHOW-UNSAVED-CHANGES'
+      }
+    </script>
+</body>
+</html>

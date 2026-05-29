@@ -1,0 +1,70 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<title>[[${bundle.L('统计列')}]]</title>
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ chart ~ '-' ~ design.css }}" rel="stylesheet" type="text/css">
+<style>
+      .axis-target {
+        min-height: 31.56px;
+      }
+      .axis-target > span {
+        display: inline-block;
+      }
+      .axis-target .item {
+        margin-right: 7px;
+        margin-bottom: 6px;
+      }
+      .axis-target .item::before {
+        border-color: #fff;
+      }
+      .set-fields a.item {
+        background-color: #eee;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+      .set-fields a.item:hover {
+        background-color: #4285f4;
+        color: #fff;
+      }
+      .set-items .item > span {
+        margin: 0 4px;
+      }
+      .set-items .item.star > span::after {
+        content: '*';
+        margin-left: 4px;
+        font-weight: bold;
+        color: #fbbc05;
+      }
+      .axis-target .ui-state-highlight {
+        height: 0;
+        display: inline-block;
+        min-width: 15px;
+      }
+      .axis-target:empty::after {
+        content: attr(_title);
+        font-style: italic;
+        color: #999;
+      }
+      .modal.rbalert .modal-content {
+        margin: 10px auto;
+      }
+    </style>
+</head>
+<body class="dialog">
+<div class="main-content">
+<div class="p-1">
+<h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
+<div class="axis-target set-items" th:_title="${bundle.L('无')}"></div>
+<h5 class="text-bold">[[${bundle.L('可添加')}]]</h5>
+<div class="axis-target set-fields" th:_title="${bundle.L('无可用字段')}"></div>
+</div>
+<div class="dialog-footer">
+<button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ show ~ '-' ~ styles.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ list ~ '-' ~ stats.js }}" type="text/babel"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/entity/#%E5%AD%97%E6%AE%B5%E7%AE%A1%E7%90%86" name="page-help">
+<title>[[${bundle.L('字段管理')}]]</title>
+<style>
+      .table tbody tr.warning td:first-child {
+        border-left-color: #fbbc05 !important;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-aside', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<aside class="page-aside">
+<div class="rb-scroller-aside rb-scroller">
+<div class="aside-content">
+<div class="content">
+<div class="aside-header">
+<button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+<span class="title">[[${entityLabel}]]</span>
+<p class="description">[[${comments}]]</p>
+</div>
+</div>
+{%- include "/admin/metadata/subnav-entity.html" -%}
+</div>
+</div>
+</aside>
+<div class="main-content container-fluid">
+<div class="card card-table">
+<div class="card-body">
+<div class="dataTables_wrapper container-fluid">
+<div class="row rb-datatable-header">
+<div class="col-sm-6">
+<div class="dataTables_filter">
+<div class="input-group input-search">
+<input class="form-control" placeholder="{{ bundle.L('查询') }}" type="text">
+<span class="input-group-btn">
+<button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+</span>
+</div>
+</div>
+</div>
+<div class="col-sm-6">
+<div class="dataTables_oper">
+<button class="btn btn-primary J_new-field" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+<div class="btn-group bosskey-show">
+<button class="btn btn-light w-auto dropdown-toggle ml-2" data-toggle="dropdown" type="button">[[${bundle.L('更多')}]] (LAB) <i class="icon zmdi zmdi-more-vert"></i></button>
+<div class="dropdown-menu dropdown-menu-right">
+<a class="dropdown-item J_new9-field">[[${bundle.L('批量添加')}]]</a>
+<a class="dropdown-item J_export-fields">[[${bundle.L('导出')}]] (CSV)</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="row rb-datatable-body">
+<div class="col-sm-12">
+<div class="rb-loading rb-loading-active data-list">
+<table class="table table-hover table-striped tablesort table-fixed" id="dataList">
+<thead>
+<tr>
+<th data-filed="fieldLabel" width="25%">[[${bundle.L('字段名称')}]]</th>
+<th data-field="fieldName" width="16%">[[${bundle.L('内部标识')}]]</th>
+<th data-field="displayType" width="16%">[[${bundle.L('类型')}]]</th>
+<th data-field="comments">[[${bundle.L('备注')}]]</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+{%- include "/_include/spinner.html" -%}
+</div>
+</div>
+</div>
+<div id="pagination">
+<div class="row rb-datatable-footer">
+<div class="col-sm-3"><div class="dataTables_info"></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ jquery.tablesort.min.js }}"></script>
+<script>
+      window.__PageConfig = {
+        entityName: '[[${entityName}]]',
+        nameField: '[[${nameField}]]',
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entity ~ '-' ~ switch.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ fields.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ type.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ new2.js }}" type="text/babel"></script>
+</body>
+</html>

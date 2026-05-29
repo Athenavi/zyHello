@@ -1,0 +1,113 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/users#%E7%AE%A1%E7%90%86%E9%83%A8%E9%97%A8" name="page-help">
+<title>[[${bundle.L('部门管理')}]]</title>
+<style>
+      .badge.badge-WW,
+      .badge.badge-DD,
+      .badge.badge-FS {
+        font-weight: normal;
+        cursor: help;
+        border-radius: 12px;
+        padding: 0 6px;
+        border-color: #4873c0;
+        color: #4873c0;
+      }
+      .badge.badge-DD {
+        border-color: #38adff;
+        color: #38adff;
+      }
+      .badge.badge-FS {
+        border-color: #3370ff;
+        color: #3370ff;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-aside', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<aside class="page-aside">
+<div class="rb-scroller">
+<div class="page-aside-tree" id="dept-tree">
+<div class="ph-item rb">
+<div class="ph-col-12 p-0">
+<div class="ph-row">
+<div class="ph-col-12 big"></div>
+<div class="ph-col-12 big"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<div class="main-content container-fluid">
+<ul class="nav nav-tabs nav-tabs-classic">
+<li class="nav-item">
+<a class="nav-link" href="users"><span class="icon mdi mdi-account"></span> [[${bundle.L('用户')}]]</a>
+</li>
+<li class="nav-item">
+<a class="nav-link active" href="departments"><span class="icon mdi mdi-account-multiple"></span> [[${bundle.L('部门')}]]</a>
+</li>
+</ul>
+<div class="card card-table card-topcolor">
+<div class="card-body">
+<div class="dataTables_wrapper container-fluid">
+<div class="row rb-datatable-header">
+<div class="col-12 col-lg-6">
+<div class="dataTables_filter">
+<div class="input-group input-search">
+<input class="form-control" placeholder="{{ bundle.L('快速查询') }}" type="text">
+<span class="input-group-btn">
+<button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+</span>
+</div>
+</div>
+</div>
+<div class="col-12 col-lg-6">
+<div class="dataTables_oper">
+<button class="btn btn-space btn-secondary J_view" disabled="disabled" type="button"><i class="icon mdi mdi-folder-open"></i> [[${bundle.L('打开')}]]</button>
+<button class="btn btn-primary btn-space J_new" type="button"><i class="icon mdi mdi-account-multiple-plus"></i> [[${bundle.L('新建部门')}]]</button>
+<div class="btn-group btn-space">
+<button class="btn btn-secondary dropdown-toggle" data-toggle="dropdown" type="button">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+<div class="dropdown-menu dropdown-menu-right">
+<a class="dropdown-item J_export bosskey-show"><i class="icon mdi mdi-microsoft-excel"></i> [[${bundle.L('数据导出')}]]</a>
+<a class="dropdown-item J_columns"><i class="icon mdi mdi-view-column-outline"></i> [[${bundle.L('列显示')}]]</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="rb-loading rb-loading-active data-list" id="react-list">
+{%- include "/_include/spinner.html" -%}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        type: 'RecordList',
+        entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
+        privileges: [(${entityPrivileges})],
+        listConfig: [(${DataListConfig})],
+        advFilter: false,
+      }
+    </script>
+{%- include "/_include/forms.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ datalist.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ bizuser ~ '/' ~ dept ~ '-' ~ tree.js }}" type="text/babel"></script>
+<script type="text/babel">
+      const RbForm_postAfter = RbForm.postAfter
+      RbForm.postAfter = function (data, next) {
+        RbForm_postAfter(data, next)
+        loadDeptTree()
+      }
+    </script>
+</body>
+</html>

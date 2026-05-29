@@ -1,0 +1,55 @@
+
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="webkit" name="renderer">
+<meta content="IE=edge" http-equiv="x-ua-compatible">
+<link rel="manifest" th:href="@{/assets/manifest.json}">
+<meta name="theme-color" th:content="${themeColor ?:'#4285f4'}">
+<link rel="shortcut icon" th:href="@{/assets/img/favicon.png}">
+<link rel="apple-touch-icon" th:href="@{/assets/img/favicon.png}">
+<th:block th:if="${css != 'none'}">
+<link rel="stylesheet" th:href="@{/assets/lib/material-design-iconic-font.min.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/mdi7/css/materialdesignicons.min-rb.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/widget/perfect-scrollbar.min.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/widget/bootstrap-datetimepicker.min.css?v=2.4.4}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/animate.min.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/widget/select2.min.css?v=4.0.13}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/widget/mprogress.min.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/jquery-ui.min.css?v=1.13.2}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/widget/easymde.min.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/lib/widget/flatpickr.min.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/css/rb-base.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/css/rb-page.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/css/rb-general40.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/assets/css/chat.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/commons/theme/use-theme}" th:if="${user != null}" type="text/css">
+</th:block>
+<meta name="rb.env" th:content="${env}">
+<meta name="rb.ver" th:content="${AppBuild}">
+<meta name="rb.commercial" th:content="${commercial}">
+<meta name="rb.locale" th:content="${locale}">
+<meta name="rb.baseUrl" th:content="${baseUrl}">
+<meta name="rb.appName" th:content="${appName}">
+<meta name="rb.storageUrl" th:content="${storageUrl}">
+<meta name="rb.fileSharable" th:content="${fileSharable}">
+<meta name="rb.csrfToken" th:content="${csrfToken}">
+<meta name="rb.authToken" th:content="${authToken}">
+<th:block th:if="${user != null}">
+<meta name="rb.currentUser" th:content="${user.getId()}">
+<meta name="rb.isAdminUser" th:content="${user.isAdmin()}">
+<meta name="rb.isAdminVerified" th:content="${T(com.rebuild.utils.AppUtils).isAdminVerified(#request)}">
+<meta name="rb.currentUserRoles" th:content="${T(com.rebuild.core.privileges.UserHelper).getRolesOfUser(user.getId())}">
+<meta name="rb.currentUserTeams" th:content="${T(com.rebuild.core.privileges.UserHelper).getTeamsOfUser(user.getId())}">
+<meta name="rb.currentUserName" th:content="${user.getName()}">
+<meta name="rb.currentUserFullname" th:content="${user.getFullName()}">
+</th:block>
+<meta name="rb._baiduMapAk" th:content="${PortalBaiduMapAk}">
+<meta name="rb._officePreviewUrl" th:content="${PortalOfficePreviewUrl}">
+<meta name="rb._uploadMaxSize" th:content="${PortalUploadMaxSize}">
+<meta content="true" name="rb._rbTempAuth" th:if="${session.rbTempAuth != null}">
+<meta name="rb._markWatermarkText" th:content="${markWatermarkText}" th:if="${markWatermarkText != null}">
+<meta name="rb._aibotName" th:content="${_AiBot}" th:if="${_AiBot != null}">
+<!--[if IE]><script>location.href = '[[${baseUrl}]]/error/unsupported-browser'</script><![endif]-->
+<script th:if="${markWatermark == 'true' || session.rbTempAuth != null}" th:src="@{/assets/lib/watermark.js?v=310}"></script>
+<style th:if="${PageMourningMode}">html{-webkit-filter:grayscale(100%);-moz-filter:grayscale(100%);-ms-filter:gray(100%);-o-filter:grayscale(100%);filter:grayscale(100%);filter:gray;filter:progid:DXImageTransform.Microsoft.BasicImage(grayscale=1)}</style>
+

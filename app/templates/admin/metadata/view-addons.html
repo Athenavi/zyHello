@@ -1,0 +1,57 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<title>[[${bundle.L('视图配置')}]]</title>
+</head>
+<body class="dialog">
+<div class="main-content">
+<div class="row m-0">
+<div class="col-6 sortable-swap pl-2">
+<h5 class="sortable-box-title">[[${bundle.L('已显示')}]]</h5>
+<div class="sortable-box rb-scroller">
+<ol class="dd-list J_config" th:_title="${bundle.L('无')}"></ol>
+</div>
+<i class="zmdi zmdi-swap"></i>
+</div>
+<div class="col-6 pr-2">
+<h5 class="sortable-box-title">[[${bundle.L('未显示')}]]</h5>
+<div class="sortable-box rb-scroller">
+<ol class="dd-list unset-list"></ol>
+</div>
+</div>
+</div>
+<div class="dialog-footer">
+{%- if param.type[0] == 'TAB' -%}<span class="float-left ml-1">
+<div class="J_extoption">
+<a class="btn btn-link btn-sm w-auto ml-0 pl-0 text-left down-2" data-toggle="dropdown">
+<i class="icon mdi mdi-cog up-1"></i>
+              [[${bundle.L('更多选项')}]]
+            </a>
+<div class="dropdown-menu border p-0">
+<div class="m-3">
+<label class="custom-control custom-control-sm custom-checkbox mb-2">
+<input class="custom-control-input" id="relatedAutoHide" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('隐藏无记录项')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox mb-2">
+<input class="custom-control-input" id="relatedDefaultList" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('默认列表视图')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox mb-0">
+<input class="custom-control-input" id="relatedAutoExpand" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('自动展开记录')}]] ([[${bundle.L('卡片视图')}]])</span>
+</label>
+</div>
+</div>
+</div>
+</span>{%- endif -%}
+<button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ sortable.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ show ~ '-' ~ styles.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ view ~ '-' ~ addons.js }}" type="text/babel"></script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/privileges" name="page-help">
+<title>[[${bundle.L('角色权限')}]]</title>
+<style>
+      .table.table-priv {
+        table-layout: fixed;
+        border: 0 none;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .table.table-priv td,
+      .table.table-priv th {
+        padding: 9px 6px;
+        vertical-align: middle;
+        text-align: center;
+        line-height: 1;
+        font-weight: normal;
+        position: relative;
+      }
+      .table.table-priv th {
+        border-top: 0 none;
+        color: #777;
+        line-height: 15px;
+      }
+      .table.table-priv th a:hover,
+      .table.table-priv .name a:hover {
+        opacity: 0.8;
+      }
+      .table.table-priv td.name {
+        text-align: left;
+      }
+      .priv,
+      .table.table-priv.table-fields .R4.R0 {
+        width: 30px;
+        height: 18px;
+        display: inline-block;
+        background: url([[${baseUrl}]]/assets/img/role/role_0.gif) no-repeat center center;
+      }
+      .priv:hover {
+        cursor: pointer;
+        opacity: 0.8;
+      }
+      .R1 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_1.gif);
+      }
+      .R2 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_2.gif);
+      }
+      .R3 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_3.gif);
+      }
+      .R4 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_4.gif);
+      }
+      .legend {
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        display: inline-block;
+        padding: 9px 15px;
+      }
+      .legend label {
+        margin: 0 6px;
+      }
+      .legend .priv {
+        width: 22px;
+        float: left;
+      }
+      .legend-wrap {
+        padding: 10px 0 5px;
+        text-align: right;
+      }
+      .table.table-priv td > a.cp,
+      .name > span > a {
+        position: absolute;
+        left: 50%;
+        margin-left: 15px;
+        margin-top: 2px;
+        font-size: 15px;
+        color: #999 !important;
+        display: none;
+      }
+      .table.table-priv tr:hover > td > a.cp,
+      .table.table-priv td > a.cp.active,
+      .name > span > a.active,
+      .table.table-priv tr:hover .name > span > a {
+        display: inline-block;
+      }
+      .table.table-priv td > a.cp.active,
+      .table.table-priv td > a.cp:hover,
+      .name > span > a.active,
+      .name > span > a:hover {
+        color: #4285f4 !important;
+      }
+      .name > span > a {
+        font-size: 16px;
+        left: unset;
+        margin-left: 10px;
+        margin-top: -2px;
+      }
+      .nav-tabs li {
+        position: relative;
+      }
+      .nav-tabs .badge {
+        position: absolute;
+        top: -1px;
+        right: -1px;
+        font-size: 0.8462rem;
+        font-weight: normal;
+        line-height: 1.2;
+      }
+      .aside-2tree h5 {
+        padding: 0 10px;
+        margin: 0;
+        line-height: 30px;
+        color: #b0b0b0;
+        font-weight: 600;
+      }
+      select.cpAndOr {
+        outline: none;
+        padding: 5px;
+        border-color: #e3e3e3;
+        background-color: #f5f5f5;
+        border-radius: 2px;
+      }
+
+      th.J_search-entity a.search-btn {
+        position: absolute;
+        font-size: 1.231rem;
+        margin-top: -1px;
+        margin-left: 5px;
+      }
+      th.J_search-entity a.search-btn:hover {
+        opacity: 0.8;
+      }
+      th.J_search-entity .search-input {
+        background-color: #fff;
+        margin-top: -1px;
+      }
+      th.J_search-entity .search-input > input {
+        border: 0 none;
+        width: 100%;
+        padding: 0 4px;
+        appearance: none;
+        outline: 0 none;
+        background-color: transparent;
+        line-height: 15px;
+      }
+      .nav.nav-tabs.nav-tabs-classic {
+        background-color: #eee;
+        position: sticky;
+        top: 60px;
+        z-index: 2;
+        padding-top: 6px;
+      }
+      .nav.nav-tabs.nav-tabs-classic .operating {
+        position: absolute;
+        right: 0;
+      }
+      .table-priv thead {
+        background-color: #fff;
+        position: sticky;
+        top: 107px;
+        z-index: 1;
+      }
+      .table-priv thead th {
+        border-bottom: 0 none;
+        padding-top: 25px !important;
+      }
+       .table-priv thead::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 1px;
+        background-color: #dee2e6;
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-aside', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<aside class="page-aside">
+<div class="rb-scroller">
+<div class="page-aside-tree" id="role-tree">
+<div class="aside-2tree hide-collapse">
+<ul class="list-unstyled m-0">
+{%- for R in Roles -%}{%- if not R[2] -%}<li class="{{ R[0] == RoleId ?'active':'' }}">
+<a class="text-ellipsis" th:data-id="${R[0]}">[[${R[1]}]]</a>
+</li>{%- endif -%}{%- endfor -%}
+{%- if hasDisabled -%}<h5>[[${bundle.L('已禁用')}]]</h5>{%- endif -%}
+{%- for R in Roles -%}{%- if R[2] -%}<li class="{{ R[0] == RoleId ?'active':'' }}">
+<a class="text-ellipsis" th:data-id="${R[0]}">[[${R[1]}]]</a>
+</li>{%- endif -%}{%- endfor -%}
+</ul>
+</div>
+</div>
+</div>
+</aside>
+<div class="main-content container-fluid" style="padding-top: 14px">
+<div class="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm hide J_tips">
+<div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
+<div class="message">
+<a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
+<p>ALERT</p>
+</div>
+</div>
+<div class="tab-container">
+<ul class="nav nav-tabs nav-tabs-classic">
+<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#priv-entity">[[${bundle.L('实体权限')}]]</a></li>
+<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#priv-zero">[[${bundle.L('扩展权限')}]]</a></li>
+<li class="nav-item hide"><a class="nav-link" data-toggle="tab" href="#tab-members">[[${bundle.L('使用用户')}]]</a></li>
+<span class="operating">
+<button class="btn btn-secondary btn-space J_new-role mr-0" type="button"><i class="icon mdi mdi-lock-plus"></i> [[${bundle.L('新建角色')}]]</button>
+{%- if id != none -%}<div class="btn-group btn-space ml-1 mr-0">
+<button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+<button class="btn btn-primary dropdown-toggle w-auto" data-toggle="dropdown" type="button"><i class="icon zmdi zmdi-chevron-down"></i></button>
+<div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+<a class="dropdown-item J_copy-role"><i class="icon zmdi zmdi-copy"></i> [[${bundle.L('复制角色')}]]</a>
+</div>
+</div>{%- endif -%}
+</span>
+</ul>
+<div class="tab-content mb-0 pt-0">
+<div class="tab-pane active" id="priv-entity">
+<table class="table table-hover table-priv">
+<thead>
+<tr>
+<th class="text-left J_search-entity" width="25%">[[${bundle.L('业务实体')}]]</th>
+<th><a data-action="C" title="{{ bundle.L('批量选择') }}">[[${bundle.L('新建')}]]</a></th>
+<th><a data-action="R" title="{{ bundle.L('批量选择') }}">[[${bundle.L('读取')}]]</a></th>
+<th><a data-action="U" title="{{ bundle.L('批量选择') }}">[[${bundle.L('编辑')}]]</a></th>
+<th><a data-action="D" title="{{ bundle.L('批量选择') }}">[[${bundle.L('删除')}]]</a></th>
+<th><a data-action="A" title="{{ bundle.L('批量选择') }}">[[${bundle.L('分配')}]]</a></th>
+<th><a data-action="S" title="{{ bundle.L('批量选择') }}">[[${bundle.L('共享')}]]</a></th>
+</tr>
+</thead>
+<tbody>
+{%- for entity in Entities -%}<tr>
+<td class="name">
+<a th:data-entity="${entity[1]}" th:data-name="${entity[0]}" title="{{ bundle.L('批量选择') }}">[[${entity[2]}]]</a>
+<span>
+<a th:data-entity="${entity[1]}" title="{{ bundle.L('字段权限') }}"><i class="mdi mdi-form-textbox-lock"></i></a>
+</span>
+</td>
+<td><i class="priv R0" data-action="C"></i><a></a></td>
+<td>
+<i class="priv R0" data-action="R"></i>
+<a class="cp" data-action="R9" title="{{ bundle.L('自定义权限') }}"><i class="mdi mdi-filter-check-outline"></i></a>
+</td>
+<td>
+<i class="priv R0" data-action="U"></i>
+<a class="cp" data-action="U9" title="{{ bundle.L('自定义权限') }}"><i class="mdi mdi-filter-check-outline"></i></a>
+</td>
+<td>
+<i class="priv R0" data-action="D"></i>
+<a class="cp" data-action="D9" title="{{ bundle.L('自定义权限') }}"><i class="mdi mdi-filter-check-outline"></i></a>
+</td>
+<td>
+<i class="priv R0" data-action="A"></i>
+<a class="cp" data-action="A9" title="{{ bundle.L('自定义权限') }}"><i class="mdi mdi-filter-check-outline"></i></a>
+</td>
+<td>
+<i class="priv R0" data-action="S"></i>
+<a class="cp" data-action="S9" title="{{ bundle.L('自定义权限') }}"><i class="mdi mdi-filter-check-outline"></i></a>
+</td>
+</tr>{%- endfor -%}
+</tbody>
+</table>
+{%- if Entities.size() == 0 -%}<p class="text-muted mt-5">[[${bundle.L('暂无可用业务实体')}]]</p>{%- endif -%}
+<div class="legend-wrap">
+<div class="legend">
+                    [[${bundle.L('图例')}]]
+                    <label><i class="priv R0"></i> [[${bundle.L('无权限')}]]</label>
+<label><i class="priv R1"></i> [[${bundle.L('本人')}]]</label>
+<label><i class="priv R2"></i> [[${bundle.L('本部门')}]]</label>
+<label><i class="priv R3"></i> [[${bundle.L('本部门及子部门')}]]</label>
+<label><i class="priv R4"></i> [[${bundle.L('全部')}]]</label>
+</div>
+</div>
+</div>
+<div class="tab-pane" id="priv-zero">
+<table class="table table-hover table-priv">
+<thead>
+<tr>
+<th class="text-left" width="25%">[[${bundle.L('权限项')}]]</th>
+<th><a data-action="Z">[[${bundle.L('允许')}]]</a></th>
+<th class="text-left">[[${bundle.L('前置条件')}]]</th>
+<th></th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="name"><a data-name="AllowLogin">[[${bundle.L('允许登录')}]]</a></td>
+<td><i class="priv R4" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('无')}]]</td>
+</tr>
+<tr>
+<td class="name"><a data-name="AllowCustomNav">[[${bundle.L('允许自定义导航菜单')}]]</a></td>
+<td><i class="priv R4" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('无')}]]</td>
+</tr>
+<tr>
+<td class="name"><a data-name="AllowCustomChart">[[${bundle.L('允许自定义仪表盘、图表')}]]</a></td>
+<td><i class="priv R4" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('无')}]]</td>
+</tr>
+<tr>
+<td class="name"><a data-name="AllowCustomDataList">[[${bundle.L('允许自定义列显示')}]]</a></td>
+<td><i class="priv R4" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('需具备相应实体的读取权限')}]]</td>
+</tr>
+<tr>
+<td class="name"><a data-name="AllowBatchUpdate">[[${bundle.L('允许批量修改')}]]</a></td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('需具备相应实体的编辑权限')}]]</td>
+</tr>
+<tr>
+<td class="name">
+<a data-name="AllowRecordMerge">[[${bundle.L('允许记录合并')}]]</a>
+<sup class="rbv"></sup>
+</td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('需具备相应实体的编辑和/或删除权限')}]]</td>
+</tr>
+<tr>
+<td class="name">
+<a data-name="AllowRevokeApproval">[[${bundle.L('允许撤回、撤销审批')}]]</a>
+<sup class="rbv"></sup>
+</td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('需具备相应实体的读取权限')}]]</td>
+</tr>
+<tr>
+<td class="name">
+<a data-name="AllowDataImport">[[${bundle.L('允许数据导入')}]]</a>
+<sup class="rbv"></sup>
+</td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('需具备相应实体的新建和/或编辑权限')}]]</td>
+</tr>
+<tr>
+<td class="name"><a data-name="AllowDataExport">[[${bundle.L('允许数据导出')}]]</a></td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('需具备相应实体的读取权限')}]]</td>
+</tr>
+<tr>
+<td class="name">
+<a data-name="AllowNoDesensitized">[[${bundle.L('允许查看明文')}]]</a>
+<sup class="rbv"></sup>
+</td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('针对信息脱敏字段可查看明文')}]]</td>
+</tr>
+<tr>
+<td class="name"><a data-name="AllowAtAllUsers">[[${bundle.L('允许在动态中 @所有人')}]]</a></td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('无')}]]</td>
+</tr>
+<tr>
+<td class="name">
+<a data-name="EnableBizzPart">[[${bundle.L('开启部门用户隔离')}]]</a>
+<sup class="rbv"></sup>
+</td>
+<td><i class="priv R0" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('无')}]]</td>
+</tr>
+<tr>
+<td class="name">
+<a data-name="AllowUseAiBot">[[${bundle.L('允许使用 AI 助手')}]]</a>
+</td>
+<td><i class="priv R4" data-action="Z"></i></td>
+<td class="text-muted text-left" colspan="5">[[${bundle.L('无')}]]</td>
+</tr>
+</tbody>
+</table>
+<div class="legend-wrap">
+<div class="legend">
+                    [[${bundle.L('图例')}]]
+                    <label><i class="priv R4"></i> [[${bundle.L('是')}]]</label>
+<label><i class="priv R0"></i> [[${bundle.L('否')}]]</label>
+</div>
+</div>
+</div>
+<div class="tab-pane pt-6" id="tab-members"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        recordId: '[[${id}]]',
+      }
+    </script>
+{%- include "/_include/forms.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ bizuser ~ '/' ~ role ~ '-' ~ view.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ bizuser ~ '/' ~ role ~ '-' ~ privileges.js }}" type="text/babel"></script>
+</body>
+</html>

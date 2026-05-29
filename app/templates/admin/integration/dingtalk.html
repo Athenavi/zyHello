@@ -1,0 +1,110 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/integration-dingtalk" name="page-help">
+<title>[[${bundle.L('钉钉')}]]</title>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="main-content container-fluid syscfg">
+<div class="row">
+<div class="col-lg-9 col-12">
+<div class="card">
+<div class="card-header pb-1">
+                  [[${bundle.L('钉钉')}]]
+                  <a class="float-right J_edit" href="###"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+<a class="float-right J_save hide" href="###"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
+</div>
+<div class="card-body">
+<h5>[[${bundle.L('应用凭证')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">AgentId</td>
+<td data-id="DingtalkAgentid" th:data-value="${DingtalkAgentid ?:''}">[[${DingtalkAgentid ?:bundle.L('未设置')}]]</td>
+</tr>
+<tr>
+<td>AppKey (Client ID)</td>
+<td data-id="DingtalkAppkey" th:data-value="${DingtalkAppkey ?:''}">[[${DingtalkAppkey ?:bundle.L('未设置')}]]</td>
+</tr>
+<tr>
+<td>AppSecret (Client Secret)</td>
+<td data-id="DingtalkAppsecret" th:data-value="${DingtalkAppsecret ?:''}">[[${DingtalkAppsecret ?:bundle.L('未设置')}]]</td>
+</tr>
+<tr>
+<td>CorpId</td>
+<td data-id="DingtalkCorpid" th:data-value="${DingtalkCorpid ?:''}">[[${DingtalkCorpid ?:bundle.L('未设置')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('机器人 RobotCode')}]]</td>
+<td data-id="DingtalkRobotCode" data-optional="true" th:data-value="${DingtalkRobotCode ?:''}">[[${DingtalkRobotCode ?:bundle.L('未设置')}]]</td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('钉钉侧配置')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('应用首页地址')}]]</td>
+<td class="click-copy">
+                          [[${_DingtalkHomeUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_DingtalkHomeUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('回调域名')}]]</td>
+<td class="click-copy">
+                          [[${_DingtalkAuthCallUrl}]]
+                          <a class="ml-1 link" th:data-clipboard-text="${_DingtalkAuthCallUrl}"><i class="icon zmdi zmdi-copy"></i></a>
+</td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('数据同步')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('自动同步部门用户')}]]</td>
+<td data-id="DingtalkSyncUsers" th:data-value="${DingtalkSyncUsers}">
+<span>[[${DingtalkSyncUsers ? bundle.L('是') : bundle.L('否')}]]</span>
+<button class="btn btn-light btn-sm J_syncUsers" type="button"><i class="icon zmdi zmdi-refresh up-1"></i> [[${bundle.L('立即同步')}]]</button>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('同步用户匹配方式')}]]</td>
+<td data-id="DingtalkSyncUsersMatch" th:data-form-text="${bundle.L('通过何种方式匹配已存在用户，如无匹配则新建')}" th:data-value="${DingtalkSyncUsersMatch}">
+{%- if DingtalkSyncUsersMatch == 'ID' -%}[[${bundle.L('默认')}]]{%- endif -%}
+{%- if DingtalkSyncUsersMatch == 'EMAIL' -%}[[${bundle.L('邮箱')}]]{%- endif -%}
+{%- if DingtalkSyncUsersMatch == 'NAME' -%}[[${bundle.L('用户名')}]]{%- endif -%}
+{%- if DingtalkSyncUsersMatch == 'NAME2' -%}[[${bundle.L('姓名')}]]{%- endif -%}
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('用户默认角色')}]]</td>
+<td data-id="DingtalkSyncUsersRole" th:data-form-text="${bundle.L('如不指定，新建用户将不可用，直到你为他们指定了角色')}" th:data-value="${DingtalkSyncUsersRole}">
+                          [[${DingtalkSyncUsersRoleLabel ?:bundle.L('无')}]]
+                        </td>
+</tr>
+</tbody>
+</table>
+<div class="edit-footer">
+<button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-3 col-12"></div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ clipboard.min.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ syscfg.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ syscfg ~ '-' ~ sync.js }}" type="text/babel"></script>
+</body>
+</html>

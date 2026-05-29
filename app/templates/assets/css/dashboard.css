@@ -1,0 +1,288 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.grid-stack .grid-stack-item {
+  padding: 0;
+  margin: 0;
+  max-height: none !important;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content {
+  background-color: #fff;
+  height: 100%;
+  border-radius: 6px;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content > .chart-box {
+  border-radius: 6px;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content.high,
+.grid-stack .grid-stack-item .grid-stack-item-content:hover {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content.high {
+  outline: 2px solid #4285f4;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content:hover .chart-oper {
+  display: block;
+}
+
+.grid-stack > .grid-stack-item > .ui-resizable-se,
+.grid-stack > .grid-stack-item > .ui-resizable-sw {
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pg08IS0tIEdlbmVyYXRvcjogQWRvYmUgRmlyZXdvcmtzIENTNiwgRXhwb3J0IFNWRyBFeHRlbnNpb24gYnkgQWFyb24gQmVhbGwgKGh0dHA6Ly9maXJld29ya3MuYWJlYWxsLmNvbSkgLiBWZXJzaW9uOiAwLjYuMSAgLS0+DTwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DTxzdmcgaWQ9IlVudGl0bGVkLVBhZ2UlMjAxIiB2aWV3Qm94PSIwIDAgNiA2IiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjojZmZmZmZmMDAiIHZlcnNpb249IjEuMSINCXhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiDQl4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjZweCIgaGVpZ2h0PSI2cHgiDT4NCTxnIG9wYWNpdHk9IjAuMzAyIj4NCQk8cGF0aCBkPSJNIDYgNiBMIDAgNiBMIDAgNC4yIEwgNCA0LjIgTCA0LjIgNC4yIEwgNC4yIDAgTCA2IDAgTCA2IDYgTCA2IDYgWiIgZmlsbD0iIzAwMDAwMCIvPg0JPC9nPg08L3N2Zz4=);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  transform: rotate(0deg);
+  right: 5px;
+}
+
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+  overflow: hidden;
+  overflow: unset;
+  left: 5px;
+  right: 5px;
+}
+
+.grid-stack .grid-stack-placeholder > .placeholder-content {
+  background-color: #fff;
+  border-color: #fff;
+  opacity: 0.3;
+}
+
+.tools-bar {
+  height: 44px;
+  padding: 7px 20px 0;
+  padding-right: 15px;
+}
+
+.tools-bar h4 {
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.tools-bar h4:hover {
+  opacity: 0.8;
+}
+
+.tools-bar h4::after {
+  content: '\f2f9';
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  font-size: 1.308rem;
+  margin-left: 5px;
+  font-weight: bold;
+}
+
+.chart-grid {
+  padding: 0 15px 20px 15px;
+  margin-top: 8px;
+  min-height: 300px;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .chart-grid {
+    overflow: hidden;
+    padding: 2px 15px 0;
+  }
+
+  .grid-stack > .grid-stack-item > .grid-stack-item-content {
+    left: 0;
+    right: 0;
+  }
+
+  .tools-bar .col-sm-6 {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .grid-stack.grid-stack-one-column-mode > .grid-stack-item {
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .tools-bar .col-sm-6 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.chart-add {
+  display: block;
+  text-align: center;
+  height: 100%;
+  padding-top: 20px;
+}
+
+.chart-add i.zmdi {
+  font-size: 71px;
+  color: #ddd;
+  font-weight: lighter;
+}
+
+.dash-list .dash-head {
+  display: inline-block;
+  padding-right: 81px;
+  position: relative;
+}
+
+.dash-head .dash-action {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-top: 8px;
+  padding-left: 6px;
+  text-align: left;
+  width: 80px;
+  display: none;
+}
+
+.tools-bar:hover .dash-head .dash-action {
+  display: block;
+}
+
+.dash-head .dash-action a {
+  padding: 3px;
+  margin-left: 3px;
+}
+
+.dash-list .dash-head {
+  float: left;
+}
+
+.modal.select-list .modal-body li a {
+  border: 1px solid #4285f4;
+  background-color: #fff;
+  padding: 8px 10px;
+  color: #4285f4;
+  border-radius: 0;
+}
+
+.J_dash-select:hover {
+  color: #4285f4;
+}
+
+.dash-right .btn-group {
+  margin-top: 7px;
+  margin-right: 3px;
+}
+
+.dash-right .btn-group > .btn {
+  min-height: 24px;
+  line-height: 24px;
+  min-width: 0;
+}
+
+body.fullscreen .J_dash-fullscreen .zmdi-fullscreen::before {
+  content: '\f16c';
+}
+
+.chart-grid.uneditable .chart-box .chart-head .chart-title {
+  cursor: default;
+}
+
+.dash-right .J_darkmode {
+  display: none;
+}
+
+body.fullscreen .dash-right .J_darkmode {
+  display: inline-block;
+}
+
+body.fullscreen .announcement-wrapper {
+  display: none;
+}
+
+.grid-stack-item.fullscreen {
+  position: absolute;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 99;
+}
+
+.grid-stack-item.fullscreen .ui-resizable-handle {
+  display: none !important;
+}
+
+body.fullscreen .tools-bar h4 {
+  font-weight: bold;
+}
+
+/* bgcolor */
+
+.grid-stack-item.bgcolor .grid-stack-item-content,
+.grid-stack-item.bgcolor .chart.index > .data-item strong {
+  color: #fff;
+}
+
+.grid-stack-item.bgcolor .rb-loading::after {
+  background-color: transparent;
+}
+
+.grid-stack-item.bgcolor .rb-spinner svg {
+  stroke: #fff;
+}
+
+/* darkmode */
+
+body.fullscreen.darkmode {
+  background: #191a2c;
+}
+
+body.fullscreen.darkmode .chart-title,
+body.fullscreen.darkmode .chart.index > .data-item p,
+body.fullscreen.darkmode .chart.index > .data-item strong,
+body.fullscreen.darkmode .tools-bar h4 {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.fullscreen.darkmode .chart .table,
+body.fullscreen.darkmode .chart .table td > a {
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+body.fullscreen.darkmode .grid-stack .grid-stack-item .grid-stack-item-content,
+body.fullscreen.darkmode .chart-box.ApprovalList .progress-wrap,
+body.fullscreen.darkmode .table-striped tbody tr:nth-of-type(odd) {
+  background-color: #24273e;
+}
+
+body.fullscreen.darkmode .chart .table th {
+  background-color: #1e2033;
+}
+
+body.fullscreen.darkmode .chart .table thead,
+body.fullscreen.darkmode .chart .table tbody,
+body.fullscreen.darkmode .chart .table th,
+body.fullscreen.darkmode .chart .table td,
+body.fullscreen.darkmode .chart .table {
+  border-color: #191a2c;
+}
+
+body.fullscreen.darkmode .chart .table tr:hover,
+body.fullscreen.darkmode .chart .table th:hover,
+body.fullscreen.darkmode .chart .table tr.highlight,
+body.fullscreen.darkmode .tcs-selected {
+  background: unset;
+}
+
+body.fullscreen.darkmode .ApprovalList thead th,
+body.fullscreen.darkmode .ProjectTasks thead th,
+body.fullscreen.darkmode .FeedsSchedule thead th {
+  padding-top: 7px;
+}

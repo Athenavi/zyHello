@@ -1,0 +1,233 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/trigger/" name="page-help">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ triggers.css }}" rel="stylesheet" type="text/css">
+<title>[[${bundle.L('触发器')}]]</title>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="page-head">
+<div class="page-head-title">
+            [[${bundle.L('触发器')}]]
+            <span class="sub-title">[[${name ?: bundle.L('未命名')}]]</span>
+{%- if isDisabled -%}<span class="badge badge-grey badge-pill up-1 ml-1 J_confDisabled">[[${bundle.L('未启用')}]]</span>{%- endif -%}
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="main-content container-fluid pt-0">
+<div class="card mb-0">
+<div class="card-body">
+<ul class="timeline timeline-spare">
+<li class="timeline-item">
+<div class="timeline-date"><span>[[${bundle.L('当发生动作')}]]</span></div>
+<div class="timeline-content">
+<form class="simple">
+<div class="form-group row">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('源实体')}]]</label>
+<div class="col-12 col-lg-9">
+<div class="form-control-plaintext text-bold">[[${sourceEntityLabel}]]</div>
+</div>
+</div>
+<div class="form-group row pt-0 pb-0">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('触发动作')}]]</label>
+<div class="col-12 col-lg-9 pt-1 J_when">
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="1">
+<span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 when-update">
+<input class="custom-control-input" type="checkbox" value="4">
+<span class="custom-control-label">[[${bundle.L('更新时')}]]</span>
+<a class="ml-1" data-toggle="tooltip" title="{{ bundle.L('指定字段') }}"><i class="icon zmdi zmdi-settings fs-15"></i></a>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="2">
+<span class="custom-control-label">[[${bundle.L('删除时')}]]</span>
+</label>
+<div class="mt-1">
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="16">
+<span class="custom-control-label">[[${bundle.L('分配时')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="32">
+<span class="custom-control-label">[[${bundle.L('共享时')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="64">
+<span class="custom-control-label">[[${bundle.L('取消共享时')}]]</span>
+</label>
+</div>
+<div class="mt-1">
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 when-approve">
+<input class="custom-control-input" type="checkbox" value="128">
+<span class="custom-control-label">[[${bundle.L('审批通过时')}]]</span>
+<span>
+<a class="ml-1" data-toggle="tooltip" title="{{ bundle.L('指定步骤') }}"><i class="icon zmdi zmdi-settings fs-15"></i></a>
+</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="256">
+<span class="custom-control-label">
+                                [[${bundle.L('审批撤销时')}]]
+                                <i class="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title="{{ bundle.L('审批通过后管理员可以撤销重审') }}"></i>
+</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="1024">
+<span class="custom-control-label">[[${bundle.L('审批提交时')}]] <sup class="rbv"></sup></span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" type="checkbox" value="2048">
+<span class="custom-control-label">[[${bundle.L('审批驳回/撤回时')}]] <sup class="rbv"></sup></span>
+</label>
+</div>
+<div class="mt-1">
+<div>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" onclick="_handle512Change()" type="checkbox" value="512">
+<span class="custom-control-label">[[${bundle.L('定期执行')}]] <sup class="rbv"></sup></span>
+</label>
+</div>
+<div class="on-timers mt-1 hide">
+<div>
+<select class="J_whenTimer1" style="width: 80px">
+<option value="D">[[${bundle.L('每天')}]]</option>
+<option value="H">[[${bundle.L('每小时')}]]</option>
+<option value="M">[[${bundle.L('每月')}]]</option>
+<option value="cron">[[${bundle.L('高级表达式')}]]</option>
+</select>
+<span class="J_timerSimple">
+<span>[[${bundle.L('执行')}]]</span>
+<input class="J_whenTimer2" placeholder="1" type="text">
+<span>[[${bundle.L('次')}]]</span>
+<span class="ml-2">[[${bundle.L('执行时段')}]]</span>
+<select class="J_startHour1"></select>
+<span>~</span>
+<select class="J_startHour2"></select>
+</span>
+<span class="J_timerCron hide">
+<span>[[${bundle.L('CRON 表达式')}]]</span>
+<input class="J_whenTimer9 text-bold" placeholder="0 0 * * * ?" style="width: 120px" type="text" value="0 0 * * * ?">
+</span>
+</div>
+<p class="form-text">[[${bundle.L('具体执行时间将在你设定的周期内平均分布。例如每天执行 2 次，其执行时间为 00:00 和 12:00')}]]</p>
+<div class="eval-exec-times"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('附加过滤条件')}]]</label>
+<div class="col-12 col-lg-9 J_whenFilter">
+<a class="btn btn-sm btn-link pl-0 text-left down-2">[[${bundle.L('点击设置')}]]</a>
+<p class="form-text mb-0 mt-0">[[${bundle.L('符合过滤条件的数据才会执行操作')}]]</p>
+</div>
+</div>
+</form>
+</div>
+</li>
+<li class="timeline-item exec">
+<div class="timeline-date"><span>[[${bundle.L('就执行操作')}]]</span></div>
+<div class="timeline-content">
+<form class="simple">
+<div class="form-group row">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('执行操作')}]]</label>
+<div class="col-12 col-lg-9 J_actionType">
+<div class="form-control-plaintext text-bold">[[${actionTypeLabel}]]</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('操作内容')}]]</label>
+<div class="col-12 col-lg-9">
+<div id="react-content">[[${bundle.L('加载中')}]]</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('执行优先级')}]]</label>
+<div class="col-12 col-lg-9">
+<input class="form-control form-control-sm" id="priority" style="max-width: 200px" th:data-o="${priority}" type="number" value="{{ priority }}">
+<p class="form-text mb-0">[[${bundle.L('优先级高 (数字大) 的会被先执行')}]]</p>
+</div>
+</div>
+<div class="form-group row bosskey-show">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('执行策略')}]]</label>
+<div class="col-12 col-lg-9">
+<div class="pt-1">
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" id="asyncMode" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('延迟执行')}]] (LAB)</span>
+</label>
+</div>
+</div>
+</div>
+<div class="form-group row J_last-logs hide">
+<label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('最近执行')}]]</label>
+<div class="col-12 col-lg-9">
+<div class="form-control-plaintext"><span class="text-muted">[[${bundle.L('无')}]]</span></div>
+</div>
+</div>
+</form>
+</div>
+</li>
+<li class="timeline-item last">
+<div class="timeline-content">
+<form class="simple">
+<div class="form-group row footer pt-2">
+<label class="col-12 col-lg-3 col-form-label text-lg-right"></label>
+<div class="col-12 col-lg-9">
+<button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('保存')}]]</button>
+<button class="btn btn-light btn-space w-auto dropdown-toggle" data-toggle="dropdown" title="{{ bundle.L('更多操作') }}" type="button">
+<i class="icon zmdi zmdi-more fs-18"></i>
+</button>
+<div class="dropdown-menu">
+<a class="dropdown-item J_exec-manual">[[${bundle.L('立即执行')}]] <sup class="rbv"></sup></a>
+</div>
+ LOCKED 
+<div class="alert alert-warning alert-icon mb-0 mt-3 hide" style="max-width: 485px">
+<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+<div class="message"></div>
+</div>
+</div>
+</div>
+</form>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        configId: '[[${configId}]]',
+        actionType: '[[${actionType}]]',
+        sourceEntity: '[[${sourceEntity}]]',
+        sourceEntityIsDetail: '[[${sourceEntityIsDetail}]]',
+        when: ~~'[[${when}]]',
+        whenTimer: '[[${whenTimer}]]',
+        whenFilter: [(${whenFilter ?:'null'})],
+        actionContent: [(${actionContent ?:'null'})],
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ advfilter.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ compatible.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ valueset.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ formula.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ trigger ~ '/' ~ trigger ~ '-' ~ design.js }}" type="text/babel"></script>
+<script src="|{{ baseUrl }}/assets/js/trigger/trigger.{{ actionType }}.js?v={{ AppBuild }}|" type="text/babel"></script>
+<link href="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ codemirror ~ '/' ~ lib ~ '/' ~ codemirror.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ codemirror ~ '/' ~ theme ~ '/' ~ material ~ '-' ~ darker.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ codemirror ~ '/' ~ addon ~ '/' ~ hint ~ '/' ~ show ~ '-' ~ hint.css }}" rel="stylesheet" type="text/css">
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ codemirror ~ '/' ~ lib ~ '/' ~ codemirror.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ codemirror ~ '/' ~ mode ~ '/' ~ javascript ~ '/' ~ javascript.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ codemirror ~ '/' ~ addon ~ '/' ~ edit ~ '/' ~ closebrackets.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ codemirror ~ '/' ~ addon ~ '/' ~ edit ~ '/' ~ matchbrackets.js }}"></script>
+</body>
+</html>

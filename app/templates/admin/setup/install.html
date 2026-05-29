@@ -1,0 +1,134 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<title>[[${bundle.L('REBUILD 安装程序')}]]</title>
+<style>
+      .splash-container.rb-install {
+        max-width: 680px;
+      }
+      .splash-footer {
+        padding-top: 20px;
+        padding-bottom: 15px;
+        text-align: left;
+      }
+      .splash-footer .btn.btn-link {
+        color: #555;
+      }
+      .splash-container .card .card-header {
+        padding: 30px 0;
+      }
+      .card-body h3 {
+        text-align: center;
+        color: #666;
+        margin: 30px 0;
+        padding: 0;
+      }
+      .card-body h3 > div {
+        font-size: 1rem;
+        color: #999;
+        font-weight: normal;
+        margin-top: 10px;
+      }
+      .rb-welcome li > a {
+        display: block;
+        border: 1px solid #eee;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        border-radius: 2px;
+      }
+      .rb-welcome li > a:hover {
+        border: 1px solid #4285f4;
+        background-color: #e6eff8;
+      }
+      .rb-finish {
+        padding: 40px 0;
+      }
+      .rb-finish .zmdi.icon {
+        font-size: 60px;
+        color: #999;
+      }
+      .card-body .progress {
+        border-radius: 0;
+        height: 2px;
+        margin-top: 20px;
+        background-color: #eee;
+      }
+      .copyright .license a {
+        color: #999;
+      }
+      .copyright b {
+        margin: 0 6px;
+      }
+      .init-models form > div {
+        padding-bottom: 5px;
+      }
+      .input-sn {
+        max-width: 300px;
+        margin: 12px auto 0;
+        text-align: center;
+      }
+      .input-sn > .form-control {
+        text-align: center;
+        font-weight: bold;
+        border: 0 none;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        letter-spacing: 1px;
+      }
+      .input-sn > .form-control::placeholder {
+        font-weight: normal;
+      }
+      .input-sn > a {
+        display: inline-block;
+        margin-top: -5px;
+        margin-bottom: -8px;
+        text-decoration: underline !important;
+      }
+      .btn .icon.zmdi-chevron-left {
+        margin-top: -2px;
+        font-size: 18px;
+      }
+      .quick-tip > a {
+        display: inline-block;
+        background: linear-gradient(79deg, #1366ec 0%, #8e13ec 60%, #ec138a 100%);
+        box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
+        border-radius: 99px;
+        color: #fff;
+        padding: 8px 16px;
+      }
+    </style>
+</head>
+<body class="rb-splash-screen">
+<div class="rb-wrapper">
+<div class="rb-content">
+<div class="main-content container-fluid">
+<div class="splash-container rb-install">
+<div class="card shadow-lg">
+<div class="card-header bg-primary m-0"><a class="logo-img white"></a></div>
+<div class="card-body pt-0">
+<h2 class="text-center text-muted mb-4 mt-6">[[${bundle.L('请稍后')}]]</h2>
+</div>
+</div>
+<div class="copyright">
+<div>
+<span>&copy; REBUILD ([[${Version}]])</span>
+<b>&middot;</b>
+<a class="link link-icon" href="https://getrebuild.com/learn/install" target="_blank">[[${bundle.L('安装指南')}]]</a>
+</div>
+<div class="mt-1 license link">{{ bundle.L('[REBUILD](https://getrebuild.com/) 使用 GPL-3.0 开源许可和商业授权双重授权协议，安装/使用即表示你已阅读并同意[《用户服务协议》](https://getrebuild.com/legal/service-terms)。')|safe }}</div>
+<div class="mt-2">
+<a class="select-lang dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span></a>
+<div class="dropdown-menu">
+{%- for lang in availableLangs -%}<a class="dropdown-item" href="{{ '?locale=' + lang[0] }}">[[${lang[1]}]]</a>{%- endfor -%}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ init ~ '-' ~ models.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ setup ~ '-' ~ install.js }}" type="text/babel"></script>
+</body>
+</html>

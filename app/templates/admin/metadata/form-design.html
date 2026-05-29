@@ -1,0 +1,168 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/entity/layout#%E8%A1%A8%E5%8D%95%E5%B8%83%E5%B1%80" name="page-help">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ form ~ '-' ~ design.css }}" rel="stylesheet" type="text/css">
+<title>[[${bundle.L('表单设计')}]]</title>
+</head>
+<body class="open-right-sidebar">
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-aside', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<aside class="page-aside">
+<div class="rb-scroller-aside rb-scroller">
+<div class="aside-content">
+<div class="content">
+<div class="aside-header">
+<button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+<span class="title">[[${entityLabel}]]</span>
+<p class="description">[[${comments}]]</p>
+</div>
+</div>
+{%- include "/admin/metadata/subnav-entity.html" -%}
+</div>
+</div>
+</aside>
+<div class="rb-right-sidebar field-aside">
+<div class="rb-content">
+<div class="tab-container">
+<ul class="nav nav-tabs bg-transparent" style="margin-top: 3px">
+<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#FIELDLIST">[[${bundle.L('字段列表')}]]</a></li>
+<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#FIELDNEW">+ [[${bundle.L('添加字段')}]]</a></li>
+</ul>
+<div class="tab-content bg-transparent p-0">
+<div class="tab-pane active" id="FIELDLIST">
+<div class="rb-scroller">
+ FIELDS HERE 
+<div class="field-list dd-list" th:_title="${bundle.L('全部字段已布局')}"></div>
+</div>
+</div>
+<div class="tab-pane" id="FIELDNEW">
+<div class="rb-scroller">
+ TYPES HERE 
+<div class="type-list dd-list"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="main-content container-fluid">
+<div>
+<div class="float-right">
+<div class="btn-group">
+<button class="btn btn-light w-auto dropdown-toggle mr-1" data-toggle="dropdown" type="button">[[${bundle.L('添加')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+<div class="dropdown-menu dropdown-menu-right form-action-menu">
+<div class="dropdown-item-text">[[${bundle.L('添加')}]]</div>
+<a class="dropdown-item J_add-divider">[[${bundle.L('分栏')}]]</a>
+<a class="dropdown-item J_add-refform">[[${bundle.L('表单引用')}]] <sup class="rbv"></sup></a>
+<a class="dropdown-item J_add-nform">[[${bundle.L('表单布局')}]] <sup class="rbv"></sup></a>
+<a class="dropdown-item J_del-unlayout-fields bosskey-show">[[${bundle.L('删除未布局字段')}]] (LAB)</a>
+<div class="dropdown-item-text">[[${bundle.L('切换布局')}]]</div>
+</div>
+</div>
+<div class="btn-group">
+<button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+<button class="btn btn-primary dropdown-toggle w-auto" data-toggle="dropdown" type="button"><i class="icon zmdi zmdi-chevron-down"></i></button>
+<div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+<a class="dropdown-item J_resize-fields">[[${bundle.L('重置布局')}]]</a>
+<a class="dropdown-item J_copy-layout">[[${bundle.L('复制布局')}]] <sup class="rbv"></sup></a>
+</div>
+</div>
+</div>
+<div class="tab-container">
+<ul class="nav nav-tabs nav-tabs-classic">
+<li class="nav-item">
+<a class="nav-link active" data-toggle="tab" href="#form-design"> [[${bundle.L('表单布局')}]] </a>
+</li>
+<li class="nav-item">
+<a class="nav-link" data-toggle="tab" href="#adv-control">[[${bundle.L('高级控制')}]] <sup class="rbv"></sup></a>
+</li>
+</ul>
+<div class="tab-content mb-5">
+<div class="tab-pane active" id="form-design">
+ LAYOUT HERE 
+<div class="form-preview view-preview dd-list" th:_title="${bundle.L('点击右侧字段添加到布局')}"></div>
+<div class="clearfix"></div>
+</div>
+<div class="tab-pane" id="adv-control">
+{%- if commercial &gt; 1 -%}<table class="table table-hover table-p">
+<thead>
+<tr>
+<th>[[${bundle.L('字段')}]]</th>
+<th>[[${bundle.L('隐藏')}]]</th>
+<th>
+<span class="d-inline-block">[[${bundle.L('必填')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" title="{{ bundle.L('本选项仅针对表单有效') }}"></i></span>
+</th>
+<th>
+<span class="d-inline-block">[[${bundle.L('只读')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" title="{{ bundle.L('本选项仅针对表单有效') }}"></i></span>
+</th>
+</tr>
+</thead>
+<tbody>
+<tr class="J_template">
+<td>TEMPLATE</td>
+<td>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" name="hiddenOnCreate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" name="hiddenOnUpdate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
+</label>
+<a class="easy-control" data-type="hidden" title="{{ bundle.L('隐藏条件') }}"><i class="icon mdi mdi-filter-check-outline"></i></a>
+</td>
+<td>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" name="requiredOnCreate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" name="requiredOnUpdate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
+</label>
+<a class="easy-control" data-type="required" title="{{ bundle.L('必填条件') }}"><i class="icon mdi mdi-filter-check-outline"></i></a>
+</td>
+<td>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" name="readonlyOnCreate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+<input class="custom-control-input" name="readonlyOnUpdate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
+</label>
+<a class="easy-control" data-type="readonly" title="{{ bundle.L('只读条件') }}"><i class="icon mdi mdi-filter-check-outline"></i></a>
+</td>
+</tr>
+</tbody>
+</table>{%- endif -%}
+</div>
+</div>
+</div>
+<p class="protips">[[${bundle.L('详情页/手机版/明细编辑列表将自动适配此布局')}]]</p>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        formConfig: [(${FormConfig ?:'null'})],
+        entityName: '[[${entityName}]]',
+        isMainEntity: [(${isMainEntity ?:'false'})],
+        isDetailEntity: [(${isDetailEntity ?:'false'})],
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+        formsAttr: [(${FormsAttr ?:'null'})],
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entity ~ '-' ~ switch.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ advfilter.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ easyfilter.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ type.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ new2.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ form ~ '-' ~ design.js }}" type="text/babel"></script>
+</body>
+</html>

@@ -1,0 +1,444 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.protable .table .col-tree,
+.protable .table .col-checkbox {
+  padding-left: 0;
+  padding-right: 0;
+  text-align: left;
+  width: 73px; /* L6 */
+  min-width: 73px;
+}
+
+.protable .table .col-checkbox {
+  width: 38px;
+  min-width: 38px;
+}
+
+.protable .table .col-tree {
+  padding-left: 9px;
+}
+
+.protable .table .col-checkbox + .col-tree {
+  padding-left: 0;
+}
+
+.protable .table .col-tree a {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  font-size: 1.4rem;
+  background-color: #eee;
+  border-radius: 2px;
+  text-align: center;
+  color: #999;
+}
+
+.protable .table .col-tree a:hover {
+  color: var(--rb-theme-color);
+}
+
+.protable .table .col-tree a > span {
+  font-size: 11px;
+  display: inline-block;
+  transform: translateY(-2px);
+}
+
+.protable .table .col-tree a > span ~ i {
+  display: none;
+}
+
+.protable .table .col-checkbox > label {
+  margin-left: 10px;
+}
+
+.protable .table .col-checkbox .custom-control-label::before {
+  border-radius: 2px;
+}
+
+.protable .table .col-checkbox .custom-control .custom-control-input:checked ~ .custom-control-label::after {
+  margin-left: -1.2px;
+}
+
+.detail-form-header h5 {
+  margin: 0;
+  padding-top: 9px;
+}
+
+.detail-form-header h5 > .icon {
+  line-height: 17px;
+  font-size: 19px;
+  transform: translateY(2px);
+}
+
+.detail-form-header h5 > a {
+  opacity: 0.6;
+  padding: 0 6px;
+  font-size: 15px;
+  color: #616161;
+  transform: translateY(1.5px);
+  display: none;
+}
+
+.detail-form-header h5 > a:hover {
+  opacity: 0.8;
+}
+
+.detail-form-header h5:hover > a {
+  display: inline-block;
+}
+
+/* fix btn-space compact */
+
+div.dataTables_wrapper div.dataTables_oper {
+  font-size: 0;
+}
+
+div.dataTables_wrapper div.dataTables_oper .btn-space {
+  margin-right: 10px;
+}
+
+div.dataTables_wrapper div.dataTables_oper .btn-space:last-child {
+  margin-right: 5px;
+}
+
+div.dataTables_wrapper div.dataTables_oper.compact .btn {
+  min-width: 60px;
+}
+
+div.dataTables_wrapper div.dataTables_oper.compact .btn-space {
+  margin-right: 5px;
+}
+
+.rbform .detail-form-table .detail-form-header,
+.rbform .detail-form-table .detail-form-action {
+  min-height: 36.39px;
+}
+
+.rbform .dialog-footer .fjs-dock,
+.rbform .detail-form-table .detail-form-action .fjs-dock,
+.dataTables_wrapper .dataTables_oper .fjs-dock,
+.related-list .related-toolbar .fjs-dock {
+  display: inline-block;
+}
+
+.rbform .dialog-footer .fjs-dock:empty,
+.rbform .detail-form-table .detail-form-action .fjs-dock:empty,
+.dataTables_wrapper .dataTables_oper .fjs-dock:empty,
+.view-body .view-operating .fjs-dock:empty,
+.related-list .related-toolbar .fjs-dock:empty {
+  display: none;
+}
+
+.rbform .dialog-footer .fjs-dock > *,
+.rbform .detail-form-table .detail-form-action .fjs-dock > *,
+.dataTables_wrapper .dataTables_oper .fjs-dock > *,
+.related-list .related-toolbar .fjs-dock > * {
+  margin-right: 10px;
+}
+
+.dataTables_wrapper .dataTables_oper .fjs-dock > *:last-child,
+.dataTables_wrapper .dataTables_oper.compact .fjs-dock > * {
+  margin-right: 5px;
+}
+
+.dataTables_oper .btn-space {
+  margin-bottom: 0;
+}
+
+.form-layout .type-NTEXT a.text-common {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  background-color: #eee;
+  border: 0 none;
+  font-size: 12px;
+  padding-left: 6px;
+  padding-right: 15px;
+}
+
+.form-layout .type-NTEXT a.text-common::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\F035D';
+  font-size: 17px;
+  position: absolute;
+  margin-left: -2px;
+  margin-top: -4px;
+}
+
+.form-layout .type-NTEXT a.text-common:hover {
+  background-color: #ddd;
+}
+
+.rbview-form.form-layout .type-NTEXT a.text-common {
+  bottom: 33px;
+}
+
+.form-layout .img-field > span {
+  margin: 0;
+}
+
+.form-layout .img-field .img-field-btn {
+  position: relative;
+  margin-bottom: 5px;
+}
+
+/* detail-form-table protable */
+
+.detail-form-table {
+  margin: 5px 15px 15px;
+}
+
+.protable.rb-scroller {
+  padding-bottom: 15px;
+}
+
+.protable .form-group {
+  margin: 0;
+  padding: 0;
+}
+
+.protable .col-form-label,
+.protable .col-form-control > .form-text {
+  display: none;
+}
+
+.protable .img-field,
+.protable .file-field label {
+  margin-bottom: 0;
+}
+
+.protable .file-field .file-select {
+  margin-top: 0;
+  overflow: hidden;
+  height: 37px;
+}
+
+.protable .file-field .file-field-show:empty + .file-select {
+  transform: translateY(2px);
+}
+
+.protable .table tr td {
+  position: relative;
+}
+
+.protable .table tr td .custom-control {
+  padding-left: 2.1377rem;
+  margin-bottom: 4px;
+}
+
+.protable .type-MULTISELECT .custom-checkbox {
+  min-width: 48%;
+}
+
+.protable .table tr td .custom-control.custom-radio {
+  margin-right: 10px;
+  margin-bottom: 0;
+}
+
+.protable .type-MULTISELECT {
+  padding-bottom: 0 !important;
+  margin-bottom: -2px !important;
+}
+
+.protable .type-FILE {
+  margin-bottom: 0 !important;
+}
+
+.protable .type-IMAGE {
+  margin-bottom: -5px !important;
+  padding-bottom: 0 !important;
+}
+
+.protable .type-NTEXT textarea.row3x {
+  height: 60px !important;
+}
+
+.protable .table {
+  border-bottom: 1px solid #dee2e6;
+  margin: 0;
+}
+
+.protable .table th,
+.protable .table thead td,
+.protable .table tfoot td {
+  background-color: #eceff1;
+  font-weight: normal;
+  border-bottom-width: 1px;
+}
+
+.protable .table .col-index {
+  width: 38px;
+  min-width: 38px;
+  padding-left: 0;
+  text-align: right;
+}
+
+.protable .table .col-action {
+  padding-right: 0;
+  text-align: right;
+  width: 48px;
+  min-width: 48px;
+}
+
+.protable .table .col-action.has-copy-btn {
+  width: 86px;
+  min-width: 86px;
+}
+
+.protable .table .col-action .btn {
+  min-width: 37px;
+  margin-right: 1px;
+  background-color: transparent;
+}
+
+.protable .table .col-action .btn:hover {
+  background-color: #e6e6e6;
+}
+
+.detail-form-table.col-action-hide .col-action,
+.detail-form-table.col-action-hide-remove .col-action .J_remove-detail,
+.detail-form-table.col-action-hide-copy .col-action .J_copy-detail {
+  display: none;
+}
+
+.detail-form-sort-helper,
+.detail-form-sort-placeholder {
+  width: 100%;
+  height: 51.57px;
+  background-color: #eceff1;
+}
+
+.detail-form-sort-helper {
+  opacity: 0.6;
+}
+
+.protable .table thead th,
+.protable .table tfoot th {
+  position: relative;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.protable .table thead th .dividing {
+  width: 10px;
+  border-right: 1px solid #dee2e6;
+  border-right: 1px solid #ddd;
+  cursor: col-resize;
+  position: absolute;
+  height: 18px;
+  top: 9px;
+  right: 0;
+}
+
+.protable .table thead th .dividing:hover,
+.protable .table thead th .dividing:active {
+  border-right-width: 3px;
+}
+
+.protable .table thead th i.dividing.ui-draggable-dragging {
+  border-right-width: 3px !important;
+  border-bottom-color: #4285f4 !important;
+  z-index: 101;
+  cursor: col-resize;
+}
+
+.protable .table thead th .tipping {
+  position: absolute;
+  font-size: 1.21rem;
+  margin-left: 6px;
+  margin-top: 1px;
+  cursor: help;
+  color: #777;
+}
+
+.protable .table thead th .tipping:hover {
+  opacity: 0.8;
+}
+
+.protable .table thead th.required .tipping {
+  margin-left: 16px;
+}
+
+.protable .table tbody .col-index[title] {
+  background-color: #ea4335;
+  color: #fff;
+  cursor: help;
+}
+
+.protable .column-fixed.col-action {
+  padding: 7px 0 7px 7px !important;
+  z-index: 2;
+}
+
+.protable .column-fixed.col-action::after {
+  right: auto;
+  left: -48px;
+  box-shadow: inset -10px 0 8px -8px rgb(0 0 0 / 15%);
+}
+
+.protable .table thead {
+  position: sticky;
+  top: 0;
+}
+
+.protable .table tbody tr.active {
+  background-color: #eceff1;
+}
+
+.protable td .select2.select2-container {
+  max-width: 500px;
+}
+
+/* DataList */
+
+.data-list .table td.editable {
+  outline: 1px double var(--rb-theme-color);
+  background-color: #fff !important;
+  position: relative;
+  z-index: 1;
+}
+
+.data-list .table td.editable > div::after {
+  font-family: 'Material-Design-Iconic-Font', serif;
+  content: '\f158';
+  font-size: 16px;
+  position: absolute;
+  color: #737373;
+  right: 8px;
+  top: 7px;
+  cursor: pointer;
+}
+
+.detail-form-table {
+  margin-top: 0;
+}
+
+.detail-form-table .detail-form-table-header {
+  padding: 10px 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  background-color: #fff;
+  position: sticky;
+  z-index: 6;
+  top: 0;
+  overflow: visible;
+}
+
+.detail-form-table + .detail-form-table .detail-form-table-header {
+  z-index: 5;
+}
+.detail-form-table + .detail-form-table + .detail-form-table .detail-form-table-header {
+  z-index: 4;
+}
+.detail-form-table + .detail-form-table + .detail-form-table + .detail-form-table .detail-form-table-header {
+  z-index: 3;
+}
+
+.modal-dialog-scrollable .detail-form-table .detail-form-table-header {
+  top: -15px;
+}

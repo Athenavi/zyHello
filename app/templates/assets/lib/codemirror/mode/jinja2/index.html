@@ -1,0 +1,60 @@
+html
+<title>CodeMirror: Jinja2 mode</title>
+<meta charset="utf-8">
+<link href="../../doc/docs.css" rel="stylesheet">
+<link href="../../lib/codemirror.css" rel="stylesheet">
+<script src="../../lib/codemirror.js"></script>
+<script src="jinja2.js"></script>
+<style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<div id="nav">
+<a href="https://codemirror.net/5"><h1>CodeMirror</h1><img alt id="logo" src="../../doc/logo.png"></a>
+<ul>
+<li><a href="../../index.html">Home</a>
+<li><a href="../../doc/manual.html">Manual</a>
+<li><a href="https://github.com/codemirror/codemirror5">Code</a>
+</li></li></li></ul>
+<ul>
+<li><a href="../index.html">Language modes</a>
+<li><a class="active" href="#">Jinja2</a>
+</li></li></ul>
+</div>
+<article>
+<h2>Jinja2 mode</h2>
+<form><textarea id="code" name="code">
+{# this is a comment #}
+{%- for item in li -%}
+  &lt;li&gt;{{ item.label }}&lt;/li&gt;
+{% endfor -%}
+{{ item.sand == true and item.keyword == false ? 1 : 0 }}
+{{ app.get(55, 1.2, true) }}
+{% if app.get('_route') == ('_home') %}home{% endif %}
+{% if app.session.flashbag.has('message') %}
+  {% for message in app.session.flashbag.get('message') %}
+    {{ message.content }}
+  {% endfor %}
+{% endif %}
+{{ path('_home', {'section': app.request.get('section')}) }}
+{{ path('_home', {
+    'section': app.request.get('section'),
+    'boolean': true,
+    'number': 55.33
+  })
+}}
+{% include ('test.incl.html.twig') %}
+
+# for item in seq:
+    &lt;li&gt;{{ item }} &lt;/li&gt;    ## this comment is ignored
+# endfor
+# set text = "Multiline
+	text"
+# for href, caption in [('index.html', 'Index'),
+                        ('about.html', 'About')]:
+    &lt;li&gt;&lt;a href="{{ href }}"&gt;{{ caption }}&lt;/a&gt;&lt;/li&gt;
+# endfor
+</textarea></form>
+<script>
+      var editor =
+      CodeMirror.fromTextArea(document.getElementById("code"), {mode:
+        {name: "jinja2", htmlMode: true}});
+    </script>
+</article>

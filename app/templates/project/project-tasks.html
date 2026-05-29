@@ -1,0 +1,109 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/manual/project-task" name="page-help">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ project ~ '-' ~ tasks.css }}" rel="stylesheet" type="text/css">
+<title>{{ projectName }} + ' &middot; ' + {{ bundle.L('项目') }}</title>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left.html" -%}
+<div class="rb-loading rb-loading-active must-center J_project-load">
+{%- include "/_include/spinner.html" -%}
+</div>
+<div class="rb-content">
+<div class="main-content container-fluid p-0">
+<div class="ps-toolbar">
+<div class="row">
+<div class="col-sm-5">
+<div class="project-head">
+<h4>
+                    [[${projectName}]]
+                    {%- if scope == 1 -%}<span class="badge badge-secondary up-2">[[${bundle.L('公开')}]]</span>{%- endif -%}
+{%- if status == 2 -%}<span class="badge badge-secondary up-2">[[${bundle.L('已归档')}]]</span>{%- endif -%}
+</h4>
+<div class="project-action">
+<span class="admin-show">
+<a class="zicon" href="{{ baseUrl }} + '/admin/project/' + {{ projectId }}" target="_blank" title="{{ bundle.L('项目管理') }}">
+<i class="zmdi zmdi-settings"></i>
+</a>
+</span>
+</div>
+</div>
+</div>
+<div class="col-sm-7 text-right d-none d-md-block">
+<div class="btn-group J_sorts float-right">
+<button class="btn btn-link" data-toggle="dropdown" type="button">
+<i class="icon mdi mdi-view-carousel-outline"></i>
+<span>[[${bundle.L('显示方式')}]]</span>
+</button>
+<div class="dropdown-menu dropdown-menu-right">
+<span class="dropdown-item-text">[[${bundle.L('排序')}]]</span>
+<a class="dropdown-item check" data-sort="seq">[[${bundle.L('手动拖动')}]]</a>
+<a class="dropdown-item" data-sort="deadline">[[${bundle.L('最近到期')}]]</a>
+<a class="dropdown-item" data-sort="modifiedOn">[[${bundle.L('最近修改')}]]</a>
+<span class="dropdown-item-text">[[${bundle.L('排列方式')}]]</span>
+<a class="dropdown-item" data-group="plan" href="?group=plan">[[${bundle.L('按任务面板')}]]</a>
+<a class="dropdown-item" data-group="priority" href="?group=priority">[[${bundle.L('按优先级')}]]</a>
+<a class="dropdown-item" data-group="deadline" href="?group=deadline">[[${bundle.L('按到期时间')}]]</a>
+<a class="dropdown-item" data-group="modified" href="?group=modified">[[${bundle.L('按修改时间')}]]</a>
+</div>
+</div>
+<div class="btn-group J_view float-right">
+<button class="btn btn-link" data-toggle="dropdown" type="button">
+{%- if view == 1 -%}
+<i class="icon mdi mdi-view-week"></i>
+<span>[[${bundle.L('看板')}]]</span>
+{%- endif -%}
+{%- if view == 2 -%}
+<i class="icon mdi mdi-format-list-checkbox"></i>
+<span>[[${bundle.L('列表')}]]</span>
+{%- endif -%}
+</button>
+<div class="dropdown-menu dropdown-menu-right">
+<a class="dropdown-item" href="{{ 'tasks' if view == 1 else '../tasks' }}">
+<i class="icon mdi mdi-view-week"></i>
+                      [[${bundle.L('看板视图')}]]
+                    </a>
+<a class="dropdown-item" href="{{ 'tasks/list' if view == 1 else '../tasks/list' }}">
+<i class="icon mdi mdi-format-list-checkbox"></i>
+                      [[${bundle.L('列表视图')}]]
+                    </a>
+</div>
+</div>
+<div class="input-group input-search J_search float-right">
+<input class="form-control" placeholder="{{ bundle.L('搜索标题和 ID') }}" type="text">
+<button class="btn btn-input-clear" type="button"></button>
+<span class="input-group-btn">
+<button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+</span>
+<span class="input-group-append">
+<button class="btn btn-secondary w-auto J_filterbtn" type="button"><i class="icon mdi mdi-filter"></i></button>
+<i class="indicator-primary bg-warning hide" style="top: 5px; right: 5px; z-index: 2"></i>
+</span>
+</div>
+</div>
+</div>
+</div>
+<div data-fullcontent="116" id="plan-boxes"></div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        type: 'TaskList',
+        id: '[[${projectId}]]',
+        icon: '[[${iconName}]]',
+        projectCode: '[[${projectCode}]]',
+        projectName: '[[${projectName}]]',
+        projectPlans: [(${projectPlans ?:'null'})],
+        isMember: '[[${isMember}]]' === 'true',
+        status: [[${status}]],
+      }
+    </script>
+{%- include "/_include/forms.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ project ~ '/' ~ project ~ '-' ~ tasks.js }}" type="text/babel"></script>
+</body>
+</html>

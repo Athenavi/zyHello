@@ -1,0 +1,58 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+<meta content="3600" http-equiv="refresh">
+<meta content="https://getrebuild.com/img/logo256.png" name="og:image">
+<title>[[${dashName}]]</title>
+<link href="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ gridstack.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ charts.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ dashboard.css }}" rel="stylesheet" type="text/css">
+<meta name="rb.shareKey" th:content="${shareKey}">
+<style>
+      .chart-grid {
+        margin: 0;
+        padding: 20px 15px;
+      }
+      .J_chart-filter,
+      .J_source,
+      .J_mores {
+        display: none !important;
+      }
+    </style>
+</head>
+<body>
+<div class="rb-loading rb-loading-active must-center J_load-page">
+{%- include "/_include/spinner.html" -%}
+</div>
+<div class="chart-grid">
+<div class="grid-stack"></div>
+</div>
+{%- if pageFooter != none -%}<div class="page-footer">[(${pageFooter})]</div>{%- endif -%}
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ lodash.min.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ gridstack.all.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ echarts.min.js ~ '?' ~ v ~ '=5.5.0' }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ tablecellsselection.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ charts ~ '/' ~ charts.mapstyle.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ charts ~ '/' ~ charts.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ charts ~ '/' ~ chart ~ '-' ~ settings.js }}" type="text/babel"></script>
+{%- include "/_include/forms.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ charts ~ '/' ~ dashboard.js }}" type="text/babel"></script>
+<script>
+      window.__PageConfig = {
+        dashId: '[[${dashId}]]',
+        dashConfig: [(${dashConfig})],
+      }
+    </script>
+<script type="text/babel">
+      const wpc = window.__PageConfig
+      dashid = wpc.dashId
+      dash_editable = false
+      $(document).ready(() => {
+        render_dashboard(wpc.dashConfig)
+        $('.J_load-page').remove()
+      })
+    </script>
+</body>
+</html>

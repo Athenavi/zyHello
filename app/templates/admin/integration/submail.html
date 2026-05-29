@@ -1,0 +1,168 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/integration#%E7%9F%AD%E4%BF%A1/%E9%82%AE%E4%BB%B6" name="page-help">
+<title>[[${bundle.L('邮件与短信')}]]</title>
+<style>
+      .row.stats .col-8 span {
+        display: block;
+        height: 40px;
+        width: 100%;
+        margin-top: 4px;
+      }
+      .smtp .smtp-hide,
+      .smtp-show {
+        display: none;
+      }
+      .smtp .smtp-show {
+        display: inline-block;
+      }
+      .smtp tr.smtp-show {
+        display: table-row;
+      }
+      .smtp td[data-id='MailAddr'] > p {
+        display: none;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="main-content container-fluid syscfg">
+<div class="row">
+<div class="col-lg-9 col-12">
+<div class="card">
+<div class="card-header pb-1">
+                  [[${bundle.L('短信与邮件')}]]
+                  <a class="float-right J_edit" href="###"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+<a class="float-right J_save hide" href="###"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
+</div>
+<div class="card-body">
+<h5>[[${bundle.L('邮件服务')}]] (SUBMAIL/SMTP)</h5>
+<table class="table email-set">
+<tbody>
+<tr class="smtp-show">
+<td width="40%">[[${bundle.L('SMTP 服务器地址')}]]</td>
+<td data-id="MailSmtpServer" data-ignore="true" th:data-value="${mailAccount == null ? '' : mailAccount[6]}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[6]}]]
+                        </td>
+</tr>
+<tr>
+<td width="40%">
+<span class="smtp-hide">APPID</span>
+<span class="smtp-show">[[${bundle.L('SMTP 用户名')}]]</span>
+</td>
+<td data-id="MailUser" th:data-value="${mailAccount == null ? '' : mailAccount[0]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[0]}]]</td>
+</tr>
+<tr>
+<td>
+<span class="smtp-hide">APPKEY</span>
+<span class="smtp-show">[[${bundle.L('SMTP 密码')}]]</span>
+</td>
+<td data-id="MailPassword" th:data-value="${mailAccount == null ? '' : mailAccount[1]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[1]}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('发件人地址')}]]</td>
+<td data-id="MailAddr" th:data-form-text="${bundle.L('地址域名需与 SUBMAIL 中配置的域名匹配')}" th:data-value="${mailAccount == null ? '' : mailAccount[2]}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[2]}]]
+                        </td>
+</tr>
+<tr>
+<td>[[${bundle.L('发件人名称')}]]</td>
+<td data-id="MailName" th:data-value="${mailAccount == null ? '' : mailAccount[3]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[3]}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('抄送地址')}]]</td>
+<td data-id="MailCc" data-optional="true" th:data-value="${mailAccount == null || mailAccount[4] == null ? '' : mailAccount[4]}">
+                          [[${mailAccount == null || mailAccount[4] == null ? bundle.L('无') : mailAccount[4]}]]
+                        </td>
+</tr>
+<tr>
+<td>[[${bundle.L('密送地址')}]]</td>
+<td data-id="MailBcc" data-optional="true" th:data-value="${mailAccount == null || mailAccount[5] == null ? '' : mailAccount[5]}">
+                          [[${mailAccount == null || mailAccount[5] == null ? bundle.L('无') : mailAccount[5]}]]
+                        </td>
+</tr>
+<tr class="show-on-edit">
+<td></td>
+<td>
+<button class="btn btn-primary btn-outline J_test-email" type="button">[[${bundle.L('发送测试')}]]</button>
+<button class="btn btn-link J_switch-email-set smtp-hide" type="button"><i class="zmdi zmdi-swap icon"></i> [[${bundle.L('使用')}]] SMTP</button>
+<button class="btn btn-link J_switch-email-set smtp-show" type="button"><i class="zmdi zmdi-swap icon"></i> [[${bundle.L('使用')}]] SUBMAIL</button>
+</td>
+</tr>
+</tbody>
+</table>
+{%- if mailAccount == none -%}<div class="alert alert-danger alert-icon mt-6">
+<div class="icon"><span class="mdi mdi-message-alert-outline"></span></div>
+<div class="message">[[${bundle.L('邮件服务未配置，相关功能不可用')}]]</div>
+</div>{%- endif -%}
+<h5>[[${bundle.L('短信服务')}]] (SUBMAIL)</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">APPID</td>
+<td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">[[${smsAccount == null ? bundle.L('未设置') : smsAccount[0]}]]</td>
+</tr>
+<tr>
+<td>APPKEY</td>
+<td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">[[${smsAccount == null ? bundle.L('未设置') : smsAccount[1]}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('短信签名')}]]</td>
+<td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">[[${smsAccount == null ? bundle.L('未设置') : smsAccount[2]}]]</td>
+</tr>
+<tr class="show-on-edit">
+<td></td>
+<td><button class="btn btn-primary btn-outline J_test-sms">[[${bundle.L('发送测试')}]]</button></td>
+</tr>
+</tbody>
+</table>
+{%- if smsAccount == none -%}<div class="alert alert-danger alert-icon mt-6 mb-6">
+<div class="icon"><span class="mdi mdi-message-alert-outline"></span></div>
+<div class="message">[[${bundle.L('短信服务未配置，相关功能不可用')}]]</div>
+</div>{%- endif -%}
+<div class="edit-footer">
+<button class="btn btn-link">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-3 col-12 col-right-compact">
+<div class="card">
+<div class="card-header card-header-divider">[[${bundle.L('发送统计')}]] <small class="fs-13">([[${bundle.L('90天')}]])</small></div>
+<div class="card-body">
+<div class="row stats J_stats-sms">
+<div class="col-8">
+<span></span>
+</div>
+<div class="col-4">
+<strong class="fs-18">0</strong>
+<p class="text-muted m-0" ondblclick="location.href = '../audit/smsend-logs'">[[${bundle.L('短信')}]]</p>
+</div>
+</div>
+<div class="row stats J_stats-email mt-4">
+<div class="col-8">
+<span></span>
+</div>
+<div class="col-4">
+<strong class="fs-18">0</strong>
+<p class="text-muted m-0" ondblclick="location.href = '../audit/smsend-logs'">[[${bundle.L('邮件')}]]</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ syscfg.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ echarts.min.js ~ '?' ~ v ~ '=5.5.0' }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ submail.js }}" type="text/babel"></script>
+</body>
+</html>

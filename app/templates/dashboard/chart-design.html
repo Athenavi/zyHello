@@ -1,0 +1,322 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/manual/custom-layouts#%E5%9B%BE%E8%A1%A8" name="page-help">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ charts.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ chart ~ '-' ~ design.css }}" rel="stylesheet" type="text/css">
+<title>[[${bundle.L('图表设计')}]]</title>
+</head>
+<body>
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
+{%- include "/_include/nav-top.html" -%}
+<div class="rb-content">
+<aside class="data-aside">
+<div class="rb-scroller">
+<div class="data-info">
+<h5>[[${bundle.L('数据来源')}]]</h5>
+<ul class="list-unstyled esource">
+<li>
+<span class="text-bold">
+<i class="['zmdi', 'icon', 'fs-16', 'down-1'] |zmdi-{{ entityIcon }}|"></i>
+                    [[${entityLabel}]]
+                  </span>
+</li>
+</ul>
+</div>
+<div class="data-info J_fields">
+<h5>
+<div class="search-input425">
+<input placeholder="{{ bundle.L('可用字段') }}" type="text">
+<i class="zmdi zmdi-search"></i>
+</div>
+</h5>
+<ul class="list-unstyled fields">
+{%- for field in availableFields -%}
+<li th:class="${field[2]}"><a th:data-field="${field[0]}" th:data-pinyin="${field[3]}" th:data-type="${field[2]}" th:title="${field[1]}">[[${field[1]}]]</a></li>
+{%- endfor -%}
+</ul>
+</div>
+</div>
+</aside>
+<aside class="config-aside">
+<div class="rb-scroller">
+<div class="data-info">
+<h5>[[${bundle.L('图表名称')}]]</h5>
+<div class="input">
+<input class="form-control form-control-sm" id="chart-title" placeholder="{{ bundle.L('未命名图表') }}" value="{{ chartTitle }}">
+<i class="zmdi zmdi-edit icon"></i>
+</div>
+</div>
+<div class="data-info J_c-type">
+<h5>[[${bundle.L('图表类型')}]]</h5>
+<div class="chart-type">
+<a data-allow-dims="0|5" data-allow-nums="0|9" data-type="TABLE" title="{{ bundle.L('统计表') }}"><i class="C200"></i></a>
+<a data-allow-dims="0|0" data-allow-nums="1|2" data-type="INDEX" title="{{ bundle.L('指标卡') }}"><i class="C310"></i></a>
+<a data-allow-dims="1|2" data-allow-nums="1|9" data-type="LINE" title="{{ bundle.L('折线图') }}"><i class="C220"></i></a>
+<a data-allow-dims="1|2" data-allow-nums="1|9" data-type="BAR" title="{{ bundle.L('柱状图') }}"><i class="C210"></i></a>
+<a data-allow-dims="1|2" data-allow-nums="1|9" data-type="BAR2" title="{{ bundle.L('堆叠柱状图') }}"><i class="C240"></i></a>
+<a data-allow-dims="1|2" data-allow-nums="1|9" data-type="BAR3" title="{{ bundle.L('折线柱状图') }}"><i class="C250"></i></a>
+<a class="PARETO" data-allow-dims="1|1" data-allow-nums="1|1" data-type="PARETO" title="{{ bundle.L('柏拉图') }}"><i class="PARETO mdi mdi-chart-multiple"></i></a>
+<a data-allow-dims="1|1" data-allow-nums="1|1" data-type="PIE" title="{{ bundle.L('饼图') }}"><i class="C230"></i></a>
+<a data-allow-dims="0|1" data-allow-nums="1|9" data-type="FUNNEL" title="{{ bundle.L('漏斗图') }}"><i class="C330"></i></a>
+<a data-allow-dims="1|3" data-allow-nums="1|1" data-type="TREEMAP" title="{{ bundle.L('矩形树图') }}"><i class="C370"></i></a>
+<a data-allow-dims="1|1" data-allow-nums="1|3" data-type="RADAR" title="{{ bundle.L('雷达图') }}"><i class="C290"></i></a>
+<a data-allow-dims="0|3" data-allow-nums="2|2" data-type="SCATTER" title="{{ bundle.L('散点图') }}"><i class="C280"></i></a>
+<a data-allow-dims="1|1" data-allow-nums="0|1" data-type="CNMAP" title="{{ bundle.L('地图') }}"><i class="C271"></i></a>
+<a class="DATALIST2" data-allow-dims="1|99" data-allow-nums="0|0" data-type="DATALIST2" title="{{ bundle.L('数据列表') }}"><i class="DATALIST2 mdi mdi-view-module-outline"></i></a>
+
+<!-- commercial-only chart types (disabled) -->
+<!-- <a th:title="${bundle.L('对比图')}" data-type="BARNEGATIVE" data-allow-dims="1|1" data-allow-nums="2|2"><i class="C243"></i></a> -->
+<!-- <a th:title="${bundle.L('词云')}" data-type="DOLOR" data-allow-dims="1|1" data-allow-nums="0|0"><i class="C340"></i></a> -->
+<!-- <a th:title="${bundle.L('旭日图')}" data-type="SUNBURST" data-allow-dims="2|3" data-allow-nums="1|1"><i class="C360"></i></a> -->
+                
+</div>
+</div>
+<div class="data-info mt-3 J_c-option">
+<h5>[[${bundle.L('图表选项')}]]</h5>
+<div class="pl-1 mt-3 chart-option">
+<div class="J_opt-UNDEF">[[${bundle.L('当前图表无选项')}]]</div>
+<div class="hide J_opt-ALL">
+<label>
+<a class="J_filter" href="###">
+<i class="mdi mdi-filter down-2" style="font-size: 17px; width: 22px; color: #999"></i>
+<span>[[${bundle.L('过滤条件')}]]</span>
+<span></span>
+</a>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox admin-show">
+<input class="custom-control-input" data-name="noPrivileges" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('使用全部数据')}]] <i class="zmdi zmdi-help zicon" title="{{ bundle.L('不启用则仅能查看登录用户权限内的数据') }}"></i></span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="shareChart" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('共享此图表')}]] <i class="zmdi zmdi-help zicon" title="{{ bundle.L('共享后其他用户也可以使用 (不能修改)') }}"></i></span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox hide">
+<input class="custom-control-input" data-name="noZero" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('排除空数据 (数值为 0 不显示)')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-TABLE">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showLineNumber" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示行号')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showSums" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示汇总')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="mergeCell" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('自动合并单元格')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showNumerical" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示数值')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-SCATTER">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showGrid" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示参考线')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-RADAR J_opt-SCATTER">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showLegend" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示图例')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showMarkLine" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示均线')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="labelRotate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('横轴倾斜显示')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-FUNNEL">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showCvr" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示转化率')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-RADAR">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="absoluteScale" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('比例显示')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-BAR J_opt-BAR2 J_opt-BAR3">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showHorizontal" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('横向显示')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR3">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showMutliYAxis" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('多轴显示')}]] <i class="zmdi zmdi-help zicon" title="{{ bundle.L('当有多个数值时可用') }}"></i></span>
+</label>
+</div>
+<div class="hide J_opt-LINE">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showAreaColor" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示区域背景')}]]</span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="dateContinuous" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('尝试使用连续日期')}]] <i class="zmdi zmdi-help zicon" title="{{ bundle.L('当维度为日期时可用') }}"></i></span>
+</label>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="useComparison" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('尝试使用日期对比')}]] <i class="zmdi zmdi-help zicon" title="{{ bundle.L('当维度为日期时且有多个数值时可用') }}"></i></span>
+</label>
+</div>
+<div class="hide J_opt-INDEX">
+<label class="custom-control custom-control-sm custom-checkbox">
+<input class="custom-control-input" data-name="showGrowthRate" type="checkbox">
+<span class="custom-control-label">[[${bundle.L('显示增长率')}]] <i class="zmdi zmdi-help zicon" title="{{ bundle.L('有多个数值时可用') }}"></i></span>
+</label>
+</div>
+<div class="hide J_opt-INDEX">
+<label class="line-style">[[${bundle.L('颜色')}]]</label>
+<div class="rbcolors" id="useColor">
+<a class="default" title="{{ bundle.L('默认') }}"></a>
+</div>
+</div>
+<div class="hide J_opt-DATALIST2 J_opt-TABLE">
+<label class="line-style">[[${bundle.L('最大显示条数')}]]</label>
+<input data-name="pageSize" maxlength="4" placeholder="{{ bundle.L('默认') }}" type="text">
+</div>
+<div class="hide J_opt-CNMAP">
+<label class="line-style">[[${bundle.L('样式')}]]</label>
+<select data-name="themeStyle">
+<option value>[[${bundle.L('默认')}]]</option>
+<option value="dark">[[${bundle.L('深色')}]]</option>
+<option value="light">[[${bundle.L('浅色')}]]</option>
+</select>
+</div>
+<div class="hide J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
+<label class="line-style">[[${bundle.L('样式')}]]</label>
+<select class="themeStyle" data-name="themeStyle">
+<option value>[[${bundle.L('默认')}]]</option>
+<option value="shine">SHINE</option>
+<option value="techblue">TECHBLUE</option>
+<option value="mint">MINT</option>
+<option value="fruit">FRUIT</option>
+<option value="sakura">SAKURA</option>
+<option value="jazz">JAZZ</option>
+<option value="wonderland">WONDERLAND</option>
+<option value="westeros">WESTEROS</option>
+<option value="infographic">INFOGRAPHIC</option>
+<option value="macarons">MACARONS</option>
+</select>
+</div>
+<div class="hide J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-BAR2 J_opt-BAR3 J_opt-PARETO J_opt-PIE J_opt-FUNNEL J_opt-RADAR J_opt-SCATTER">
+<label class="line-style">[[${bundle.L('背景色')}]]</label>
+<div class="rbcolors" id="useBgcolor">
+<a class="default" title="{{ bundle.L('默认') }}"></a>
+<a class="custom gradient-bg-100" title="{{ bundle.L('点击选择') }}"></a>
+</div>
+</div>
+<div class="hide J_opt-INDEX">
+<label class="line-style">[[${bundle.L('图标')}]]</label>
+<div class="rbcolors" id="useIcon">
+<a class="default" title="{{ bundle.L('默认') }}"></a>
+<a class="custom" title="{{ bundle.L('点击选择') }}"></a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<div class="main-content container-fluid">
+<div class="axis-editor">
+<div class="axis J_dimension">
+<div class="axis-head">
+<span>[[${bundle.L('维度')}]]</span>
+</div>
+<div class="axis-target J_axis-dim" th:_title="${bundle.L('拖动字段到此处')}"></div>
+</div>
+<div class="axis J_numerical">
+<div class="axis-head">
+<span>[[${bundle.L('数值')}]]</span>
+</div>
+<div class="axis-target J_axis-num" th:_title="${bundle.L('拖动字段到此处')}"></div>
+</div>
+</div>
+<div id="chart-preview" title="{{ bundle.L('预览') }}"></div>
+</div>
+</div>
+</div>
+<script id="axis-item" type="text/plain">
+        <span>
+          <div class="item" data-toggle="dropdown">
+            <a><i class="zmdi zmdi-chevron-down"></i></a>
+            <span></span>
+            <a class="del" th:title="${bundle.L('移除')}"><i class="zmdi zmdi-close-circle"></i></a>
+          </div>
+          <ul class="dropdown-menu dropdown-menu-sm">
+            <li class="dropdown-item J_num" data-calc="SUM">[[${bundle.L('求和')}]]</li>
+            <li class="dropdown-item J_num" data-calc="AVG">[[${bundle.L('平均值')}]]</li>
+            <li class="dropdown-item J_num" data-calc="MAX">[[${bundle.L('最大值')}]]</li>
+            <li class="dropdown-item J_num" data-calc="MIN">[[${bundle.L('最小值')}]]</li>
+            <li class="dropdown-item J_text" data-calc="COUNT">[[${bundle.L('计数')}]]</li>
+            <li class="dropdown-item J_text" data-calc="COUNT2">[[${bundle.L('去重计数')}]]</li>
+            <li class="dropdown-item J_num" data-calc="_FORMULA">[[${bundle.L('计算公式')}]]</li>
+            <li class="dropdown-item J_date" data-calc="Y">[[${bundle.L('按年')}]]</li>
+            <li class="dropdown-item J_date" data-calc="Q">[[${bundle.L('按季度')}]]</li>
+            <li class="dropdown-item J_date" data-calc="M">[[${bundle.L('按月')}]]</li>
+            <li class="dropdown-item J_date" data-calc="W">[[${bundle.L('按周')}]]</li>
+            <li class="dropdown-item J_date" data-calc="D">[[${bundle.L('按日')}]]</li>
+            <li class="dropdown-item J_date" data-calc="H">[[${bundle.L('按时')}]]</li>
+            <li class="dropdown-item J_time" data-calc="H">[[${bundle.L('按时')}]]</li>
+            <li class="dropdown-item J_time" data-calc="I">[[${bundle.L('按分')}]]</li>
+            <li class="dropdown-item J_clazz" data-calc="L1">[[${bundle.L('1级')}]]</li>
+            <li class="dropdown-item J_clazz" data-calc="L2">[[${bundle.L('2级')}]]</li>
+            <li class="dropdown-item J_clazz" data-calc="L3">[[${bundle.L('3级')}]]</li>
+            <li class="dropdown-item J_clazz" data-calc="L4">[[${bundle.L('4级')}]]</li>
+            <li class="dropdown-divider"></li>
+            <li class="dropdown-item J_filter">[[${bundle.L('过滤条件')}]]</li>
+            <li class="dropdown-submenu J_sort">
+              <a class="dropdown-item">[[${bundle.L('排序')}]]</a>
+              <ul class="dropdown-menu dropdown-menu-sm">
+                <li class="dropdown-item" data-sort="NONE">[[${bundle.L('默认')}]]</li>
+                <li class="dropdown-item" data-sort="ASC">[[${bundle.L('升序')}]]</li>
+                <li class="dropdown-item" data-sort="DESC">[[${bundle.L('降序')}]]</li>
+              </ul>
+            </li>
+            <li class="dropdown-item">[[${bundle.L('显示样式')}]]</li>
+          </ul>
+      </span>
+    </script>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        sourceEntity: '[[${entityName}]]',
+        chartId: '[[${chartId}]]',
+        chartConfig: [(${chartConfig ?:'null'})],
+        chartOwningAdmin: '[[${chartOwningAdmin}]]' === 'true',
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ echarts.min.js ~ '?' ~ v ~ '=5.5.0' }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ tablecellsselection.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ charts ~ '/' ~ charts.mapstyle.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ charts ~ '/' ~ charts.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ advfilter.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ datalist.common.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ formula.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ charts ~ '/' ~ chart ~ '-' ~ design.js }}" type="text/babel"></script>
+</body>
+</html>

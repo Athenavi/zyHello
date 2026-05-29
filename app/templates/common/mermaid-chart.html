@@ -1,0 +1,93 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ approvals.css }}" rel="stylesheet" type="text/css">
+<title>[[${title ?:'REBUILD'}]]</title>
+<style>
+      html,
+      body,
+      .main-content,
+      pre {
+        background-color: #fff;
+        height: 100%;
+        overflow: hidden;
+        text-align: center;
+        vertical-align: middle;
+      }
+      .main-content,
+      pre.mermaid {
+        min-height: 500px;
+      }
+      pre.mermaid {
+        color: #fff;
+        padding: 0;
+        margin: 0;
+      }
+      .zoom {
+        bottom: 20px;
+      }
+    </style>
+</head>
+<body>
+<div class="main-content m-0 p-0">
+<pre class="mermaid">
+      [(${mermaidData})]
+      </pre>
+</div>
+<div class="zoom hide">
+<a class="zoom-in">
+<i class="zmdi zmdi-plus"></i>
+</a>
+<span>100%</span>
+<a class="zoom-out">
+<i class="zmdi zmdi-minus"></i>
+</a>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ charts ~ '/' ~ mermaid.min.js ~ '?' ~ v ~ '=10.4.0' }}"></script>
+<script type="text/babel">
+      $(document).ready(() => {
+        const $node = $('.mermaid')
+        mermaid.initialize({
+          securityLevel: 'loose',
+          startOnLoad: false,
+        })
+        mermaid
+          .run({
+            nodes: $node,
+          })
+          .then(() => {
+            $('.zoom').removeClass('hide')
+            parent && parent.RbModal && parent.RbModal.resize()
+          })
+          .catch((err) => {
+            console.error(err)
+          })
+
+        let zoom = 100
+        function setZoom(z) {
+          zoom += z
+          if (zoom < 20) zoom = 20
+          if (zoom > 1000) zoom = 1000
+
+          $('.zoom > span').text(zoom + '%')
+          $node.css('transform', `scale(${zoom / 100})`)
+        }
+        $('.zoom .zoom-in').on('click', () => setZoom(10))
+        $('.zoom .zoom-out').on('click', () => setZoom(-10))
+
+        $node.draggable({ cursor: 'move', scroll: false })
+
+        $(document).on('mousewheel', (e) => {
+          const value = e.originalEvent.wheelDelta || -e.originalEvent.detail
+          const delta = Math.max(-1, Math.min(1, value))
+          setZoom(delta < 0 ? -10 : 10)
+        })
+      })
+
+      function nodeClick(a) {
+        window.open(`../../entity/${a}/base`)
+      }
+    </script>
+</body>
+</html>

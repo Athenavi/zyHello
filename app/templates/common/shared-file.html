@@ -1,0 +1,46 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+<meta content="3600" http-equiv="refresh">
+<meta content="https://getrebuild.com/img/logo256.png" name="og:image">
+<title>[[${bundle.L('分享文件')}]]</title>
+<style>
+      .preview-modal {
+        background-color: transparent;
+        z-index: 10;
+      }
+      .preview-modal .preview-header {
+        background-color: #28a745;
+      }
+      .sharebox .zmdi {
+        color: #aaa;
+        font-size: 81px;
+      }
+      @media (max-width: 767.98px) {
+        .unsupports {
+          margin-left: 12px !important;
+          margin-right: 12px !important;
+        }
+      }
+    </style>
+</head>
+<body>
+<img alt="Logo for Thumb" src="https://getrebuild.com/img/logo256.png" style="display: none">
+<div class="sharebox must-center">
+<i class="zmdi zmdi-share animated flash infinite slow"></i>
+</div>
+{%- if pageFooter != none -%}<div class="page-footer">[(${pageFooter})]</div>{%- endif -%}
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        publicUrl: '[[${publicUrl}]]'.replace('&amp;', '&'),
+      }
+    </script>
+<script type="text/babel">
+      $(document).ready(() => {
+        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} unclose fullwidth csrfToken={rb.csrfToken} />)
+      })
+    </script>
+</body>
+</html>

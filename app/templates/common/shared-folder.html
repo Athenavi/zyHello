@@ -1,0 +1,101 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="minimal-ui,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" name="viewport">
+<meta content="3600" http-equiv="refresh">
+<meta content="https://getrebuild.com/img/logo256.png" name="og:image">
+<title>[[${bundle.L('分享文件')}]]</title>
+<style>
+      .preview-modal {
+        background-color: transparent;
+        z-index: 10;
+      }
+      .preview-modal .preview-header {
+        background-color: #28a745;
+      }
+      .sharebox .zmdi {
+        color: #aaa;
+        font-size: 81px;
+      }
+      @media (max-width: 767.98px) {
+        .unsupports {
+          margin-left: 12px !important;
+          margin-right: 12px !important;
+        }
+        .container {
+          padding-left: 12px;
+          padding-right: 12px;
+        }
+      }
+      .preview-modal .preview-body {
+        overflow: auto;
+        padding-bottom: 30px;
+      }
+      .preview-modal .preview-body .container,
+      .preview-modal .container .iframe,
+      .preview-modal .container iframe {
+        height: auto;
+      }
+      .file-list {
+        margin: 20px auto;
+        max-width: 980px;
+        border-radius: 6px;
+      }
+      .file-list h5 {
+        padding: 15px 20px;
+        margin: 0;
+        font-weight: bold;
+        margin-top: 0;
+      }
+      .file-list td {
+        padding: 8px 20px;
+      }
+      .file-list td a {
+        color: #444;
+        display: block;
+      }
+      .file-list td:hover a {
+        color: var(--rb-theme-color);
+      }
+      .file-icon::before {
+        border-color: #fff #fff rgba(255, 255, 255, 0.35) rgba(255, 255, 255, 0.35);
+      }
+    </style>
+</head>
+<body>
+<img alt="Logo for Thumb" src="https://getrebuild.com/img/logo256.png" style="display: none">
+<div class="preview-modal">
+<div class="preview-header">
+<div class="float-left">
+<h5 class="text-bold">[[${folderName}]]</h5>
+</div>
+</div>
+<div class="preview-body">
+<div class="container">
+<div class="card file-list">
+<div class="card-body p-0">
+<h5>[[${bundle.L('共 %d 个文件', folderFiles.size())}]]</h5>
+<table class="table table-hover">
+<tbody>
+{%- for file in folderFiles -%}<tr>
+<td class="pr-0 fs-0" width="55">
+<i class="file-icon" th:data-type="${file[3]}"></i>
+</td>
+<td class="pr-0 pl-0">
+<a href="'./' + {{ file[0] }}" target="_blank">{{ file[1] }}</a>
+</td>
+<td class="text-right pl-2" width="90">
+<span class="fs-12 text-muted">{{ file[2] }}</span>
+</td>
+</tr>{%- endfor -%}
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- if pageFooter != none -%}<div class="page-footer">[(${pageFooter})]</div>{%- endif -%}
+{%- include "/_include/footer.html" -%}
+</body>
+</html>

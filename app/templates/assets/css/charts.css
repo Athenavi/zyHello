@@ -1,0 +1,1133 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.chart-box {
+  height: 100%;
+  padding: 20px 25px;
+}
+
+.chart-box.TREEMAP {
+  padding-bottom: 25px;
+}
+
+.chart-box.INDEX {
+  padding-bottom: 0;
+}
+
+.chart-box.INDEX .chart-body .index43-with {
+  margin-top: -5px;
+}
+
+.chart-box.high {
+  outline: 2px solid #4285f4;
+}
+
+.chart-box .chart-body {
+  height: 100%;
+  z-index: 1;
+  margin-top: -20px;
+  padding-top: 20px;
+}
+
+.chart-box .chart-head {
+  position: relative;
+  margin: 0;
+  z-index: 2;
+}
+
+.chart-box .chart-head .chart-title {
+  cursor: move;
+  margin-right: 80px;
+  font-weight: bold;
+  height: 20px;
+  line-height: 20px;
+}
+
+.chart-box .chart-head .chart-title.ui-draggable-disabled {
+  cursor: default;
+}
+
+.chart-box .chart-head .chart-oper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: none;
+}
+
+.chart-box .chart-head .chart-oper > a {
+  color: rgba(0, 0, 0, 0.4);
+  display: inline-block;
+  height: 20px;
+  margin-left: 5px;
+}
+
+.chart-box .chart-head .chart-oper > a:hover {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.chart-box .chart-head .chart-oper > a .zmdi,
+.chart-box .chart-head .chart-oper > a .mdi {
+  font-size: 1.3rem;
+  vertical-align: middle;
+  width: 20px;
+  text-align: center;
+}
+
+.chart-box .chart-head .chart-oper > a .mdi-filter {
+  font-size: 1.25rem;
+}
+
+.chart-box .chart-head .chart-oper > a .zmdi-close {
+  font-size: 1.45rem;
+}
+
+.chart-box .chart-head .chart-oper > a .zmdi-fullscreen,
+.chart-box .chart-head .chart-oper > a .zmdi-fullscreen-exit {
+  font-size: 1.43rem;
+}
+
+.chart-undata {
+  margin: 0;
+  color: #999;
+  color: rgba(0, 0, 0, 0.3);
+  display: inline-block;
+  font-size: 1.1rem;
+}
+
+.chart-undata > .icon {
+  font-size: 3rem;
+  display: block;
+  text-align: center;
+}
+
+.chart-body.rb-loading-active::after {
+  opacity: unset;
+  background-color: transparent;
+}
+
+.chart-body .chart {
+  line-height: normal;
+  height: 100%;
+  cursor: default;
+}
+
+.chart .table {
+  margin: 0;
+  padding: 0;
+  background-color: #fff;
+}
+
+.chart.index {
+  overflow: hidden;
+  position: relative;
+  margin-top: -15px;
+}
+
+.chart.index > .data-item {
+  display: inline-block;
+  text-align: left;
+  max-width: 100%;
+}
+
+.chart.index .index43 {
+  white-space: nowrap;
+}
+
+.chart.index .index43 p {
+  font-size: 1.1rem;
+  margin-bottom: 1px;
+  opacity: 0.9;
+  line-height: 1;
+}
+
+.chart.index .index43 strong {
+  font-size: 2.5rem;
+  font-weight: 400;
+}
+
+.chart.index .index43 strong a {
+  color: unset;
+}
+
+.chart.index .index43 .index43-with p,
+.chart.index .index43 .index43-with strong {
+  display: inline-block;
+  font-size: 1.1rem;
+}
+
+.chart.index .index43 .index43-with strong {
+  margin-left: 5px;
+  margin-top: 3px;
+  font-size: 1.55rem;
+}
+
+.chart.index .index43 span {
+  font-size: 1.2rem;
+  margin-left: 2px;
+  color: red;
+}
+
+.chart.index .index43 span.ge::before,
+.chart.index .index43 span.le::before {
+  font-family: 'Material Design Icons', serif;
+  content: '\F0737';
+  font-size: 1.25rem;
+  color: red;
+}
+
+.chart.index .index43 span.le {
+  color: green !important;
+}
+
+.chart.index .index43 span.le::before {
+  content: '\F072E';
+  color: green !important;
+}
+
+.chart.index .icon43 {
+  font-size: 3.6rem;
+  vertical-align: top;
+  padding-right: 8px;
+}
+
+.grid-stack-item.fullscreen .chart.index .index43 p {
+  font-size: 3rem;
+}
+
+.grid-stack-item.fullscreen .chart.index .index43 strong {
+  font-size: 8.8rem;
+  zoom: 1 !important;
+}
+
+.grid-stack-item.fullscreen .chart.index .index43 .index43-with strong {
+  font-size: 4.4rem;
+}
+
+.grid-stack-item.fullscreen .chart.index .index43 span {
+  zoom: 2;
+}
+
+.grid-stack-item.fullscreen .chart.index .icon43 {
+  font-size: 6.4rem;
+  width: 120px;
+}
+
+.chart.ctable {
+  position: relative;
+  width: 100%;
+  margin-top: 15px;
+}
+
+.chart.ctable .table td,
+.chart.ctable .table th {
+  padding: 10px 10px;
+  cursor: default;
+  font-size: 1rem;
+}
+
+.chart.ctable .table td > div {
+  min-height: 16px;
+}
+
+.chart.ctable .table td.active,
+.chart.ctable .table td.highlight {
+  outline: 1px solid #4285f4;
+  background-color: #f5f8fd;
+}
+
+.chart.ctable .table tr.highlight {
+  background-color: #dee2e6;
+}
+
+.chart.ctable .table td:first-child.active {
+  border-left: 1px solid #4285f4;
+}
+
+.chart.ctable .table th {
+  background-color: #eceff1;
+  background-color: rgba(0, 0, 0, 0.08);
+  border-width: 1px;
+  font-weight: normal;
+  font-weight: bold;
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+.chart.ctable .table.line-number thead th:first-child,
+.chart.ctable .table.line-number tbody th:first-child {
+  width: 50px;
+  color: #888;
+}
+
+.chart.ctable .table.sums tbody tr:last-child td {
+  font-weight: bold;
+}
+
+.chart.ctable .table-sortable thead th.sort-asc > div,
+.chart.ctable .table-sortable thead th.sort-desc > div {
+  position: relative;
+}
+
+.chart.ctable .table-sortable thead th.sort-asc > div::after,
+.chart.ctable .table-sortable thead th.sort-desc > div::after {
+  color: #4285f4;
+  font: normal normal normal 18px / 1 'Material Design Icons';
+  content: '\F0143';
+  position: absolute;
+  right: -2px;
+  top: 0;
+}
+
+.chart.ctable .table-sortable thead th.sort-desc > div::after {
+  content: '\F0140';
+}
+
+.chart.ctable .table-sortable thead th:hover,
+.chart.ctable .table-sortable thead th:active {
+  cursor: pointer;
+  background-color: #dee2e6;
+}
+
+.chart.ctable .table-sortable thead th.no-sort:hover,
+.chart.ctable .table-sortable thead th.no-sort:active {
+  cursor: default;
+  background-color: #eceff1;
+}
+
+.chart-box.ApprovalList,
+.chart-box.FeedsSchedule,
+.chart-box.ProjectTasks {
+  padding: 20px 0 0;
+}
+
+.chart-box.ApprovalList .chart-head,
+.chart-box.FeedsSchedule .chart-head,
+.chart-box.ProjectTasks .chart-head {
+  margin: 0 25px;
+}
+
+.chart.ApprovalList,
+.chart.FeedsSchedule,
+.chart.ProjectTasks {
+  position: relative;
+  width: 100%;
+  margin-top: 5px;
+}
+
+.chart.ApprovalList .table,
+.chart.FeedsSchedule .table,
+.chart.ProjectTasks .table {
+  border-bottom: 1px solid #dee2e6;
+}
+
+.chart.ApprovalList .table th,
+.chart.FeedsSchedule .table th,
+.chart.ProjectTasks .table th {
+  border-top: 0 none;
+  padding-top: 0;
+  padding-bottom: 6px;
+  font-weight: normal;
+  font-weight: bold;
+}
+
+.chart.ApprovalList .table td,
+.chart.FeedsSchedule .table td,
+.chart.ProjectTasks .table td {
+  padding: 8px 10px;
+}
+
+.chart.ApprovalList .table tr th:first-child,
+.chart.ApprovalList .table tr td:first-child,
+.chart.FeedsSchedule .table tr th:first-child,
+.chart.FeedsSchedule .table tr td:first-child,
+.chart.ProjectTasks .table tr th:first-child,
+.chart.ProjectTasks .table tr td:first-child {
+  padding-left: 25px;
+}
+
+.chart.ApprovalList .table tr th:last-child,
+.chart.ApprovalList .table tr td:last-child,
+.chart.FeedsSchedule .table tr th:last-child,
+.chart.FeedsSchedule .table tr td:last-child,
+.chart.ProjectTasks .table tr th:last-child,
+.chart.ProjectTasks .table tr td:last-child {
+  padding-right: 23px;
+}
+
+.chart.FeedsSchedule span.badge,
+.chart.ProjectTasks span.badge,
+.chart.ApprovalList span.badge {
+  display: inline-block;
+  font-weight: normal;
+  padding: 3px 5px;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.chart-box.ApprovalList .progress-wrap {
+  padding: 10px 25px 15px;
+  background-color: #fff;
+}
+
+.chart-box.ApprovalList .progress-wrap.sticky {
+  position: sticky;
+  top: 0;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress {
+  height: 26px;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress-bar {
+  min-width: 20%;
+  transition: opacity 0.2s;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar {
+  opacity: 0.4;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress:hover > .progress-bar:hover {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.chart-box.ApprovalList .progress-wrap .progress-bar.active {
+  font-weight: bold;
+  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.15);
+}
+
+.chart.FeedsSchedule,
+.chart.ProjectTasks {
+  margin-top: 13px;
+}
+
+.chart.FeedsSchedule td > .content,
+.chart.ProjectTasks td > .content {
+  max-height: 32px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #404040;
+  display: inline-block;
+  line-height: 1;
+}
+
+.chart.FeedsSchedule td > .content:hover,
+.chart.ProjectTasks td > .content:hover {
+  opacity: 0.8;
+}
+
+.chart.FeedsSchedule td > .content p,
+.chart.ProjectTasks td > .content p {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.chart.ProjectTasks tr.priority-2 td:first-child,
+.chart.ProjectTasks tr.priority-3 td:first-child {
+  border-left: 5px solid #f7b904;
+  padding-left: 20px;
+}
+
+.chart.ProjectTasks tr.priority-3 td:first-child {
+  border-left-color: #ea3f30;
+}
+
+.chart.ProjectTasks tr.status-1 a,
+.chart.ProjectTasks tr.status-1 label {
+  color: #8c8c8c;
+  opacity: 0.5;
+}
+
+.chart-select-wrap .nav-pills {
+  position: sticky;
+  top: 5px;
+}
+
+.chart-select-wrap .nav-pills .nav-link {
+  padding: 0.7rem 1rem;
+}
+
+.chart-list > div {
+  border: 1px solid #eee;
+  padding: 0;
+  max-height: 48px;
+  overflow: hidden;
+  cursor: default;
+}
+
+.chart-list > div + div {
+  margin-top: 6px;
+}
+
+.chart-list > div:hover {
+  border-color: #4285f4;
+}
+
+.chart-list > div .title {
+  margin-top: 7px;
+}
+
+.chart-list > div .title strong,
+.chart-list > div .title p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+  font-weight: normal;
+}
+
+.chart-list > div .title p > span + span {
+  margin-left: 6px;
+}
+
+.chart-list > div .title p > span + span::before {
+  content: '·';
+  color: #aaa;
+  margin-right: 6px;
+  font-weight: bolder;
+}
+
+.chart-list > div .btn {
+  min-width: 0;
+  height: 48px;
+  line-height: 48px;
+  width: 60px;
+  background-color: #eee;
+  border-radius: 0;
+  border: 0 none;
+}
+
+.chart-list > div:hover .btn {
+  background-color: #4285f4;
+  color: #fff;
+}
+
+.chart-list > div .delete {
+  font-size: 1.2rem;
+  color: #a1a1a1;
+  padding: 8px;
+  margin-top: 3px;
+  margin-right: 6px;
+  display: none;
+}
+
+.chart-list > div:hover .delete {
+  display: block;
+}
+
+.chart-list > div .chart-icon {
+  width: 48px;
+  text-align: center;
+}
+
+.chart-list > div .chart-icon > i {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  margin-top: 7px;
+  background: url(../img/charts-sprite.svg?v=1.10) no-repeat -1092px -1410px;
+}
+
+.chart-list > div .chart-icon > i.TABLE {
+  background-position: -1180px -1464px;
+}
+
+.chart-list > div .chart-icon > i.INDEX {
+  background-position: -170px -1288px;
+}
+
+.chart-list > div .chart-icon > i.LINE {
+  background-position: -1106px -1326px;
+}
+
+.chart-list > div .chart-icon > i.BAR {
+  background-position: -1501px -1406px;
+}
+
+.chart-list > div .chart-icon > i.BAR2 {
+  background-position: -1437px -1406px;
+}
+
+.chart-list > div .chart-icon > i.PIE {
+  background-position: -978px -1326px;
+}
+
+.chart-list > div .chart-icon > i.FUNNEL {
+  background-position: -709px -387px;
+}
+
+.chart-list > div .chart-icon > i.TREEMAP {
+  background-position: -1020px -1464px;
+}
+
+.chart-list > div .chart-icon > i.RADAR {
+  background-position: -362px -1288px;
+}
+
+.chart-list > div .chart-icon > i.SCATTER {
+  background-position: -650px -1288px;
+}
+
+.chart-list > div .chart-icon > i.BARNEGATIVE {
+  background-position: -1290px -1288px;
+}
+
+.chart-list > div .chart-icon > i.DOLOR {
+  background-position: -956px -1464px;
+}
+
+.chart-list > div .chart-icon > i.CNMAP {
+  background-position: -938px -1288px;
+}
+
+.chart-list > div .chart-icon > i.SUNBURST {
+  background-position: -1372px -1464px;
+}
+
+.chart-list > div .chart-icon > i.DATALIST2,
+.chart-list > div .chart-icon > i.PARETO {
+  background: none;
+  margin-top: 4px;
+}
+
+.chart-list > div .chart-icon > i.DATALIST2::before,
+.chart-list > div .chart-icon > i.PARETO::before {
+  font-family: 'Material Design Icons', serif;
+  content: '\F148C';
+  color: #4285f4;
+  font-size: 28px;
+  font-style: normal;
+}
+
+.chart-list > div .chart-icon > i.PARETO {
+  margin-top: 9px;
+}
+
+.chart-list > div .chart-icon > i.PARETO::before {
+  font-size: 21px;
+  content: '\F1213';
+}
+
+.sortable-box.h200 {
+  height: 208px;
+}
+
+.sortable-box.h200 .dd-list {
+  height: 200px;
+}
+
+.chart-box.DataList .chart.ctable tbody,
+.chart-box.DataList .chart.ctable thead {
+  border: 1px solid #dee2e6;
+}
+
+.chart-box.DataList .chart.ctable .td-sm {
+  padding: 4px 10px;
+}
+
+.chart-box.DataList .table td,
+.chart-box.DataList .table td > div {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  clear: both;
+  max-width: 400px;
+  line-height: 16px;
+}
+
+.chart-box.DataList .table td.open-newtab {
+  text-align: center;
+  padding: 8px;
+}
+
+.chart-box.DataList .table td.open-newtab .icon {
+  font-size: 15px;
+  width: 100%;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.chart-box.DataList .table td.open-newtab a:hover .icon {
+  color: #4285f4;
+}
+
+.DataList-showfields .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
+  font-family: 'Material Design Icons', serif;
+  content: '\f0415';
+  font-size: 1.45rem;
+  margin-left: -3px;
+  color: #404040;
+}
+
+.DataList-showfields .sortable-box .dd-item .sort.desc::before {
+  content: '\F05BF';
+}
+
+.DataList-showfields .sortable-box .dd-item.active .sort {
+  color: #4285f4 !important;
+}
+
+.chart-box.DataList .table td .badge {
+  padding: 3px 6px;
+  line-height: 1;
+  font-size: 13px;
+}
+
+/* for tablecellsselection.js */
+
+.tcs::selection {
+  background-color: transparent;
+}
+
+.tcs td:not(.tcs-selection-enabled) > *,
+.tcs th:not(.tcs-selection-enabled) > *,
+.tcs td:not(.tcs-selection-enabled),
+.tcs th:not(.tcs-selection-enabled) {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+.tcs tr::selection,
+.tcs td:not(.tcs-selection-enabled) > *::selection,
+.tcs th:not(.tcs-selection-enabled) > *::selection,
+.tcs td:not(.tcs-selection-enabled)::selection,
+.tcs th:not(.tcs-selection-enabled)::selection,
+.tcs br::selection {
+  background-color: transparent;
+}
+
+.tcs tr::-moz-selection,
+.tcs td:not(.tcs-selection-enabled)::-moz-selection,
+.tcs th:not(.tcs-selection-enabled)::-moz-selection {
+  background-color: transparent;
+}
+
+.tcs td.tcs-selected:not(.sel-from) {
+  border: 1px double #4285f4;
+  background-color: #f5f8fd !important;
+}
+
+.chart-box.CNMAP .chart-body,
+.chart-box.EmbedFrame .chart-body {
+  margin-top: 0;
+  margin-left: -25px;
+  margin-right: -25px;
+}
+
+#chart-preview .chart-box.CNMAP {
+  padding: 0 !important;
+}
+
+#chart-preview .chart-box.CNMAP .chart-body,
+#chart-preview .chart-box.EmbedFrame .chart-body {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.CNMAP-tip {
+  line-height: 1.4;
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: #222;
+  margin-top: -2px;
+}
+
+.CNMAP-tip b {
+  color: #777;
+  display: block;
+}
+
+.grid-stack .grid-stack-item.HeadingText .grid-stack-item-content {
+  background-color: transparent;
+}
+
+.HeadingText-style input,
+.HeadingText-style select {
+  width: 64px;
+  height: 36px !important;
+}
+
+.HeadingText-style input[type='color'],
+.MyBookmark-settings input[type='color'] {
+  width: 36px;
+  height: 36px;
+}
+
+.chart-box.EmbedFrame .iframe,
+.chart-box.EmbedFrame .iframe iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.chart.ctable .table.table-header-fixed2 thead {
+  position: sticky;
+  top: 0;
+}
+
+.chart.ctable .table.table-header-fixed2 thead::before,
+.chart.ctable .table.table-header-fixed2 thead::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+  font-size: 0;
+  height: 1px;
+  overflow: hidden;
+  background-color: #dee2e6;
+}
+
+.chart.ctable .table.table-header-fixed2 thead::after {
+  top: unset;
+  bottom: 0;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th {
+  position: relative;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th::before,
+.chart.ctable .table.table-header-fixed2 thead th::after {
+  content: '';
+  position: absolute;
+  font-size: 0;
+  height: 100%;
+  left: -1px;
+  top: 0;
+  width: 1px;
+  overflow: hidden;
+  background-color: #dee2e6;
+}
+
+.chart.ctable .table.table-header-fixed2 thead th::after {
+  left: unset;
+  right: 0;
+}
+
+.chart-box.TABLE .chart.ctable .table {
+  background-color: transparent;
+}
+
+.chart-box.MyNotification {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.chart-box.MyNotification .chart-head {
+  margin: 0 25px;
+}
+
+.chart-box.MyNotification .notification-list .a {
+  padding: 8px 25px;
+}
+
+.chart-box.MyNotification .notification-op {
+  padding: 10px 25px 15px;
+}
+
+.chart-box.MyNotification .notification-list .notification.append .badge,
+.chart-box.MyNotification .notification-list .notification .read-mark,
+.chart-box.MyNotification .notification-list .notification.notification-unread > .a::after {
+  right: 25px;
+}
+
+.chart-box.MyBookmark .chart-body {
+  overflow: hidden;
+}
+
+.chart-box.MyBookmark .bookmarks {
+  padding-top: 15px;
+  position: relative;
+}
+
+.chart-box.MyBookmark .bookmarks > a {
+  display: inline-block;
+  margin-right: 15px;
+  margin-bottom: 10px;
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #606060;
+  height: 55px;
+  border-radius: 12px;
+  min-width: 55px;
+  max-width: 200px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.grid-stack-item[data-gs-width='2'] .chart-box.MyBookmark .bookmarks > a {
+  width: 100%;
+  max-width: 100%;
+  margin-right: 0;
+}
+
+.chart-box.MyBookmark .bookmarks > a:hover {
+  opacity: 0.9;
+}
+
+.chart-box.MyBookmark .bookmarks > a:active {
+  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.06);
+}
+
+.chart-box.MyBookmark .bookmarks > a span.icon {
+  width: 55px;
+  height: 55px;
+  line-height: 55px;
+  font-size: 2.2rem;
+  float: left;
+  text-align: center;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.chart-box.MyBookmark .bookmarks > a div.name {
+  height: 55px;
+  margin-left: 55px;
+  display: table-cell;
+  vertical-align: middle;
+  color: #222;
+  padding-right: 17px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.chart-box.MyBookmark .bookmarks > a em.del,
+.chart-box.MyBookmark .bookmarks > a em.badge {
+  position: absolute;
+  right: 1px;
+  top: 1px;
+  font-size: 15px;
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  text-align: center;
+  cursor: default;
+  display: none;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.chart-box.MyBookmark .bookmarks > a:hover em.del {
+  display: inline-block;
+}
+
+.chart-box.MyBookmark .bookmarks > a em.badge {
+  display: inline-block;
+  background-color: #fff;
+  border-radius: 10rem;
+  font-size: 0.8462rem;
+  line-height: 1.3;
+  color: #000;
+  top: -8px;
+  right: -8px;
+  padding: 0.07692rem 0.5em;
+  width: auto;
+  height: auto;
+}
+
+.chart-box.MyBookmark .bookmarks > a.dark,
+.chart-box.MyBookmark .bookmarks > a.dark div.name,
+.chart-box.MyBookmark .bookmarks > a.dark span.icon {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.MyBookmark-settings .input-group-text {
+  background-color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  height: 37px;
+  overflow: hidden;
+}
+
+.MyBookmark-settings .input-group-text:hover {
+  background-color: #f5f5f5;
+}
+
+.chart-box.TABLE.gradient-bg .chart.ctable .table td {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* gradient-backgrounds.css */
+
+.gradient-bg-1 {
+  background: linear-gradient(135deg, #fceabb, #f8b500);
+}
+.gradient-bg-2 {
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+}
+.gradient-bg-3 {
+  background: linear-gradient(135deg, #c2e9fb, #a1c4fd);
+}
+.gradient-bg-4 {
+  background: linear-gradient(135deg, #d4fc79, #96e6a1);
+}
+.gradient-bg-5 {
+  background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+}
+.gradient-bg-6 {
+  background: linear-gradient(135deg, #fdfbfb, #ebedee);
+}
+.gradient-bg-7 {
+  background: linear-gradient(135deg, #e0c3fc, #8ec5fc);
+}
+.gradient-bg-8 {
+  background: linear-gradient(135deg, #f6d365, #fda085);
+}
+.gradient-bg-9 {
+  background: linear-gradient(135deg, #ff9a9e, #fecfef);
+}
+.gradient-bg-10 {
+  background: linear-gradient(135deg, #fdfcfb, #e2d1c3);
+}
+.gradient-bg-11 {
+  background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+}
+.gradient-bg-12 {
+  background: linear-gradient(135deg, #cfd9df, #e2ebf0);
+}
+.gradient-bg-13 {
+  background: linear-gradient(135deg, #fddb92, #d1fdff);
+}
+.gradient-bg-14 {
+  background: linear-gradient(135deg, #a1ffce, #faffd1);
+}
+.gradient-bg-15 {
+  background: linear-gradient(135deg, #f6f9d4, #eaf2f8);
+}
+.gradient-bg-16 {
+  background: linear-gradient(135deg, #d9afd9, #97d9e1);
+}
+.gradient-bg-17 {
+  background: linear-gradient(135deg, #e0c3fc, #f9f9f9);
+}
+.gradient-bg-18 {
+  background: linear-gradient(135deg, #fceabb, #f8b500);
+}
+.gradient-bg-19 {
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+}
+.gradient-bg-20 {
+  background: linear-gradient(135deg, #c2e9fb, #e0c3fc);
+}
+.gradient-bg-21 {
+  background: linear-gradient(135deg, #ff9a9e, #fecfef);
+}
+.gradient-bg-22 {
+  background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+}
+.gradient-bg-23 {
+  background: linear-gradient(135deg, #fad0c4, #ffd1ff);
+}
+.gradient-bg-24 {
+  background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+}
+.gradient-bg-25 {
+  background: linear-gradient(135deg, #fdfbfb, #ebedee);
+}
+.gradient-bg-26 {
+  background: linear-gradient(135deg, #d4fc79, #96e6a1);
+}
+.gradient-bg-27 {
+  background: linear-gradient(135deg, #f6d365, #fda085);
+}
+.gradient-bg-28 {
+  background: linear-gradient(135deg, #fddb92, #d1fdff);
+}
+.gradient-bg-29 {
+  background: linear-gradient(135deg, #cfd9df, #e2ebf0);
+}
+.gradient-bg-30 {
+  background: linear-gradient(135deg, #fceabb, #f8b500);
+}
+.gradient-bg-31 {
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+}
+.gradient-bg-32 {
+  background: linear-gradient(135deg, #a1ffce, #faffd1);
+}
+.gradient-bg-33 {
+  background: linear-gradient(135deg, #e0c3fc, #8ec5fc);
+}
+.gradient-bg-34 {
+  background: linear-gradient(135deg, #f6f9d4, #eaf2f8);
+}
+.gradient-bg-35 {
+  background: linear-gradient(135deg, #fad0c4, #ffd1ff);
+}
+.gradient-bg-36 {
+  background: linear-gradient(135deg, #e0c3fc, #f9f9f9);
+}
+.gradient-bg-37 {
+  background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+}
+.gradient-bg-38 {
+  background: linear-gradient(135deg, #c2e9fb, #a1c4fd);
+}
+.gradient-bg-39 {
+  background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+}
+.gradient-bg-40 {
+  background: linear-gradient(135deg, #fdfcfb, #e2d1c3);
+}
+.gradient-bg-41 {
+  background: linear-gradient(135deg, #f6d365, #fda085);
+}
+.gradient-bg-42 {
+  background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+}
+.gradient-bg-43 {
+  background: linear-gradient(135deg, #ff9a9e, #fecfef);
+}
+.gradient-bg-44 {
+  background: linear-gradient(135deg, #cfd9df, #e2ebf0);
+}
+.gradient-bg-45 {
+  background: linear-gradient(135deg, #d4fc79, #96e6a1);
+}
+.gradient-bg-46 {
+  background: linear-gradient(135deg, #fddb92, #d1fdff);
+}
+.gradient-bg-47 {
+  background: linear-gradient(135deg, #e0c3fc, #8ec5fc);
+}
+.gradient-bg-48 {
+  background: linear-gradient(135deg, #fceabb, #f8b500);
+}
+.gradient-bg-49 {
+  background: linear-gradient(135deg, #f6f9d4, #eaf2f8);
+}
+.gradient-bg-50 {
+  background: linear-gradient(135deg, #fad0c4, #ffd1ff);
+}
+.gradient-bg-51 {
+  background: linear-gradient(135deg, #ffdde1, #ee9ca7);
+}
+.gradient-bg-52 {
+  background: linear-gradient(135deg, #d9afd9, #97d9e1);
+}
+.gradient-bg-53 {
+  background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+}
+.gradient-bg-54 {
+  background: linear-gradient(135deg, #fdfbfb, #ebedee);
+}
+.gradient-bg-55 {
+  background: linear-gradient(135deg, #f6d365, #fda085);
+}
+.gradient-bg-56 {
+  background: linear-gradient(135deg, #c2e9fb, #a1c4fd);
+}
+.gradient-bg-57 {
+  background: linear-gradient(135deg, #fddb92, #d1fdff);
+}
+.gradient-bg-58 {
+  background: linear-gradient(135deg, #a1ffce, #faffd1);
+}
+.gradient-bg-59 {
+  background: linear-gradient(135deg, #ffecd2, #fcb69f);
+}
+.gradient-bg-60 {
+  background: linear-gradient(135deg, #e0c3fc, #f9f9f9);
+}

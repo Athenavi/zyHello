@@ -1,0 +1,78 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/approval" name="page-help">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ approvals.css }}" rel="stylesheet" type="text/css">
+<title>[[${bundle.L('审批流程')}]]</title>
+<style>
+      tr.ui-sortable-handle.ui-sortable-helper td:first-child {
+        width: 339px;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="page-head">
+<div class="float-left">
+<div class="page-head-title">
+              [[${bundle.L('审批流程')}]]
+              <span class="sub-title">[[${name}]]</span>
+{%- if isDisabled -%}<span class="badge badge-grey badge-pill up-1 ml-1 J_confDisabled">[[${bundle.L('未启用')}]]</span>{%- endif -%}
+</div>
+</div>
+<div class="float-right pt-1">
+<div class="btn-group">
+<button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+<button class="btn btn-primary dropdown-toggle w-auto" data-toggle="dropdown" type="button"><i class="icon zmdi zmdi-chevron-down"></i></button>
+<div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+<a class="dropdown-item J_copy"><i class="icon zmdi zmdi-copy"></i> [[${bundle.L('另存为')}]]</a>
+<a class="dropdown-item J_save bosskey-show" data-force="true"><i class="icon mdi mdi-alert-outline"></i> [[${bundle.L('强制保存')}]] (LAB)</a>
+</div>
+</div>
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="main-content container-fluid pt-0">
+<div class="row wizard-row">
+<div class="col-md-12 fuelux">
+<div class="wizard wizard-ux rounded">
+<div class="steps-container">
+<ul class="steps">
+<li class="active" data-step="2">[[${bundle.L('流程设计')}]] <i class="chevron"></i></li>
+</ul>
+<div class="step-content p-0">
+<div class="step-pane active" data-step="2">
+<div class="rbflow-design rb-loading rb-loading-active" data-fullcontent="202" id="rbflow">
+{%- include "/_include/spinner.html" -%}
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="rb-right-sidebar">
+<div class="sb-content">
+<div id="config-side"></div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        configId: '[[${configId}]]',
+        name: '[[${name}]]',
+        applyEntity: '[[${applyEntity}]]',
+        flowDefinition: [(${flowDefinition ?:'null'})],
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ advfilter.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ config ~ '-' ~ comps.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ approval ~ '-' ~ design.js }}" type="text/babel"></script>
+</body>
+</html>

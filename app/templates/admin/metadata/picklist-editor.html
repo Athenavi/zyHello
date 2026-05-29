@@ -1,0 +1,57 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<title>[[${bundle.L('选项列表')}]]</title>
+<style>
+      .unset-list .dd-handle {
+        font-style: italic;
+        color: #aaa;
+      }
+      .unset-list .dd-item a.action {
+        position: absolute;
+        right: 24px;
+        top: 1px;
+        font-style: normal;
+      }
+      .unset-list .dd-item:hover a.action {
+        color: #fff;
+      }
+    </style>
+</head>
+<body class="dialog">
+<div class="main-content">
+<div class="row m-0">
+<div class="col-6 pl-2">
+<h5 class="sortable-box-title">[[${bundle.L('选项列表')}]]</h5>
+<div class="sortable-box rb-scroller">
+<ol class="dd-list J_config"></ol>
+</div>
+<form>
+<div class="input-group input-group-sm">
+<input class="form-control J_text" maxlength="40" type="text">
+<div class="input-group-append">
+<button class="btn btn-secondary J_confirm" style="min-width: 0" type="submit">[[${bundle.L('添加')}]]</button>
+</div>
+</div>
+<div class="rbcolors mt-2">
+<a class="default" title="{{ bundle.L('默认') }}"></a>
+</div>
+</form>
+</div>
+<div class="col-6 pr-2">
+<h5 class="sortable-box-title">[[${bundle.L('已禁用')}]]</h5>
+<div class="sortable-box rb-scroller">
+<ol class="dd-list unset-list"></ol>
+</div>
+</div>
+</div>
+<div class="dialog-footer">
+<button class="btn btn-secondary btn-space" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary J_save btn-space" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ sortable.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ picklist ~ '-' ~ editor.js }}" type="text/babel"></script>
+</body>
+</html>

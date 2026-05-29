@@ -1,0 +1,114 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/manual/feeds" name="page-help">
+<title>[[${bundle.L('动态')}]]</title>
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ feeds.css }}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left.html" -%}
+<div class="rb-content">
+<div class="main-content container container-smart">
+<div class="row">
+<div class="col-lg-8 col-12">
+<div class="rb-loading rb-loading-active" id="rb-feeds">
+{%- include "/_include/spinner.html" -%}
+</div>
+</div>
+<div class="col-lg-4 col-12 side-wrapper-parent pl-lg-0">
+<div class="side-wrapper">
+<div class="accordion m-0">
+<div class="card">
+<div class="card-header" id="headingSearch">
+<button aria-expanded="true" class="btn" data-target="#collapseSearch" data-toggle="collapse"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('搜索')}]]</button>
+</div>
+<div class="collapse show" id="collapseSearch">
+<div class="card-body">
+<div class="input-group input-group-sm">
+<input class="form-control search J_search-key" placeholder="{{ bundle.L('搜索') }}" title="{{ bundle.L('输入关键词回车搜索') }}" type="text">
+<span class="append">
+<a><i class="icon zmdi zmdi-close"></i></a>
+<i class="icon zmdi zmdi-search"></i>
+</span>
+</div>
+<div class="input-group input-group-sm">
+<input class="form-control search J_date-begin" placeholder="{{ bundle.L('发布日期') + ' (' + bundle.L('起') + ')' }}" type="text">
+<span class="append">
+<a><i class="icon zmdi zmdi-close"></i></a>
+<i class="icon zmdi zmdi-calendar"></i>
+</span>
+</div>
+<div class="input-group input-group-sm">
+<input class="form-control search J_date-end" placeholder="{{ bundle.L('发布日期') + ' (' + bundle.L('止') + ')' }}" type="text">
+<span class="append">
+<a><i class="icon zmdi zmdi-close"></i></a>
+<i class="icon zmdi zmdi-calendar"></i>
+</span>
+</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header" id="headingFeedsType">
+<button class="btn" data-target="#collapseFeedsType" data-toggle="collapse"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('类型')}]]</button>
+</div>
+<div class="collapse" id="collapseFeedsType">
+<div class="card-body">
+<div class="aside-tree rb-scroller">
+<ul class="list-unstyled">
+<li data-type="1"><a>[[${bundle.L('动态')}]]</a></li>
+<li data-type="2"><a>[[${bundle.L('跟进')}]]</a></li>
+<li data-type="4"><a>[[${bundle.L('日程')}]]</a></li>
+<li data-type="3"><a>[[${bundle.L('公告')}]]</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header" id="headingGroup">
+<button class="btn" data-target="#collapseGroup" data-toggle="collapse"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('团队')}]]</button>
+<a class="add-group admin-show" href="{{ '/' ~ admin ~ '/' ~ bizuser ~ '/' ~ teams }}" target="_blank" title="{{ bundle.L('管理团队') }}"><i class="icon zmdi zmdi-settings"></i></a>
+</div>
+<div class="collapse" id="collapseGroup">
+<div class="card-body">
+<div class="search-member"><input placeholder="{{ bundle.L('搜索团队') }}" type="text"></div>
+<div class="aside-tree rb-scroller"></div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header" id="headingUser">
+<button class="btn" data-target="#collapseUser" data-toggle="collapse"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('用户')}]]</button>
+</div>
+<div class="collapse" id="collapseUser">
+<div class="card-body pb-3">
+<div class="search-member"><input placeholder="{{ bundle.L('搜索用户') }}" type="text"></div>
+<div class="aside-tree rb-scroller"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="announcement-wrapper"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        serviceMail: '[[${serviceMail}]]',
+        serviceSms: '[[${serviceSms}]]',
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ feeds ~ '/' ~ announcement.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ feeds ~ '/' ~ feeds ~ '-' ~ post.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ feeds ~ '/' ~ feeds ~ '-' ~ list.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ feeds ~ '/' ~ feeds.js }}" type="text/babel"></script>
+{%- include "/_include/forms.html" -%}
+</body>
+</html>

@@ -1,0 +1,1153 @@
+/*!
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+/* global SelectReport, FeedEditorDlg, LightTaskDlg, ApprovalProcessor, SopProcessor */
+
+const wpc = window.__PageConfig || {}
+
+const TYPE_DIVIDER = '$DIVIDER$'
+const TYPE_REFFORM = '$REFFORM$'
+
+//~~ 视图
+class RbViewForm extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    this.onViewEditable = this.props.onViewEditable
+    if (this.onViewEditable) this.onViewEditable = wpc.onViewEditable !== false
+    if (window.__LAB_VIEWEDITABLE === false) this.onViewEditable = false
+
+    // for `saveSingleFieldValue`
+    this.__FormData = {}
+    this._verticalLayout42 = window.__LAB_VERTICALLAYOUT
+  }
+
+  render() {
+    return (
+      <RF>
+        {this.state.fjsAlertMessage}
+        <div className={`rbview-form form-layout ${this._verticalLayout42 && 'vertical38'}`} ref={(c) => (this._viewForm = c)}>
+          {this.state.formComponent}
+        </div>
+      </RF>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
+      this._rawModel = res.data // v4.2
+
+      // 有错误
+      if (res.error_code > 0 || !!res.data.error) {
+        const err = res.data.error || res.error_msg
+        this.renderViewError(err)
+        return
+      }
+
+      let hadApproval = res.data.hadApproval
+      if (hadApproval === 2 || hadApproval === 10) this.onViewEditable = false // be:4.2
+      let hadAlert = null
+      let hadSop = res.data.hadSop && rb.commercial > 1
+      if (wpc.type === 'DetailView') {
+        if (hadApproval === 2 || hadApproval === 10) {
+          if (window.RbViewPage) window.RbViewPage.setReadonly()
+          else $('.J_edit, .J_delete').remove()
+
+          hadAlert = <RbAlertBox message={hadApproval === 2 ? $L('主记录正在审批中，明细记录不能编辑') : $L('主记录已审批完成，明细记录不能编辑')} />
+        }
+        hadApproval = null
+      }
+
+      // v4.3.4
+      if (res.data.readonlyMessage) {
+        if (window.RbViewPage) window.RbViewPage.setReadonly()
+        hadAlert = (
+          <RF>
+            <RbAlertBox message={res.data.readonlyMessage} />
+            {hadAlert && hadAlert}
+          </RF>
+        )
+      }
+
+      this.__ViewData = {}
+      this.__lastModified = res.data.lastModified || 0
+      if (res.data.onViewEditable === false) this.onViewEditable = false
+      this._verticalLayout42 = this._verticalLayout42 || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
+
+      let _dividerRefs = []
+      const VFORM = (
+        <RF>
+          {hadAlert}
+          {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
+          {hadSop && <SopProcessor id={this.props.id} entity={this.props.entity} />}
+
+          <div className="row">
+            {res.data.elements.map((item) => {
+              if (![TYPE_DIVIDER, TYPE_REFFORM].includes(item.field)) this.__ViewData[item.field] = item.value
+              if (item.field === TYPE_REFFORM) this.__hasRefform = true
+
+              item.$$$parent = this
+              if (item.field === TYPE_DIVIDER && item.collapsed) {
+                item.ref = (c) => _dividerRefs.push(c)
+              }
+
+              const fieldComp = detectViewElement(item, this.props.entity)
+              if (window.FrontJS) {
+                let fieldKey = this.props.entity + '.' + item.field
+                const enable42 = window.FrontJS.View.__fieldCopys.includes(fieldKey)
+                if (enable42) {
+                  return React.cloneElement(fieldComp, { dataCopy: true })
+                }
+              }
+              return fieldComp
+            })}
+          </div>
+        </RF>
+      )
+
+      this.setState({ formComponent: VFORM }, () => {
+        // v3.9 默认收起
+        _dividerRefs.forEach((d) => d._toggle())
+        // v4.0 title
+        if (res.data.recordName) {
+          const $title = $('.view-header>h3.title')
+          // $title.text(`${$title.attr('title')} : ${res.data.recordName}`)
+          $title.text(res.data.recordName)
+        }
+
+        this.hideLoading()
+        if (window.FrontJS) {
+          window.FrontJS.View._trigger('open', [res.data])
+        }
+      })
+    })
+  }
+
+  renderViewError(message) {
+    this.setState({ formComponent: _renderError(message) }, () => this.hideLoading())
+    $('.view-operating .view-action').empty()
+  }
+
+  hideLoading() {
+    const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(this.state.id) : null
+    ph && ph.hideLoading()
+  }
+
+  showAgain(handle) {
+    this._checkDrityData(handle)
+  }
+
+  // 脏数据检查
+  _checkDrityData(handle) {
+    if (!this.__lastModified || !this.state.id) return
+
+    $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.lastModified !== this.__lastModified) {
+          handle && handle.showLoading()
+          setTimeout(() => location.reload(), 200)
+        }
+      } else if (res.error_msg === 'NO_EXISTS') {
+        this.renderViewError($L('记录已经不存在，可能已被其他用户删除'))
+        $('.view-operating').empty()
+      }
+    })
+  }
+
+  // @see RbForm in `rb-forms.js`
+
+  setFieldValue(field, value, error) {
+    this.__FormData[field] = { value: value, error: error }
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ...', JSON.stringify(this.__FormData))
+  }
+
+  setFieldUnchanged(field) {
+    delete this.__FormData[field]
+    // eslint-disable-next-line no-console
+    if (rb.env === 'dev') console.log('FV ...', JSON.stringify(this.__FormData))
+  }
+
+  // 保存单个字段值
+  saveSingleFieldValue(fieldComp) {
+    setTimeout(() => this._saveSingleFieldValue(fieldComp), 30)
+  }
+
+  _saveSingleFieldValue(fieldComp, weakMode) {
+    const fieldName = fieldComp.props.field
+    const fieldValue = this.__FormData[fieldName]
+    // Unchanged
+    if (!fieldValue) {
+      fieldComp.toggleEditMode(false)
+      return
+    }
+    if (fieldValue.error) return RbHighbar.create(fieldValue.error)
+
+    const data = {
+      metadata: { entity: this.props.entity, id: this.props.id },
+      [fieldName]: fieldValue.value,
+    }
+
+    const $btn = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
+    let url = '/app/entity/record-save?singleField=true'
+    if (weakMode) url += '&weakMode=' + weakMode
+    $.post(url, JSON.stringify(data), (res) => {
+      $btn.button('reset')
+
+      if (res.error_code === 0) {
+        this.setFieldUnchanged(fieldName)
+        this.__ViewData[fieldName] = res.data[fieldName]
+        fieldComp.toggleEditMode(false, res.data[fieldName])
+
+        // 刷新列表
+        parent && parent.RbListPage && parent.RbListPage.reload(this.props.id, true)
+
+        // 刷新本页
+        if ((res.data && res.data.forceReload) || this.__hasRefform || this.__hasEaButton) {
+          setTimeout(() => RbViewPage.reload(), 200)
+        }
+      } else if (res.error_code === 499) {
+        // 重复记录
+        // eslint-disable-next-line react/jsx-no-undef
+        renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
+      } else if (res.error_code === 497) {
+        // 弱校验
+        const that = this
+        const msg_id = res.error_msg.split('$$$$')
+        RbAlert.create(msg_id[0], {
+          onConfirm: function () {
+            this.hide()
+            that._saveSingleFieldValue(fieldComp, msg_id[1])
+          },
+        })
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
+const detectViewElement = function (item, entity) {
+  if (!window.detectElement) throw 'detectElement undef'
+  item.onView = true
+  item.editMode = false
+  return window.detectElement(item, entity)
+}
+
+const _renderError = (message) => {
+  return (
+    <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
+      <div className="icon">
+        <i className="zmdi zmdi-alert-triangle" />
+      </div>
+      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}!</strong> ${message}` }} />
+    </div>
+  )
+}
+
+// ~ 相关项列表
+class RelatedList extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    // 相关配置
+    this.__searchSort = props.isDetail ? 'autoId:asc' : null
+    this.__searchKey = null
+    this.__pageNo = 1
+
+    this.__listExtraLink = null
+    this.__listClass = null
+    this.__listNoData = (
+      <div className="list-nodata">
+        <span className="zmdi zmdi-info-outline" />
+        <p>{$L('暂无数据')}</p>
+      </div>
+    )
+
+    // default:CARD
+    if (props.showViewMode) {
+      this.__viewModeKey = `RelatedListViewMode-${props.entity.split('.')[0]}`
+      let vm = $storage.get(this.__viewModeKey)
+      if (!vm) vm = props.defaultList ? 'LIST' : null
+      this.state.viewMode = vm || 'CARD'
+    }
+  }
+
+  render() {
+    const optionName = $random('vm-')
+    const isListMode = this.props.showViewMode && this.state.viewMode === 'LIST'
+    const entityName = this.props.entity.split('.')[0] // ENTITY.PKNAME
+    let showAdvFilter43 = this instanceof EntityRelatedList && (window.__LAB_RELATEDADVFILTER43 || true)
+    showAdvFilter43 = false
+
+    return (
+      <div className={`related-list ${this.state.dataList || isListMode ? '' : 'rb-loading rb-loading-active'}`} data-entity={entityName}>
+        {!(this.state.dataList || isListMode) && <RbSpinner />}
+
+        <div className="related-toolbar">
+          <div className="row">
+            <div className="col-6 pr-0">
+              {showAdvFilter43 && (
+                <RF>
+                  <div className="adv-search float-left" ref={(c) => (this._$advfilter = c)}>
+                    <div className="btn-group btn-space">
+                      <button title={$L('常用查询')} className="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                        <span className="text-truncate J_name">{$L('全部数据')}</span>
+                        <i className="icon zmdi zmdi-caret-down"></i>
+                      </button>
+                      <div className="dropdown-menu rb-scroller nott">
+                        <div className="dropdown-item" data-id="$ALL$">
+                          <a>{$L('全部数据')}</a>
+                        </div>
+                      </div>
+                      <div className="input-group-append">
+                        <button title={$L('高级查询')} className="btn btn-secondary w-auto J_filterbtn" type="button">
+                          <i className="icon mdi mdi-filter" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <span className={`dropdown-menu-advfilter__${entityName}`}></span>
+                </RF>
+              )}
+
+              <div className="input-group input-search float-left">
+                <input className="form-control" type="text" placeholder={$L('快速查询')} ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this.search()} />
+                <span className="input-group-btn">
+                  <button className="btn btn-secondary" type="button" onClick={() => this.search()}>
+                    <i className="icon zmdi zmdi-search" />
+                  </button>
+                </span>
+              </div>
+              {this.__listExtraLink}
+            </div>
+            <div className="col-6 text-right">
+              <div className="fjs-dock"></div>
+              <div className="btn-group w-auto">
+                <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" disabled={isListMode}>
+                  {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
+                </button>
+                {this.renderSorts()}
+              </div>
+
+              {this.props.showViewMode && (
+                <div className="btn-group btn-group-toggle w-auto ml-3 switch-view-mode">
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? '' : 'active'}`} title={$L('卡片视图')}>
+                    <input type="radio" name={optionName} value="CARD" checked={this.state.viewMode !== 'LIST'} onChange={(e) => this.switchViewMode(e)} />
+                    <i className="icon mdi mdi-view-agenda-outline" />
+                  </label>
+                  <label className={`btn btn-light ${this.state.viewMode === 'LIST' ? 'active' : ''}`} title={$L('列表视图')}>
+                    <input type="radio" name={optionName} value="LIST" checked={this.state.viewMode === 'LIST'} onChange={(e) => this.switchViewMode(e)} />
+                    <i className="icon mdi mdi-view-module-outline fs-22 down-1" />
+                  </label>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {this.renderData()}
+      </div>
+    )
+  }
+
+  renderSorts() {
+    return (
+      <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+        <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this.search(e)}>
+          {$L('最近修改')}
+        </a>
+        <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this.search(e)}>
+          {$L('最近创建')}
+        </a>
+        <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this.search(e)}>
+          {$L('最早创建')}
+        </a>
+      </div>
+    )
+  }
+
+  renderData() {
+    return (
+      <RF>
+        {this.state.dataList && this.state.dataList.length === 0 && this.__listNoData}
+
+        {this.state.dataList && this.state.dataList.length > 0 && (
+          <div className={this.__listClass || ''}>
+            {(this.state.dataList || []).map((item) => {
+              return this.renderItem(item)
+            })}
+          </div>
+        )}
+
+        {this.state.showMore && (
+          <div className="text-center mt-3 pb-3">
+            <a className="show-more-pill" onClick={() => this.fetchData(1)}>
+              {$L('显示更多')}
+            </a>
+          </div>
+        )}
+      </RF>
+    )
+  }
+
+  renderItem(item) {
+    return <div>{JSON.stringify(item)}</div>
+  }
+
+  componentDidMount() {
+    this.fetchData()
+
+    // v4.3 还不能用!!
+    if (this._$advfilter) {
+      // eslint-disable-next-line no-undef
+      AdvFilters.init(this._$advfilter, this.__entity)
+    }
+  }
+
+  fetchData(append) {
+    this.__pageNo = this.__pageNo || 1
+    if (append) this.__pageNo += append
+
+    const pageSize = 20
+    const url = `/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}`
+    $.get(url, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+      const data = (res.data || {}).data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
+    })
+  }
+
+  search(e) {
+    let sort = null
+    if (e && e.currentTarget) {
+      sort = $(e.currentTarget).data('sort')
+      this.setState({ sortDisplayText: $(e.currentTarget).text() })
+    }
+
+    this.__searchSort = sort || this.__searchSort
+    this.__searchKey = $(this._$quickSearch).val() || ''
+    this.__pageNo = 1
+
+    this.fetchData()
+  }
+
+  switchViewMode(e, call) {
+    const mode = e.currentTarget.value
+    this.setState({ viewMode: mode }, () => {
+      $storage.set(this.__viewModeKey, mode)
+      typeof call === 'function' && call(mode)
+    })
+  }
+}
+
+const APPROVAL_STATE_CLAZZs = {
+  2: [$L('审批中'), 'warning'],
+  10: [$L('通过'), 'success'],
+  11: [$L('驳回'), 'danger'],
+}
+// ~ 业务实体相关项列表
+class EntityRelatedList extends RelatedList {
+  constructor(props) {
+    super(props)
+    this.state.viewOpens = {}
+    this.state.viewComponents = {}
+
+    this.__entity = props.entity.split('.')[0]
+
+    const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
+    this.__listExtraLink = (
+      <a className="btn btn-light w-auto ml-1" href={openListUrl} target="_blank" title={$L('在新页面打开')}>
+        <i className="icon zmdi zmdi-open-in-new" />
+      </a>
+    )
+  }
+
+  renderItem(item) {
+    const astate = APPROVAL_STATE_CLAZZs[item[3]]
+    return (
+      <div key={item[0]} className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} ref={`item-${item[0]}`}>
+        <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
+          <div className="col-9">
+            <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('打开')}>
+              {item[1]}
+            </a>
+          </div>
+          <div className="col-3 record-meta">
+            {item[4] && (
+              <a className="edit" onClick={(e) => this._handleEdit(e, item[0])} title={$L('编辑')}>
+                <i className="icon zmdi zmdi-edit" />
+              </a>
+            )}
+
+            {astate && <span className={`badge badge-pill badge-${astate[1]}`}>{astate[0]}</span>}
+
+            <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
+              {$fromNow(item[2])}
+            </span>
+          </div>
+        </div>
+
+        <div className="rbview-form-inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+      </div>
+    )
+  }
+
+  // 显示模式支持: 卡片/列表
+
+  switchViewMode(e) {
+    super.switchViewMode(e, (mode) => {
+      // 加载卡片数据
+      mode === 'CARD' && this.__fetchData !== true && this.fetchData()
+    })
+  }
+
+  renderData() {
+    if (this.state.viewMode === 'LIST') {
+      // if (!this.state.dataList) this.setState({ dataList: [] }) // Hide loading
+      return <EntityRelatedList4ListMode $$$parent={this} ref={(c) => (this._EntityRelatedList4ListMode = c)} />
+    } else {
+      return super.renderData()
+    }
+  }
+
+  search(e) {
+    if (this._EntityRelatedList4ListMode) {
+      this.__searchKey = $(this._$quickSearch).val() || ''
+      this._EntityRelatedList4ListMode.search(this.__searchKey)
+    } else {
+      super.search(e)
+    }
+  }
+
+  fetchData(append) {
+    if (this.state.viewMode === 'LIST') return
+    else this.__fetchData = true
+
+    this.__pageNo = this.__pageNo || 1
+    if (append) this.__pageNo += append
+
+    const pageSize = 20
+    const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(
+      this.__searchKey,
+    )}`
+
+    $.get(url, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+      const data = res.data.data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+
+      this.setState({ dataList: list, showMore: data.length >= pageSize }, () => {
+        if (this.props.autoExpand) {
+          data.forEach((item) => {
+            // eslint-disable-next-line react/no-string-refs
+            const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
+            if ($H.length > 0 && !$H.parent().hasClass('active')) $H[0].click()
+          })
+        }
+      })
+    })
+  }
+
+  _handleEdit(e, id) {
+    $stopEvent(e, true)
+    const editProps = {
+      id: id,
+      entity: this.__entity,
+      title: $L('编辑%s', this.props.entity2[0]),
+      icon: this.props.entity2[1],
+    }
+    if (this.props.isDetail) editProps.mainLayoutId = RbViewPage.getLayoutId42()
+    RbFormModal.create(editProps, true)
+  }
+
+  _handleView(e) {
+    $stopEvent(e, true)
+    RbViewPage.clickView(e.currentTarget)
+  }
+
+  _toggleInsideView(id) {
+    const viewOpens = this.state.viewOpens
+    viewOpens[id] = !viewOpens[id]
+    this.setState({ viewOpens: viewOpens })
+
+    // 加载视图
+    const viewComponents = this.state.viewComponents
+    if (!viewComponents[id]) {
+      let url42 = `/app/${this.__entity}/view-model?id=${id}`
+      if (this.props.isDetail) url42 += '&mainLayoutId=' + (RbViewPage.getLayoutId42() || '')
+      $.get(url42, (res) => {
+        if (res.error_code > 0 || !!res.data.error) {
+          viewComponents[id] = _renderError(res.data.error || res.error_msg)
+        } else {
+          const _verticalLayout42 = window.__LAB_VERTICALLAYOUT || res.data.verticalLayout === 1 || res.data.verticalLayout === 3
+          viewComponents[id] = (
+            <div className={`rbview-form form-layout ${_verticalLayout42 && 'vertical38'}`}>
+              <div className="row">
+                {res.data.elements.map((item) => {
+                  item.$$$parent = this
+                  return detectViewElement(item)
+                })}
+              </div>
+            </div>
+          )
+        }
+        this.setState({ viewComponents: viewComponents })
+      })
+    }
+  }
+}
+
+// 列表模式
+class EntityRelatedList4ListMode extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {}
+  }
+
+  render() {
+    const p = this.props.$$$parent
+    const related = `related:${p.props.entity}:${p.props.mainid}`
+
+    return (
+      <div className="card-table">
+        <div className="dataTables_wrapper container-fluid">
+          <div className="rb-loading rb-loading-active data-list" ref={(c) => (this._$wrapper2 = c)}>
+            {this.state.listConfig && <RbList config={this.state.listConfig} protocolFilter={related} $wrapper={this._$wrapper2} unpin ref={(c) => (this._RbList = c)} />}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/entity/related-list-config?entity=${this.props.$$$parent.__entity}`, (res) => {
+      if (res.error_code === 0) {
+        this.setState({ listConfig: { ...res.data } })
+      }
+    })
+  }
+
+  search(q) {
+    if (!this._RbList) return
+
+    const s = {
+      entity: this.props.$$$parent.__entity,
+      type: 'QUICK',
+      values: { 1: q },
+    }
+    this._RbList.search(s)
+  }
+}
+
+class MixRelatedList extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    const entity = this.props.entity.split('.')[0]
+    if (entity === 'Feeds') {
+      // eslint-disable-next-line react/jsx-no-undef
+      return <LightFeedsList {...this.props} fetchNow />
+    } else if (entity === 'ProjectTask') {
+      // eslint-disable-next-line react/jsx-no-undef
+      return <LightTaskList {...this.props} fetchNow />
+    } else if (entity === 'Attachment') {
+      // eslint-disable-next-line react/jsx-no-undef
+      return <LightAttachmentList {...this.props} fetchNow />
+    } else {
+      return <EntityRelatedList {...this.props} showViewMode />
+    }
+  }
+}
+
+// for view-addons.js
+// eslint-disable-next-line no-unused-vars
+var _showFilterForAddons = function (opt) {
+  renderRbcomp(<AdvFilter entity={opt.entity} filter={opt.filter} confirm={opt.onConfirm} title={$L('附加过滤条件')} inModal canNoFilters />)
+}
+
+// 视图页操作类
+const RbViewPage = {
+  _RbViewForm: null,
+
+  /**
+   * @param {*} id Record ID
+   * @param {*} entity array:[Name, Label, Icon]
+   * @param {*} ep Privileges of this entity
+   */
+  init(id, entity, ep) {
+    this.__id = id
+    this.__entity = entity
+    this.__ep = ep
+
+    renderRbcomp(<RbViewForm entity={entity[0]} id={id} onViewEditable={ep && ep.U} />, 'tab-rbview', function () {
+      RbViewPage._RbViewForm = this
+      setTimeout(() => $('.view-body.loading').removeClass('loading'), 100)
+
+      // v3.8, v3.9
+      wpc.easyAction && window.EasyAction4View && window.EasyAction4View.init(wpc.easyAction)
+    })
+
+    $('.J_close').on('click', () => this.hide())
+    $('.J_reload').on('click', () => this.reload())
+    $('.J_newpage').attr({ target: '_blank', href: location.href })
+
+    if (parent && parent.RbListPage) $('.J_newpage').removeClass('hide')
+    if (parent && parent.RbViewModal && parent.RbViewModal.mode === 2) $('.J_close').remove()
+
+    const that = this
+
+    $('.J_delete').on('click', function () {
+      if ($(this).attr('disabled')) return
+
+      const needEntity = wpc.type === 'DetailList' || wpc.type === 'DetailView' ? null : entity[0]
+      renderRbcomp(
+        <DeleteConfirm
+          id={that.__id}
+          entity={needEntity}
+          deleteAfter={(deleted) => {
+            if (deleted > 0) {
+              if (parent) {
+                // 刷新主视图
+                parent.RbViewModal && parent.RbViewModal.currentHolder(true)
+                // RbListMode2 删除
+                if (parent.RbListMode2) parent.RbListMode2._forceViewId = '[DELETED]' // fix:4.2.6
+              }
+
+              that.hide(true)
+            }
+          }}
+        />,
+      )
+    })
+
+    $('.J_edit').on('click', () => {
+      const editProps = {
+        id: id,
+        title: $L('编辑%s', entity[1]),
+        entity: entity[0],
+        icon: entity[2],
+        specLayout: this.getLayoutId42(),
+      }
+      RbFormModal.create(editProps, true)
+    })
+    $('.J_assign').on('click', () => DlgAssign.create({ entity: entity[0], ids: [id] }))
+    $('.J_share').on('click', () => DlgShare.create({ entity: entity[0], ids: [id] }))
+    $('.J_report').on('click', () => SelectReport.create(entity[0], id))
+    $('.J_add-detail-menu>a').on('click', function () {
+      const iv = { $MAINID$: id }
+      const $this = $(this)
+      const newProps = {
+        title: $L('添加%s', $this.data('label')),
+        entity: $this.data('entity'),
+        icon: $this.data('icon'),
+        initialValue: iv,
+        nextAddDetail: true,
+        mainLayoutId: that.getLayoutId42(), // v4.2
+      }
+      RbFormModal.create(newProps)
+    })
+
+    if (wpc.transformTos && wpc.transformTos.length > 0) {
+      this.initTransform(wpc.transformTos)
+      $('.J_transform').removeClass('hide')
+    } else {
+      $('.J_transform').remove()
+    }
+
+    // Privileges
+    if (ep) {
+      if (ep.D === false) $('.J_delete').remove()
+      if (ep.U === false) $('.J_edit, .J_add-detail, .J_add-detail-menu').remove()
+      if (ep.A !== true) $('.J_assign').remove()
+      if (ep.S !== true) $('.J_share').remove()
+    }
+
+    // Clean buttons
+    that._cleanViewActionButton()
+
+    that.initRecordMeta()
+    that.initHistory()
+
+    setTimeout(() => {
+      if (window.parent && window.parent.tourStarted) return
+      typeof window.startTour === 'function' && window.startTour()
+    }, 1200)
+  },
+
+  getLayoutId42() {
+    if (!RbViewPage._RbViewForm) return null
+    if (!RbViewPage._RbViewForm._rawModel) return null
+    return RbViewPage._RbViewForm._rawModel.layoutId || null
+  },
+
+  // 元数据
+  initRecordMeta() {
+    $.get(`/app/entity/extras/record-meta?id=${this.__id}`, (res) => {
+      // 如果出错就清空操作区
+      if (res.error_code !== 0) {
+        $('.view-operating').empty()
+        return
+      }
+
+      const that = this
+      for (let k in res.data) {
+        const v = res.data[k]
+        if (!v) continue
+        const $el = $(`.J_${k}`)
+        if ($el.length === 0) continue
+
+        if (k === 'owningUser') {
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this._clickViewUser(v[0])} />, $el[0])
+        } else if (k === 'sharingList') {
+          const $list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo($('.J_sharingList').empty())
+          $(v).each(function () {
+            const _this = this
+            const $item = $('<li class="list-inline-item"></li>').appendTo($list)
+            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} onClick={() => that._clickViewUser(_this[0])} />, $item[0])
+          })
+
+          if (this.__ep && this.__ep.S === true) {
+            const $op = $('<li class="list-inline-item"></li>').appendTo($list)[0]
+            if (v.length === 0) {
+              renderRbcomp(
+                <UserShow
+                  name={$L('添加共享')}
+                  icon="zmdi zmdi-plus"
+                  onClick={() => {
+                    $('.J_share').trigger('click')
+                  }}
+                />,
+                $op,
+              )
+            } else {
+              renderRbcomp(<UserShow name={$L('管理共享用户')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, $op)
+            }
+          } else if (v.length > 0) {
+            const $op = $('<li class="list-inline-item"></li>').appendTo($list)[0]
+            renderRbcomp(<UserShow name={$L('查看共享用户')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, $op)
+          } else {
+            $('.J_sharingList').parent().remove()
+          }
+        } else if (k === 'createdOn' || k === 'modifiedOn') {
+          renderRbcomp(<DateShow date={v} showOrigin />, $el)
+        } else {
+          $(`<span>${v}</span>`).appendTo($el.empty())
+        }
+      }
+
+      // PlainEntity ?
+      if (!res.data.owningUser) $('.view-user').remove()
+    })
+  },
+
+  // 修改历史
+  initHistory() {
+    const $into = $('.view-history .view-history-items')
+    if ($into.length === 0) return
+
+    $.get(`/app/entity/extras/record-history?id=${this.__id}`, (res) => {
+      if (res.error_code !== 0) return
+
+      // v3.8 合并显示
+      let _data = []
+      let prev
+      res.data.forEach((item) => {
+        // 同样的合并
+        if (prev && prev.revisionType === item.revisionType && prev.revisionBy[0] === item.revisionBy[0]) {
+          let diff = $moment(item.revisionOn).diff($moment(prev.revisionOn), 'seconds')
+          if (Math.abs(diff) < 30) {
+            prev._merged = (prev._merged || 1) + 1
+            return
+          }
+        }
+        _data.push(item)
+        prev = item
+      })
+
+      $into.empty()
+      _data.forEach((item, idx) => {
+        let content = $L('**%s** 由 %s %s', $fromNow(item.revisionOn), item.revisionBy[1], item.revisionType)
+        if (item._merged > 1) content += ` <sup>${item._merged}</sup>`
+
+        const $item = $(`<li>${content}</li>`).appendTo($into)
+        $item.find('b:eq(0)').attr('title', item.revisionOn)
+        if (idx > 9) $item.addClass('hide')
+      })
+
+      if (_data.length > 10) {
+        $into.after(`<a href="javascript:;" class="J_mores">${$L('显示更多')}</a>`)
+        $('.view-history .J_mores').on('click', function () {
+          $into.find('li.hide').removeClass('hide')
+          $(this).addClass('hide')
+        })
+      } else if (_data.length === 0) {
+        $(`<li>${$L('无')}</li>`).appendTo($into)
+      }
+
+      $('.view-history.invisible2').removeClass('invisible2')
+      $('.view-history legend a').attr('href', `${rb.baseUrl}/admin/audit/revision-history?gs=${this.__id}`)
+    })
+  },
+
+  // 相关项
+
+  // 列表
+  initVTabs(config) {
+    const that = this
+    that.__vtabEntities = []
+    $(config).each(function () {
+      const configThat = this
+      const entity = this.entity // Entity.Field
+      that.__vtabEntities.push(entity)
+      const tabId = `tab-${entity.replace('.', '--')}` // `.` is JS keyword
+
+      const listProps = {
+        entity: entity,
+        entity2: [configThat.entityLabel, configThat.icon],
+        mainid: that.__id,
+        autoExpand: $isTrue(wpc.viewTabsAutoExpand),
+        defaultList: $isTrue(wpc.viewTabsDefaultList),
+        isDetail: !!this.showAt2,
+      }
+
+      // v3.4 明细显示在下方
+      if (this.showAt2 === 2) {
+        const $pane = $(`<div class="tab-pane-bottom"><h5><i class="zmdi zmdi-${this.icon}"></i>${this.entityLabel}</h5><div id="${tabId}"></div></div>`).appendTo('.tab-content-bottom')
+        $(`<a class="icon zmdi zmdi-chevron-down" title="${$L('展开/收起')}"></a>`)
+          .appendTo($pane.find('h5'))
+          .on('click', () => $pane.toggleClass('toggle-hide'))
+        renderRbcomp(<MixRelatedList {...listProps} />, tabId)
+        return
+      }
+
+      const $tabNav = $(
+        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) && 'hide'}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`,
+      ).appendTo('.nav-tabs')
+      const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
+      $tabNav.find('a').on('click', function () {
+        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList {...listProps} />, $tabPane)
+      })
+    })
+    this.updateVTabs()
+
+    // for Admin
+    if (rb.isAdminUser) {
+      $('.J_view-addons').on('click', function () {
+        const type = $(this).data('type')
+        RbModal.create(`/p/admin/metadata/view-addons?entity=${that.__entity[0]}&type=${type}`, type === 'TAB' ? $L('配置显示项') : $L('配置新建项'))
+      })
+    }
+  },
+
+  // 记录数量
+  updateVTabs(specEntities) {
+    specEntities = specEntities || this.__vtabEntities
+    if (!specEntities || specEntities.length === 0) return
+
+    $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
+      for (let k in res.data || {}) {
+        if (~~res.data[k] > 0) {
+          const tabId = `#tab-${k.replace('.', '--')}`
+          const $tabNav = $(`.nav-tabs a[href="${tabId}"]`)
+          if ($tabNav[0]) {
+            $tabNav.parent().removeClass('hide')
+
+            if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
+            else $(`<span class="badge badge-pill badge-primary">${res.data[k]}</span>`).appendTo($tabNav)
+          } else {
+            const $tabLine = $(tabId)
+            if ($tabLine[0]) {
+              let $span = $tabLine.prev().find('span')
+              if (!$span[0]) $span = $('<span></span>').appendTo($tabLine.prev())
+              $span.text(` (${res.data[k]})`)
+            }
+          }
+        }
+      }
+    })
+  },
+
+  // 新建相关
+  initVAdds(config) {
+    const that = this
+    $(config).each(function () {
+      const item = this
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
+      $item.on('click', function () {
+        if (item.entity === 'Feeds.relatedRecord') {
+          const data = {
+            type: 2,
+            relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
+          }
+          renderRbcomp(
+            <FeedEditorDlg
+              {...data}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />,
+          )
+        } else if (item.entity === 'ProjectTask.relatedRecord') {
+          renderRbcomp(
+            <LightTaskDlg
+              relatedRecord={that.__id}
+              call={() => {
+                RbHighbar.success($L('保存成功'))
+                setTimeout(() => that.reload(), 100)
+              }}
+            />,
+          )
+        } else {
+          const iv = {}
+          const entity = item.entity.split('.')
+          if (entity.length > 1) iv[entity[1]] = that.__id
+          else iv[`&${that.__entity[0]}`] = that.__id
+
+          const newProps = {
+            title: $L('新建%s', item._entityLabel || item.entityLabel),
+            entity: entity[0],
+            icon: item.icon,
+            initialValue: iv,
+          }
+          RbFormModal.create(newProps)
+        }
+      })
+
+      $('.J_add-related .dropdown-divider').before($item)
+    })
+  },
+
+  // 记录转换
+  initTransform(config) {
+    config.forEach((item) => {
+      if ($isSysMask(item.transName)) return // v4.0.2
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.transName || item.entityLabel}</a>`)
+      $item.on('click', () => renderRbcomp(<DlgTransform {...item} sourceRecord={this.__id} />))
+      $('.J_transform .dropdown-divider').before($item)
+    })
+  },
+
+  // 通过父级页面打开
+  clickView(target) {
+    // `#!/View/{entity}/{id}`
+    const viewUrl = typeof target === 'string' ? target : $(target).attr('href')
+    if (!viewUrl) {
+      console.warn('Bad view target : ', target)
+      return
+    }
+
+    const urlSpec = viewUrl.split('/')
+    if (parent && parent.RbViewModal) {
+      parent.RbViewModal.create({ entity: urlSpec[2], id: urlSpec[3] }, true)
+    } else {
+      // window.open(`${rb.baseUrl}/app/redirect?id=${urlSpec[3]}&type=newtab`)
+      window.open(`${rb.baseUrl}/app/${urlSpec[2]}/view/${urlSpec[3]}`)
+    }
+    return false
+  },
+
+  _clickViewUser(id) {
+    return this.clickView(`#!/View/User/${id}`)
+  },
+
+  // 清理操作按钮
+  _cleanViewActionButton() {
+    $setTimeout(
+      () => {
+        $cleanMenu('.view-action .J_mores')
+        $cleanMenu('.view-action .J_add-related')
+        $cleanMenu('.view-action .J_transform')
+        $('.view-action .col-lg-6').each(function () {
+          if ($(this).children().length === 0) $(this).remove()
+        })
+        if ($('.view-action').children().length === 0) $('.view-action').addClass('mt-0').empty()
+        // v3.6
+        $('.view-action.invisible2').removeClass('invisible2')
+      },
+      20,
+      '_cleanViewActionButton',
+    )
+  },
+
+  // 隐藏
+  hide(reload) {
+    if (parent && parent !== window) {
+      parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'HIDE')
+      if (reload === true) {
+        if (parent.RbListPage) parent.RbListPage.reload()
+        else setTimeout(() => parent.location.reload(), 200)
+      }
+      // v3.4
+      if (parent.location.href.includes('/app/entity/view')) parent.window.close()
+    } else {
+      window.close() // Maybe unclose
+    }
+  },
+
+  // 重新加載
+  reload() {
+    parent && parent.RbViewModal && parent.RbViewModal.holder(this.__id, 'LOADING')
+    setTimeout(() => location.reload(), 20)
+  },
+
+  // 记录只读
+  setReadonly() {
+    $(this._RbViewForm._viewForm).addClass('readonly')
+    $('.J_edit, .J_delete, .J_add-detail, .J_add-detail-menu').remove()
+    this._cleanViewActionButton()
+  },
+}
+
+// init
+$(document).ready(() => {
+  // 回退按钮
+  if ($urlp('back') === 'auto' && parent && parent.RbViewModal) {
+    $('.J_back')
+      .removeClass('hide')
+      .on('click', () => history.back())
+  }
+  // for Dock
+  if (parent && parent.location.href.includes('/app/entity/view')) {
+    $('.view-header').remove()
+  }
+  // for WxWork
+  const ua = navigator.userAgent || ''
+  if (ua.includes('wxwork') && ua.includes('MicroMessenger') && $.browser.desktop) {
+    $('.J_home').removeClass('hide')
+  }
+  // v4.2
+  if (window.frameElement && parent && parent.RbListPage && parent.RbListPage._RbList && parent.RbListPage._RbList.jumpView) {
+    if ($(window.frameElement).data('subview')) {
+      // SubView
+    } else {
+      $('.J_record-next')
+        .removeClass('hide')
+        .on('click', () => parent.RbListPage._RbList.jumpView(1))
+      $('.J_record-prev')
+        .removeClass('hide')
+        .on('click', () => parent.RbListPage._RbList.jumpView(-1))
+    }
+  }
+
+  // iframe 点击穿透
+  if (parent) {
+    $(document).on('click', () => parent.$(parent.document).trigger('_clickEventHandler'))
+    window._clickEventHandler = () => $(document).trigger('click')
+  }
+
+  if (wpc.entity) {
+    RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
+    if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
+    if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
+  }
+})

@@ -1,0 +1,88 @@
+# === Old Java project (excluded from new build) ===
+/src/
+/target/
+/bin/
+/out/
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# === Credentials / debug notes ===
+/debug/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+*.ctxt
+*.db
+*.sqlite3
+
+# === Node / Next.js ===
+node_modules/
+.next/
+out/
+
+# === Environment files ===
+.env
+.env.local
+.env.*.local
+
+# === IDE ===
+/.idea/
+/.vscode/
+*.iml
+**/.gitmodules
+*.swp
+*.swo
+
+# === Logs ===
+*.log
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Temp migration scripts ===
+_fix*.py
+_mk*.py
+_make_core.py
+_b64.txt
+_check.txt
+
+# === Lock files ===
+package-lock.json
+
+# === Old Java config (no longer needed) ===
+/.codecov.yml
+/.eslintrc.js
+/.gitattributes
+/.prettierrc.js
+/.travis.yml
+/COMMERCIAL
+/SECURITY.md
+/package.json
+/.deploy/
+/.gitee/
+/.mvn/
+/mvnw
+/mvnw.cmd
+/pom.xml

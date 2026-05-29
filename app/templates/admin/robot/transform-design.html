@@ -1,0 +1,152 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/transforms" name="page-help">
+<title>[[${bundle.L('记录转换')}]]</title>
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ triggers.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ transform ~ '-' ~ design.css }}" rel="stylesheet" type="text/css">
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="page-head">
+<div class="page-head-title">
+            [[${bundle.L('记录转换')}]]
+            <span class="sub-title">[[${name ?: bundle.L('未命名')}]]</span>
+{%- if isDisabled -%}<span class="badge badge-grey badge-pill up-1 ml-1 J_confDisabled">[[${bundle.L('未启用')}]]</span>{%- endif -%}
+</div>
+<div class="clearfix"></div>
+</div>
+<div class="main-content container-fluid pt-0">
+<div class="card mb-0">
+<div class="card-body">
+<form class="simple">
+<div class="form-group row mt-2">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('转换条件')}]]</label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+<a class="btn btn-sm btn-link pl-0 text-left down-2" id="useFilter">[[${bundle.L('点击设置')}]]</a>
+<p class="form-text mb-0 mt-0">[[${bundle.L('符合转换条件的记录才允许被转换')}]]</p>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('转换字段映射')}]]</label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+{%- if sourceDetailEntity != none -%}<ul class="nav nav-tabs mb-2 entities-mapping">
+<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#EMAIN">[[${bundle.L('主实体')}]]</a></li>
+<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#EDETAIL">[[${bundle.L('明细实体')}]]</a></li>
+{%- if allCustomAdd -%}<li class="nav-item">
+<a class="nav-link w-auto J_add-dts" title="{{ bundle.L('添加明细转换') }}"><i class="icon mdi mdi-plus fs-19 up-1 m-0"></i></a>
+</li>{%- endif -%}
+</ul>{%- endif -%}
+<div class="tab-content m-0 p-0 fields-mapping">
+<div class="tab-pane active" id="EMAIN">
+<p class="text-muted m-0" style="padding-top: 7px">[[${bundle.L('加载中')}]]</p>
+</div>
+<div class="tab-pane" id="EDETAIL"></div>
+</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('转换后回填')}]]</label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+<div class="col-6 pl-0 pr-0">
+<select class="form-control form-control-sm" id="fillbackField"></select>
+</div>
+<p class="form-text">[[${bundle.L('可将转换后的记录 ID 回填至源记录中')}]]</p>
+<div class="mt-2 bosskey-show">
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" id="fillbackMode" type="checkbox" value="2">
+<span class="custom-control-label">[[${bundle.L('回填后触发系统规则')}]] (LAB)</span>
+</label>
+</div>
+</div>
+</div>
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" id="one2nMode" type="checkbox" value="true">
+<span class="custom-control-label">[[${bundle.L('启用多记录转换')}]] <sup class="rbv"></sup></span>
+</label>
+<p class="form-text">[[${bundle.L('通过数量或多值字段转换为多条记录')}]]</p>
+</div>
+</div>
+<div class="form-group row hide J_one2nMode-set pt-1">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+<div class="fields-map-show J_one2nMode-fields">
+<h5 class="mt-2 text-bold">[[${bundle.L('转换依据字段')}]]</h5>
+<span>
+<div class="row">
+<div class="col-5">
+<select class="form-control form-control-sm"></select>
+</div>
+</div>
+</span>
+</div>
+</div>
+</div>
+{%- if targetIsDetail -%}
+<div class="form-group row">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" id="importsMode" type="checkbox" value="2">
+<span class="custom-control-label">[[${bundle.L('启用明细记录导入')}]] <sup class="rbv"></sup></span>
+</label>
+<p class="form-text">[[${bundle.L('通过此记录转换规则进行明细记录批量导入/添加')}]]</p>
+</div>
+</div>
+<div class="form-group row hide J_importsMode-set pt-1">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+<div class="fields-map-show J_importsMode-fields">
+<h5 class="mt-2 text-bold">[[${bundle.L('明细记录导入规则')}]]</h5>
+<span></span>
+<h5 class="mt-3 text-bold">[[${bundle.L('符合规则时自动导入')}]]</h5>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" id="importsMode2Auto1" type="checkbox" value="1">
+<span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
+</label>
+<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+<input class="custom-control-input" id="importsMode2Auto2" type="checkbox" value="2">
+<span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
+</label>
+</div>
+</div>
+</div>
+{%- endif -%}
+<div class="form-group row footer">
+<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right"></label>
+<div class="col-md-12 col-xl-9 col-lg-8">
+<button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        configId: '[[${configId}]]',
+        config: [(${config ?:'null'})],
+        sourceEntity: [(${sourceEntity ?:'null'})],
+        sourceDetailEntity: [(${sourceDetailEntity ?:'null'})],
+        sourceDetailEntities: [(${sourceDetailEntities ?:'null'})],
+        targetEntity: [(${targetEntity ?:'null'})],
+        targetDetailEntity: [(${targetDetailEntity ?:'null'})],
+        targetDetailEntities: [(${targetDetailEntities ?:'null'})],
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ valueset.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ formula.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ general ~ '/' ~ rb ~ '-' ~ advfilter.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ compatible.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ transform ~ '-' ~ design.js }}" type="text/babel"></script>
+</body>
+</html>

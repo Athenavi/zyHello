@@ -1,0 +1,163 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/entity/" name="page-help">
+<title>[[${bundle.L('实体管理')}]]</title>
+<style>
+      .card.entity {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .card.entity:hover {
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+      .card.entity .card-body {
+        padding: 12px 14px;
+        color: #333;
+      }
+      .card.entity .card-body .float-left {
+        width: 30px;
+        text-align: center;
+      }
+      .card.entity .icon {
+        font-size: 32px;
+        color: #4285f4;
+      }
+      .card.entity div.badge-wrap {
+        position: absolute;
+        top: 13px;
+        right: 11px;
+      }
+      .card.entity div.badge-wrap .badge {
+        text-transform: uppercase;
+        max-width: 40px;
+        overflow: hidden;
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+      .card.entity span {
+        margin-top: 2px;
+        display: block;
+      }
+      #entityList {
+        margin: 0 -10px;
+      }
+      #entityList > div {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .card.ph {
+        margin-left: 10px;
+        margin-top: 0;
+      }
+      #entityList > div.tag {
+        width: 100%;
+      }
+      #entityList > div.tag > h3 {
+        margin: 0 0 20px;
+        font-weight: normal;
+        line-height: 1;
+        font-size: 16px;
+        padding: 0;
+        color: #777;
+      }
+      .new-entity .card.entity .card-body {
+        padding: 7px;
+        padding-top: 5px;
+        padding-bottom: 9px;
+      }
+      .new-entity .card.entity .card-body .float-left,
+      .new-entity .card.entity .card-body .ml-7 {
+        display: block;
+        width: 100%;
+        clear: both;
+        margin: 0 !important;
+        text-align: center;
+      }
+      .new-entity .card.entity .card-body .ml-7 .text-muted {
+        display: none;
+      }
+      .entity-new2 .dialog-footer {
+        margin: 15px -35px 10px;
+        padding-top: 25px;
+      }
+      .entity-new2 .init-models {
+        margin-left: -10px;
+        margin-right: -10px;
+      }
+      .table.table-excel th,
+      .table.table-excel td {
+        vertical-align: text-top;
+      }
+      .table.table-excel thead th {
+        border: 0 none;
+      }
+      .table.table-excel {
+        border-bottom: 1px solid #dee2e6;
+      }
+
+      .search-results {
+        margin-top: 3px;
+      }
+      .search-results li {
+        clear: both;
+      }
+      .search-results li > a {
+        display: block;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 10px;
+        color: #444;
+      }
+      .search-results li > a:hover {
+        color: var(--rb-color);
+        background-color: #f0f0f0;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="main-content container-fluid" style="padding-bottom: 5px">
+<div class="row" id="entityList">
+<div class="card ph">
+<div class="card-body">
+<div class="ph-item">
+<div class="ph-col-12">
+<div class="ph-row">
+<div class="ph-col-8"></div>
+<div class="ph-col-4 empty"></div>
+<div class="ph-col-12"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script id="entity-tmpl" type="text/plain">
+      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+      	<a class="card entity">
+      		<div class="card-body">
+      			<div class="float-left"><i class="icon zmdi"></i></div>
+      			<div class="ml-7"><span class="text-truncate"></span><p class="text-muted text-truncate m-0 fs-12"></p></div>
+      			<div class="clearfix"></div>
+      		</div>
+          <div class="badge-wrap"></div>
+      	</a>
+      </div>
+    </script>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ init ~ '-' ~ models.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ field ~ '-' ~ type.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entity ~ '-' ~ new2.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ metadata ~ '/' ~ entities.js }}" type="text/babel"></script>
+</body>
+</html>

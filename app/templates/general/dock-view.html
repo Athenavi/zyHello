@@ -1,0 +1,85 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ list ~ '-' ~ page.css }}" rel="stylesheet" type="text/css">
+<title>{{ title }}</title>
+<style>
+      .iframe-wrap {
+        margin-top: 44px;
+        overflow: hidden;
+      }
+      .iframe-wrap iframe {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        min-height: 300px;
+        padding: 0;
+        font-size: 0;
+        line-height: 1;
+      }
+      .quick-filter-tabs a.dropdown-item {
+        background-color: #f5f5f5;
+        border-radius: 2px !important;
+      }
+      .quick-filter-tabs a.dropdown-item:hover {
+        background-color: #ddd;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left.html" -%}
+<div class="rb-loading rb-loading-active must-center J_dock-load">
+{%- include "/_include/spinner.html" -%}
+</div>
+<div class="rb-content">
+<div class="main-content container-fluid">
+<div class="quick-filter-tabs">
+<div>
+<a class="dropdown-item" href="|../{{ entityName }}/list|">[[${bundle.L('返回列表')}]]</a>
+</div>
+</div>
+<div class="iframe-wrap hide">
+<iframe frameborder="0" scrolling="auto"></iframe>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        viewUrl: '[[${viewUrl}]]',
+      }
+    </script>
+{%- include "/_include/forms.html" -%}
+<script type="text/babel">
+      const RbViewModal = {
+        hideClose: true,
+        create: function (props, subView) {
+          location.href = `${rb.baseUrl}/app/entity/view?id=${props.id}`
+        },
+        holder: function (id, action) {
+          return {
+            hideLoading: function () {},
+          }
+        },
+        currentHolder() {
+          return RbViewModal.holder()
+        },
+      }
+
+      $(document).ready(() => {
+        $addResizeHandler(() => {
+          const mh = $(window).height() - 61 - 40 - 44
+          $('.iframe-wrap').css({ height: mh })
+        })()
+
+        const wpc = window.__PageConfig
+        setTimeout(() => $('.iframe-wrap iframe').attr('src', wpc.viewUrl), 0)
+        setTimeout(() => $('.iframe-wrap').removeClass('hide'), 100)
+      })
+    </script>
+</body>
+</html>

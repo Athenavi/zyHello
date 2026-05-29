@@ -1,0 +1,388 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/admin/syscfg" name="page-help">
+<title>[[${bundle.L('通用配置')}]]</title>
+<style>
+      .syscfg a.img-thumbnail {
+        display: inline-block;
+        padding: 0.4rem 0.5rem;
+        background-color: #fff;
+        cursor: default;
+        position: relative;
+      }
+      .syscfg.edit a.img-thumbnail,
+      .syscfg.edit a.img-thumbnail .logo-img {
+        cursor: pointer;
+      }
+      .syscfg a.img-thumbnail b {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.4);
+        width: 24px;
+        height: 24px;
+        top: 2px;
+        right: 2px;
+        border-radius: 2px;
+        cursor: pointer;
+        display: none;
+        font-size: 1.4rem;
+        color: #fff;
+        text-align: center;
+        overflow: hidden;
+      }
+      .syscfg.edit a.img-thumbnail:hover b {
+        display: inline-block;
+      }
+      .bgimg-img {
+        display: inline-block;
+        width: 192px;
+        height: 108px;
+        background: #eee url(../assets/img/bg.jpg) repeat 0 0;
+        background-image: url(../commons/theme/use-bgimg);
+        background-size: cover;
+      }
+      .syscfg a[target='_blank']:hover {
+        text-decoration: underline;
+      }
+      td p > code {
+        background-color: rgb(245, 247, 249);
+        padding: 1px 3px;
+        border-radius: 2px;
+        margin-right: 3px;
+      }
+      .unstyle.text-break {
+        white-space: pre-wrap !important;
+      }
+      .bg-white {
+        cursor: text !important;
+      }
+      .note {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 4px;
+        margin-top: 15px;
+        padding: 10px 15px;
+        display: none;
+      }
+      .J_backDb,
+      button.J_MobileAppPath,
+      button.J_MobileAppPath-del {
+        position: absolute;
+        margin-top: -6px;
+        margin-left: 6px;
+      }
+      button.J_MobileAppPath + button.J_MobileAppPath-del {
+        margin-left: 70px;
+      }
+      .backup-box {
+        background-color: #eee;
+        margin-bottom: 15px;
+        margin-top: 5px;
+        border-radius: 2px;
+        padding: 10px;
+      }
+    </style>
+</head>
+<body>
+<div class="['rb-wrapper', 'rb-fixed-sidebar', 'rb-collapsible-sidebar', 'rb-collapsible-sidebar-hide-logo', 'rb-color-header'] {{ sideCollapsedClazz }}">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left-admin.html" -%}
+<div class="rb-content">
+<div class="main-content container-fluid syscfg">
+<div class="row">
+<div class="col-lg-9 col-12">
+<div class="card">
+<div class="card-header pb-1">
+                  [[${bundle.L('通用配置')}]]
+                  <a class="float-right J_edit" href="###"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+<a class="float-right J_save hide" href="###"><i class="icon zmdi zmdi-check text-bold"></i> [[${bundle.L('保存')}]]</a>
+</div>
+<div class="card-body">
+<h5>[[${bundle.L('通用')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('名称')}]]</td>
+<td th:data-id="AppName" th:data-value="${AppName}">[[${AppName}]]</td>
+</tr>
+<tr>
+<td>LOGO</td>
+<td class="fs-0 applogo">
+<a class="img-thumbnail" data-id="LOGO">
+<i class="logo-img"></i>
+<b title="{{ bundle.L('还原') }}"><span class="zmdi zmdi-replay"></span></b>
+</a>
+<a class="img-thumbnail bg-primary ml-1" data-id="LOGOWhite">
+<i class="logo-img white"></i>
+<b title="{{ bundle.L('还原') }}"><span class="zmdi zmdi-replay"></span></b>
+</a>
+<p class="mt-2 text-muted hide">
+                            [[${bundle.L('请分别上传深色与浅色 LOGO，透明背景，建议尺寸 300 &times; 60')}]]
+                            <a class="ml-2 J_logo-gen hide" href="###genlogo"><i class="icon mdi mdi-pencil-ruler"></i> 制作 LOGO</a>
+</p>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('主页地址/域名')}]]</td>
+<td data-id="HomeURL" th:data-form-text="${bundle.L('所有外部链接将以此作为前缀')}" th:data-value="${HomeURL}">[[${HomeURL}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('默认语言')}]] <sup class="rbv"></sup></td>
+<td id="_DefaultLanguage" th:data-id="${commercial &gt; 1 ? 'DefaultLanguage' : ''}" th:data-value="${DefaultLanguage}">[[${DefaultLanguage}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('页脚')}]]</td>
+<td data-id="PageFooter" data-optional="true" th:data-form-text="${bundle.L('仅适用于外部页面，支持 [MD 语法](https://getrebuild.com/docs/markdown-guide#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95)')}" th:data-value="${PageFooter}">
+<pre class="unstyle text-break">[[${PageFooter ?:bundle.L('无')}]]</pre>
+</td>
+</tr>
+<tr>
+<td>
+                          [[${bundle.L('登录页每日一图')}]]
+                          <i class="support-plat2 mdi mdi-monitor" title="{{ bundle.L('PC 端适用') }}"></i>
+</td>
+<td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
+</tr>
+<tr>
+<td>
+                          [[${bundle.L('自定义登录页图')}]]
+                          <i class="support-plat2 mdi mdi-monitor" title="{{ bundle.L('PC 端适用') }}"></i>
+</td>
+<td class="fs-0 bgimg">
+<a class="img-thumbnail p-0 border-0" data-id="CustomWallpaper">
+<i class="bgimg-img"></i>
+<b title="{{ bundle.L('还原') }}"><span class="zmdi zmdi-replay"></span></b>
+</a>
+<p class="mt-2 text-muted hide">[[${bundle.L('建议尺寸 1920 &times; 1080')}]]</p>
+</td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('安全使用')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('显示页面水印')}]]</td>
+<td th:data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
+</tr>
+<tr>
+<td width="40%">[[${bundle.L('页面水印内容')}]] <sup class="rbv"></sup></td>
+<td data-optional="true" th:data-id="${commercial &gt; 0 ? 'MarkWatermarkFormat' : ''}" th:data-value="${MarkWatermarkFormat}">[[${MarkWatermarkFormat ?:bundle.L('默认')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('允许分享文件')}]]</td>
+<td data-id="FileSharable" th:data-value="${FileSharable}">[[${FileSharable ? bundle.L('是') : bundle.L('否')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('公开注册')}]]</td>
+<td data-id="OpenSignUp" th:data-form-text="${bundle.L('允许用户 [自助注册](https://getrebuild.com/docs/admin/users#3.%20%E8%87%AA%E5%8A%A9%E6%B3%A8%E5%86%8C)')}" th:data-value="${OpenSignUp}">
+                          [[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]
+                        </td>
+</tr>
+<tr>
+<td>[[${bundle.L('登录验证码显示模式')}]]</td>
+<td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
+{%- if LoginCaptchaPolicy == '1' -%}[[${bundle.L('自动')}]]{%- endif -%}
+{%- if LoginCaptchaPolicy == '2' -%}[[${bundle.L('总是显示')}]]{%- endif -%}
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('登录密码等级')}]]</td>
+<td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
+{%- if PasswordPolicy == '1' -%}[[${bundle.L('低 (最低6位，无字符类型限制)')}]]{%- endif -%}
+{%- if PasswordPolicy == '2' -%}[[${bundle.L('中 (最低6位，必须同时包含数字、字母)')}]]{%- endif -%}
+{%- if PasswordPolicy == '3' -%}[[${bundle.L('高 (最低10位，必须同时包含数字、字母、特殊字符)')}]]{%- endif -%}
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('登录密码过期时间')}]] <sup class="rbv"></sup></td>
+<td th:data-id="${commercial &gt; 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">
+{%- if PasswordExpiredDays == '0' -%}[[${bundle.L('不启用')}]]{%- endif -%}
+{%- if PasswordExpiredDays != '0' -%}[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]{%- endif -%}
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('启用两步验证')}]] <sup class="rbv"></sup></td>
+<td th:data-form-text="${bundle.L('请确保邮件/短信配置正确，否则无法发送/接收验证码，导致无法登录')}" th:data-id="${commercial &gt; 1 ? 'Login2FAMode' : ''}" th:data-value="${Login2FAMode}">
+{%- if Login2FAMode == '0' -%}[[${bundle.L('不启用')}]]{%- endif -%}
+{%- if Login2FAMode == '1' -%}[[${bundle.L('手机或邮箱')}]]{%- endif -%}
+{%- if Login2FAMode == '2' -%}[[${bundle.L('仅手机')}]]{%- endif -%}
+{%- if Login2FAMode == '3' -%}[[${bundle.L('仅邮箱')}]]{%- endif -%}
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('允许使用时间')}]] <sup class="rbv"></sup></td>
+<td data-optional="true" th:data-form-text="${bundle.L('仅指定时间可使用，每个时间一行，如 `10` `9-18` 等')}" th:data-id="${commercial &gt; 1 ? 'AllowUsesTime' : ''}" th:data-value="${AllowUsesTime}">
+<pre class="unstyle">[[${AllowUsesTime ?:bundle.L('不限')}]]</pre>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('允许使用 IP')}]] <sup class="rbv"></sup></td>
+<td data-optional="true" th:data-form-text="${bundle.L('仅指定 IP 可使用，每个 IP 一行，如 `192.168.*` `192.168.10.*` 等')}" th:data-id="${commercial &gt; 1 ? 'AllowUsesIp' : ''}" th:data-value="${AllowUsesIp}">
+<pre class="unstyle">[[${AllowUsesIp ?:bundle.L('不限')}]]</pre>
+</td>
+</tr>
+<tr class="bosskey-show">
+<td>[[${bundle.L('同一用户允许多地登录')}]] (LAB) <sup class="rbv"></sup></td>
+<td th:data-id="${commercial &gt; 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('数据安全')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('数据自动备份')}]]</td>
+<td data-id="DBBackupsEnable" th:data-form-text="${bundle.L('每日 0 点备份到数据目录，请预留足够磁盘空间')}" th:data-value="${DBBackupsEnable}">
+<span>[[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]</span>
+<button class="btn btn-light btn-sm J_backDb" type="button"><i class="icon mdi mdi-database-export-outline"></i> [[${bundle.L('立即备份')}]]</button>
+</td>
+</tr>
+<tr>
+<td>[[${bundle.L('备份保留时间')}]]</td>
+<td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('变更历史保留时间')}]]</td>
+<td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('回收站保留时间')}]]</td>
+<td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('文档预览')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('ONLYOFFICE 服务地址')}]]</td>
+<td data-optional="true" th:data-id="OnlyofficeServer" th:data-value="${OnlyofficeServer}">[[${OnlyofficeServer ?:bundle.L('无')}]]</td>
+</tr>
+<tr>
+<td>ONLYOFFICE JWT</td>
+<td data-optional="true" th:data-id="OnlyofficeJwt" th:data-value="${OnlyofficeJwt}">[[${OnlyofficeJwt ?:bundle.L('无')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('文档预览服务地址')}]]</td>
+<td data-optional="true" th:data-form-text="${bundle.L('与 ONLYOFFICE 二选一即可')}" th:data-id="PortalOfficePreviewUrl" th:data-value="${PortalOfficePreviewUrl}">
+                          [[${PortalOfficePreviewUrl ?:bundle.L('默认')}]]
+                        </td>
+</tr>
+</tbody>
+</table>
+<h5>[[${bundle.L('其他')}]]</h5>
+<table class="table">
+<tbody>
+<tr>
+<td width="40%">[[${bundle.L('在详情页显示修改历史')}]]</td>
+<td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('文件上传大小限制')}]]</td>
+<td data-id="PortalUploadMaxSize" data-optional="true" th:data-value="${PortalUploadMaxSize}">[[${PortalUploadMaxSize}]] MB</td>
+</tr>
+<tr>
+<td>[[${bundle.L('百度地图 AK')}]]</td>
+<td data-optional="true" th:data-id="PortalBaiduMapAk" th:data-value="${PortalBaiduMapAk}">[[${PortalBaiduMapAk ?:bundle.L('默认')}]]</td>
+</tr>
+<tr class="bosskey-show">
+<td>[[${bundle.L('悼念模式')}]] (LAB) <sup class="rbv"></sup></td>
+<td th:data-id="${commercial &gt; 1 ? 'PageMourningMode' : ''}" th:data-value="${PageMourningMode}">[[${PageMourningMode ? bundle.L('是') : bundle.L('否')}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('手机版菜单样式')}]] <sup class="rbv"></sup></td>
+<td data-optional="true" id="_MobileNavStyle" th:data-id="${commercial &gt; 1 ? 'MobileNavStyle' : ''}" th:data-value="${MobileNavStyle}">[[${MobileNavStyle}]]</td>
+</tr>
+<tr>
+<td>[[${bundle.L('APP 安装包')}]] <sup class="rbv"></sup></td>
+<td class="td-MobileAppPath">
+<a>[[${MobileAppPath ?:bundle.L('无')}]]</a>
+<button class="btn btn-light btn-sm J_MobileAppPath" type="button"><i class="icon mdi mdi-upload"></i> [[${bundle.L('上传')}]]<span></span></button>
+<button class="btn btn-light btn-sm J_MobileAppPath-del w-auto hide" title="{{ bundle.L('删除') }}" type="button"><i class="icon mdi mdi-delete"></i></button>
+<div class="hide">
+<input accept=".apk" class="hide J_MobileAppPath" type="file">
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<input accept="image/*" class="hide file_4image" data-local="true" data-maxsize="104857600" data-noname="true" type="file">
+<input accept=".apk,.ipa" class="hide file_MobileAppPath" type="file">
+<div class="edit-footer">
+<button class="btn btn-link" type="button">[[${bundle.L('取消')}]]</button>
+<button class="btn btn-primary" type="button">[[${bundle.L('保存')}]]</button>
+</div>
+</div>
+</div>
+</div>
+<div class="col-lg-3 col-12 col-right-compact">
+<div class="card J_systsms">
+<div class="card-header card-header-divider">[[${bundle.L('版本与授权')}]]</div>
+<div class="card-body">
+<p class="mb-1">[[${bundle.L('系统版本')}]]<a class="link ml-1" href="|https://getrebuild.com/download?v={{ Version }}|" target="_blank">[[${Version}]]</a></p>
+<p class="mb-1">[[${bundle.L('授权类型')}]]<a class="link ml-1" href="|https://getrebuild.com/authority?sn={{ SN }}|" target="_blank" th:data-sn="${SN}">[[${LicenseType}]]</a></p>
+{%- if VN != none -%}<p class="mb-2">
+                    [[${bundle.L('支持服务码')}]]<span class="ml-1">[[${VN}]]</span>
+{%- if VNExpires -%}<a class="badge badge-danger up-2 badge-pill" href="'https://getrebuild.com/buy-license?type=10fw&vn=' + {{ VN }}" target="_blank">
+<i class="mdi mdi-information-variant"></i>[[${bundle.L('已过期 [点击续费]')}]]
+                    </a>{%- endif -%}
+</p>{%- endif -%}
+<ul style="line-height: 2">
+<li><a class="link" href="{{ '/' ~ error ~ '/' ~ server ~ '-' ~ status }}" target="_blank">[[${bundle.L('系统状态')}]]</a></li>
+<li><a class="link" href="https://getrebuild.com/docs/" target="_blank">[[${bundle.L('帮助文档')}]]</a></li>
+<li><a class="link" href="https://getrebuild.com/" target="_blank">[[${bundle.L('技术支持')}]]</a></li>
+</ul>
+<div class="text-muted link">
+                    &copy;
+                    <span>{{ bundle.L('[REBUILD](https://getrebuild.com/) 使用 GPL-3.0 开源许可和商业授权双重授权协议，安装/使用即表示你已阅读并同意[《用户服务协议》](https://getrebuild.com/legal/service-terms)。')|safe }}</span>
+</div>
+</div>
+</div>
+<div class="card mt-3 J_maintenanceMode">
+<div class="card-body pt-4">
+<button class="btn btn-danger btn-lg w-100 btn-outline">
+<i class="mdi mdi-message-alert-outline icon fs-18"></i>
+                    [[${bundle.L('开启维护计划')}]]
+                  </button>
+<div class="note">
+<dl class="mb-0 mt-1" style="line-height: 1.7">
+<dt>[[${bundle.L('计划维护时间')}]]</dt>
+<dd></dd>
+<dt>[[${bundle.L('维护原因')}]]</dt>
+<dd></dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="card mt-3 J_cloudAccount hide">
+<div class="card-header card-header-divider">REBUILD [[${bundle.L('云账号')}]]</div>
+<div class="card-body">
+<div class="J_not-bind hide">
+<p>[[${bundle.L('绑定 REBUILD 云账号，便捷使用服务与资源，还有免费系统安全与健康检测。')}]]</p>
+<button class="btn btn-primary btn-sm pl-3 pr-3" type="button">[[${bundle.L('点击绑定')}]]</button>
+</div>
+<div class="J_has-bind hide">
+<p class="mb-1 mt-1 text-bold">
+<img class="up-2" src="{{ '/' ~ assets ~ '/' ~ img ~ '/' ~ rbuc ~ '-' ~ icon.svg }}" style="width: 24px">
+                      [[${bundle.L('当前已绑定云账号')}]] <a class="text-uppercase" href="https://getrebuild.com/ucenter/account" target="_blank"></a>
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script>
+      window.__PageConfig = {
+        _LANGS: [(${availableLangs})],
+      }
+    </script>
+<script src="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ widget ~ '/' ~ flatpickr.min.js }}"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ rebuild ~ '-' ~ ucenter.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ syscfg.js }}" type="text/babel"></script>
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ admin ~ '/' ~ system ~ '-' ~ cfg.js }}" type="text/babel"></script>
+</body>
+</html>

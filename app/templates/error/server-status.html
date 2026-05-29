@@ -1,0 +1,142 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<meta content="webkit" name="renderer">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<meta content="30" http-equiv="refresh">
+<link href="{{ '/' ~ assets ~ '/' ~ img ~ '/' ~ favicon.png }}" rel="shortcut icon">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ rb ~ '-' ~ base.css }}" rel="stylesheet" type="text/css">
+<base target="_blank">
+<title>REBUILD</title>
+<style>
+      body,
+      html {
+        height: auto;
+        min-height: auto;
+      }
+      .error {
+        background-color: #ea4335;
+        color: #fff;
+        padding: 18px 0;
+      }
+      .error a {
+        color: #fff;
+        text-decoration: underline;
+      }
+      .percentage,
+      .percentage > span {
+        display: inline-block;
+        width: 120px;
+        height: 12px;
+        line-height: 12px;
+        font-size: 11px;
+        color: #fff;
+        background-color: #34a853;
+      }
+      .percentage > span {
+        background-color: #ea4335;
+      }
+    </style>
+</head>
+<body>
+{%- if not ok -%}<div class="error">
+<div class="container">
+<h2 class="mt-0">[[${bundle.L('系统故障')}]]</h2>
+<div>{{ bundle.L('服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](request-support?title=boot-error)')|safe }}</div>
+</div>
+</div>{%- endif -%}
+<div class="container">
+<h5 class="text-bold mt-5 text-uppercase">[[${bundle.L('快速检查')}]]</h5>
+<table class="table table-bordered table-sm table-hover">
+<tbody>
+<tr>
+<th width="30%">Status</th>
+<td>
+{%- if ok -%}<span class="text-success">OK</span>{%- endif -%}
+{%- if not ok -%}<span class="text-danger">Startup failed</span>{%- endif -%}
+</td>
+</tr>
+{%- for s in status -%}<tr>
+<th>[[${s.name}]]</th>
+<td>
+{%- if s.success -%}<span class="text-success">OK</span>{%- endif -%}
+{%- if not s.success -%}<span class="text-danger">[[${s.error}]]</span>{%- endif -%}
+</td>
+</tr>{%- endfor -%}
+<tr>
+<th>Memory Usage (JVM)</th>
+<td>
+<span class="percentage"><span style="'width:'+{{ MemoryUsageJvm[1] }}+'%'">[[${MemoryUsageJvm[1]}]]%</span></span> ([[${MemoryUsageJvm[0]}]]MB)
+            </td>
+</tr>
+<tr>
+<th>Memory Usage</th>
+<td>
+<span class="percentage"><span style="'width:'+{{ MemoryUsage[1] }}+'%'">[[${MemoryUsage[1]}]]%</span></span> ([[${MemoryUsage[0]}]]MB)
+            </td>
+</tr>
+<tr>
+<th>System Load</th>
+<td>[[${SystemLoad}]]</td>
+</tr>
+{%- if DisksDesc != none -%}<tr>
+<th>Disk Usage</th>
+<td>[[${DisksDesc}]]</td>
+</tr>{%- endif -%}
+{%- if T(com.rebuild.utils.OshiUtils).isDockerEnv() -%}<tr>
+<th>Docker Env</th>
+<td>Yes</td>
+</tr>{%- endif -%}
+</tbody>
+</table>
+{%- if isAdminVerified or not ok -%}
+<h5 class="text-bold mt-5 text-uppercase">[[${bundle.L('系统信息')}]]</h5>
+<table class="table table-bordered table-sm table-hover">
+<tbody>
+<tr>
+<th width="30%">Version</th>
+<td>[[${T(com.rebuild.core.Application).VER}]]</td>
+</tr>
+<tr>
+<th>OS</th>
+<td>[[${T(org.apache.commons.lang.SystemUtils).OS_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).OS_ARCH}]])</td>
+</tr>
+<tr>
+<th>JVM</th>
+<td>[[${T(org.apache.commons.lang.SystemUtils).JAVA_VM_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).JAVA_VERSION}]])</td>
+</tr>
+<tr>
+<th>Local IP</th>
+<td>[[${T(com.rebuild.utils.OshiUtils).getLocalIp()}]]</td>
+</tr>
+<tr>
+<th>System Time</th>
+<td>[[${T(cn.devezhao.commons.CalendarUtils).now()}]]</td>
+</tr>
+<tr>
+<th>Startup Time</th>
+<td>[[${T(com.rebuild.core.ServerStatus).STARTUP_TIME}]]</td>
+</tr>
+<tr>
+<th>Data Directory</th>
+<td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfData("/")}]]</td>
+</tr>
+<tr>
+<th>Temp Directory</th>
+<td>[[${T(org.apache.commons.io.FileUtils).getTempDirectoryPath()}]]</td>
+</tr>
+</tbody>
+</table>
+{%- endif -%}
+<div class="text-muted mt-5">
+        &copy; REBUILD
+        <b class="ml-1 mr-1">&middot;</b>
+<a href="server-status.json">Status Api</a>
+<b class="ml-1 mr-1">&middot;</b>
+<a href="request-support">[[${bundle.L('请求技术支持')}]]</a>
+</div>
+</div>
+</body>
+</html>
+ [[${SN}]] 

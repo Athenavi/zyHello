@@ -1,0 +1,87 @@
+<html>
+<head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<meta content="webkit" name="renderer">
+<meta content="IE=edge" http-equiv="X-UA-Compatible">
+<link href="{{ '/' ~ assets ~ '/' ~ img ~ '/' ~ favicon.png }}" rel="shortcut icon">
+<link href="{{ '/' ~ assets ~ '/' ~ lib ~ '/' ~ material ~ '-' ~ design ~ '-' ~ iconic ~ '-' ~ font.min.css }}" rel="stylesheet" type="text/css">
+<link href="{{ '/' ~ assets ~ '/' ~ css ~ '/' ~ rb ~ '-' ~ base.css }}" rel="stylesheet" type="text/css">
+<title>REBUILD</title>
+<style>
+      .zmdi.err400,
+      .zmdi.err404 {
+        color: #4285f4 !important;
+      }
+      .zmdi.err401,
+      .zmdi.err403,
+      .zmdi.err600 {
+        color: #fbbc05 !important;
+      }
+      .zmdi.err600::before,
+      .zmdi.err602::before {
+        font-size: 6rem;
+        content: '\f17a';
+      }
+      .zmdi.err601::before,
+      .zmdi.err603::before {
+        content: '\f119';
+      }
+      .error-description > pre:empty {
+        display: none;
+      }
+      .error-container a[target='_blank']:hover {
+        text-decoration: underline;
+      }
+      @media (max-width: 576px) {
+        .rb-error .error-container {
+          max-width: 100%;
+        }
+      }
+    </style>
+</head>
+<body class="rb-splash-screen">
+<div class="rb-wrapper rb-error">
+<div class="rb-content m-0">
+<div class="main-content container">
+<div class="error-container">
+<div class="error-number mb-0"><i class="['zmdi', 'zmdi-alert-circle', 'text-danger'] {{ 'err' + error_code }}"></i></div>
+<div class="error-description">{{ error_msg|safe }}</div>
+{%- if error_stack != none -%}<div class="error-description text-left"><pre>{{ error_stack|safe }}</pre></div>{%- endif -%}
+{%- if bundle != none -%}<div class="error-goback-button">
+<a class="btn btn-xl btn-space btn-secondary" href="{{ '/' ~ dashboard ~ '/' ~ home }}" id="goHome">[[${bundle.L('返回首页')}]]</a>
+<button class="btn btn-xl btn-space btn-primary" onclick="location.reload()" type="button">[[${bundle.L('重试')}]]</button>
+<div class="mt-4">
+<a href="{{ 'https://getrebuild.com/report-issue?title=error-page-' + error_code }}" target="_blank">[[${bundle.L('报告问题')}]]</a>
+<span>[[${bundle.L('或联系系统管理员')}]]</span>
+</div>
+</div>{%- endif -%}
+</div>
+</div>
+</div>
+</div>
+<script>
+      var $btn = document.getElementById('goHome')
+      if (self != top) {
+        $btn.parentNode.removeChild($btn)
+        if (parent && parent.RbViewModal) {
+          try {
+            // Check#1
+            var stack = parent.RbViewModal.__HOLDERsStack
+            stack[stack.length - 1].hideLoading()
+          } catch (ignore) {
+            try {
+              // Check#2
+              parent.RbViewModal.currentHolder().hideLoading()
+            } catch (ignore2) {}
+          }
+        }
+      } else if (location.href.indexOf('/f/') > -1 || location.href.indexOf('/s/') > -1) {
+        $btn.parentNode.removeChild($btn)
+      }
+      if (document.getElementsByClassName('err600').length > 0) {
+        setTimeout(() => location.reload(), 15000)
+      }
+    </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<html>
+<head>
+{%- include "/_include/header.html" -%}
+<meta content="https://getrebuild.com/docs/manual/notifications" name="page-help">
+<title>[[${bundle.L('通知')}]]</title>
+<style>
+      .notification-tab {
+        position: relative;
+      }
+      .notification-tab .read-all {
+        position: absolute;
+        top: 0;
+        right: 0;
+      }
+      @media (max-width: 768px) {
+        .float-right .rb-notifications {
+          right: 0;
+        }
+      }
+      .notification-type {
+        min-height: 198px;
+        position: sticky;
+        top: 61px;
+      }
+      .notification-type .list-group-item {
+        padding: 10px 15px;
+      }
+    </style>
+</head>
+<body>
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
+{%- include "/_include/nav-top.html" -%}
+{%- include "/_include/nav-left.html" -%}
+<div class="rb-content">
+<div class="main-content container">
+<div class="tab-container">
+<ul class="nav nav-tabs nav-tabs-classic notification-tab">
+<li class="nav-item">
+<a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.L('通知')}]]</a>
+</li>
+<li class="nav-item hide">
+<a class="nav-link" href="notifications/todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.L('待办')}]]</a>
+</li>
+<button class="btn btn-secondary read-all" type="button"><i class="zmdi zmdi-check-all icon"></i> [[${bundle.L('已读全部')}]]</button>
+</ul>
+<div class="tab-content">
+<div class="tab-pane active">
+<div class="row">
+<div class="col-md-3 col-12">
+<div class="notification-type">
+<div class="list-group mb-2">
+<a class="list-group-item d-flex list-group-item-action" data-type="1" href="#unread">
+<span class="text">[[${bundle.L('未读通知')}]]</span>
+</a>
+<a class="list-group-item d-flex list-group-item-action" data-type="3" href="#all">
+<span class="text">[[${bundle.L('全部通知')}]]</span>
+</a>
+</div>
+<div class="list-group">
+<a class="list-group-item d-flex list-group-item-action" data-type="30" href="#feeds">
+<span class="text">[[${bundle.L('动态')}]]</span>
+</a>
+<a class="list-group-item d-flex list-group-item-action" data-type="40" href="#project">
+<span class="text">[[${bundle.L('项目')}]]</span>
+</a>
+<a class="list-group-item d-flex list-group-item-action" data-type="20" href="#approval">
+<span class="text">[[${bundle.L('审批')}]]</span>
+</a>
+<a class="list-group-item d-flex list-group-item-action" data-type="10" href="#assigns">
+<span class="text">[[${bundle.L('分配与共享')}]]</span>
+</a>
+</div>
+</div>
+</div>
+<div class="col-md-9 col-12 pl-1" id="message-list"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+{%- include "/_include/footer.html" -%}
+<script src="{{ '/' ~ assets ~ '/' ~ js ~ '/' ~ notifications.js }}" type="text/babel"></script>
+</body>
+</html>
