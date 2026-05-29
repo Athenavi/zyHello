@@ -90,7 +90,7 @@ function NavSettingsContent() {
       setItems((prev) => {
         const next = [...prev];
         next[idx] = { ...editing };
-        delete (next[idx] as Record<string, unknown>)._idx;
+        delete (next[idx] as any)._idx;
         return next;
       });
     }

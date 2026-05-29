@@ -100,7 +100,7 @@ export default function AdminProjectEditorPage() {
     const name = prompt("请输入计划名称");
     if (!name) return;
     try {
-      const data = await api.addProjectPlan(projectId, name);
+      const data = await api.addProjectPlan({ projectId, name });
       setPlans((prev) => [...prev, data]);
     } catch {
       alert("添加失败");

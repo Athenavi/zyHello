@@ -152,7 +152,7 @@ async def api_user_list(
     result = []
     for u in users:
         result.append({
-            "id": str(u.id),
+            "id": str(u.user_id),
             "fullName": u.full_name,
             "loginName": u.login_name,
             "email": u.email,
@@ -163,12 +163,10 @@ async def api_user_list(
 
     return {
         "error_code": 0,
-        "data": {
-            "total": total,
-            "pageNo": page_no,
-            "pageSize": page_size,
-            "data": result,
-        },
+        "data": result,
+        "total": total,
+        "pageNo": page_no,
+        "pageSize": page_size,
     }
 
 
@@ -196,14 +194,14 @@ async def api_user_get(
 
     Migrated from UserSettingsController.
     """
-    user = db.query(User).filter(User.id == id).first()
+    user = db.query(User).filter(User.user_id == id).first()
     if not user:
         return {"error_code": 404, "error_msg": "User not found"}
 
     return {
         "error_code": 0,
         "data": {
-            "id": str(user.id),
+            "id": str(user.user_id),
             "fullName": user.full_name,
             "loginName": user.login_name,
             "email": user.email,
@@ -232,13 +230,43 @@ async def api_dept_list(
     result = []
     for d in depts:
         result.append({
-            "id": str(d.id),
+            "id": str(d.dept_id),
             "name": d.name,
             "parentId": str(d.parent_id) if d.parent_id else None,
             "isDisabled": d.is_disabled,
         })
 
     return {"error_code": 0, "data": result}
+
+
+@router.get("/admin/bizuser/dept-tree")
+async def api_dept_tree(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get department tree structure.
+
+    Migrated from DepartmentController.
+    """
+    depts = db.query(Department).all()
+    flat = []
+    for d in depts:
+        flat.append({
+            "id": str(d.dept_id),
+            "name": d.name,
+            "parentId": str(d.parent_id) if d.parent_id else None,
+            "isDisabled": d.is_disabled,
+            "children": [],
+        })
+    by_id = {item["id"]: item for item in flat}
+    tree = []
+    for item in flat:
+        pid = item["parentId"]
+        if pid and pid in by_id:
+            by_id[pid]["children"].append(item)
+        else:
+            tree.append(item)
+    return tree
 
 
 @router.post("/admin/bizuser/dept-save")
@@ -260,18 +288,18 @@ async def api_dept_save(
         return {"error_code": 400, "error_msg": "Department name required"}
 
     if dept_id:
-        dept = db.query(Department).filter(Department.id == dept_id).first()
+        dept = db.query(Department).filter(Department.dept_id == dept_id).first()
         if not dept:
             return {"error_code": 404, "error_msg": "Department not found"}
         dept.name = name
         dept.parent_id = parent_id
     else:
         import uuid
-        dept = Department(id=str(uuid.uuid4()), name=name, parent_id=parent_id)
+        dept = Department(dept_id=str(uuid.uuid4()), name=name, parent_id=parent_id)
         db.add(dept)
 
     db.commit()
-    return {"error_code": 0, "data": {"id": str(dept.id), "name": dept.name}}
+    return {"error_code": 0, "data": {"id": str(dept.dept_id), "name": dept.name}}
 
 
 @router.post("/admin/bizuser/dept-delete")
@@ -290,7 +318,7 @@ async def api_dept_delete(
     if not dept_id:
         return {"error_code": 400, "error_msg": "Department ID required"}
 
-    dept = db.query(Department).filter(Department.id == dept_id).first()
+    dept = db.query(Department).filter(Department.dept_id == dept_id).first()
     if not dept:
         return {"error_code": 404, "error_msg": "Department not found"}
 

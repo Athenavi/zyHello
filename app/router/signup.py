@@ -220,3 +220,25 @@ async def captcha():
     # Simple numeric captcha; in production use image-based captcha
     code = "".join(random.choices(string.digits, k=4))
     return {"ok": True, "captcha_id": code, "msg": "Enter the captcha"}
+
+
+@router.get("/user/sso-providers")
+async def sso_providers():
+    """Return available SSO login providers.
+
+    Returns a list of enabled SSO provider keys (e.g. ["dingtalk", "wxwork"]).
+    Currently returns an empty list since SSO is not yet configured.
+    """
+    # TODO: Read from configuration_service when SSO is implemented
+    return {"data": []}
+
+
+@router.get("/user/login-announcement")
+async def login_announcement():
+    """Return login page announcement message, if any.
+
+    The announcement is displayed as a banner on the login page.
+    Returns empty msg when no announcement is active.
+    """
+    # TODO: Read from configuration_service or maintenance mode
+    return {"msg": ""}

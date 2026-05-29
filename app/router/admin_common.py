@@ -12,6 +12,7 @@ from app.services.user_service import (
     get_login_logs, passwd_expired_save,
     cancel_external_user, get_external_user,
 )
+from app.services import configuration_service
 
 router = APIRouter()
 
@@ -217,3 +218,32 @@ async def api_external_user(
     """
     result = get_external_user(db, str(current_user.user_id), appid)
     return {"error_code": 0, "data": result}
+
+
+# ══════════════════════════════════════════════════════════════════════
+# API endpoints — System Settings (frontend-compatible)
+# ══════════════════════════════════════════════════════════════════════
+
+
+@router.get("/admin/system/settings")
+async def api_get_system_settings(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get system configuration (frontend-compatible endpoint)."""
+    data = configuration_service.get_system_config_data(db)
+    return data
+
+
+@router.post("/admin/system/settings-save")
+async def api_save_system_settings(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Save system configuration (frontend-compatible endpoint)."""
+    body = await request.json()
+    err = configuration_service.save_system_config(db, body)
+    if err:
+        return {"ok": False, "error": err}
+    return {"ok": True}

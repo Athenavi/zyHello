@@ -86,7 +86,7 @@ export default function AdminTeamsPage() {
       const data = await api.getTeam(team.id);
       if (data && typeof data === "object") {
         const d = data as Record<string, unknown>;
-        setTeamMembers(((d.members || d.data?.members || []) as Record<string, unknown>[]) || []);
+        setTeamMembers(((d.members || (d.data as any)?.members || []) as Record<string, unknown>[]) || []);
         if (d.name) setSelectedTeam({ ...team, name: d.name as string });
       }
     } catch {

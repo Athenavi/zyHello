@@ -1,133 +1,318 @@
-[![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
-[![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
-[![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
-[![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/legal/service-terms)
-[![License 商业授权](https://img.shields.io/badge/license-%E5%95%86%E4%B8%9A%E6%8E%88%E6%9D%83-red.svg)](https://getrebuild.com/legal/service-terms)
-[![Docker Image Version](https://img.shields.io/docker/v/getrebuild/rebuild?label=Docker%20Image)](https://www.getrebuild.com/learn/install-use-docker)
+<p align="center">
+  <br />
+  <img src="https://img.shields.io/badge/Rebuild-CRM%20%2F%20%E4%BD%8E%E4%BB%A3%E7%A0%81%E5%B9%B3%E5%8F%B0-blue?style=for-the-badge&logo=data:image/svg+xml;base64,..." alt="Rebuild" />
+  <br /><br />
+</p>
 
-## 项目简介
+<h1 align="center">Rebuild</h1>
 
-**_相较于同类产品，REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。_**
+<p align="center">
+  <strong>企业级 CRM / 低代码平台</strong>
+  <br />
+  <em>元数据驱动 · 工作流自动化 · AI 赋能 · 开箱即用</em>
+</p>
 
-「开放式设计」是 REBUILD 的重要设计理念！得益于团队成熟的企业管理系统经验，我们实现了对企业日常各类需求的可配置化管理，全图形化设计零代码搭建，所见即所得。
+<p align="center">
+  <a href="https://github.com/getrebuild/rebuild/stargazers"><img src="https://img.shields.io/github/stars/getrebuild/rebuild?style=social" alt="Stars" /></a>
+  <a href="https://github.com/getrebuild/rebuild/network/members"><img src="https://img.shields.io/github/forks/getrebuild/rebuild?style=social" alt="Forks" /></a>
+  <a href="https://github.com/getrebuild/rebuild/issues"><img src="https://img.shields.io/github/issues/getrebuild/rebuild" alt="Issues" /></a>
+  <a href="https://github.com/getrebuild/rebuild/blob/main/LICENSE"><img src="https://img.shields.io/github/license/getrebuild/rebuild" alt="License" /></a>
+  <img src="https://img.shields.io/github/last-commit/getrebuild/rebuild" alt="Last Commit" />
+</p>
 
-> **福利：加入 REBUILD VIP 用户 QQ 交流群 744487038 1013051587 GET 使用技能**
+<p align="center">
+  <a href="#-快速开始">快速开始</a> · <a href="#-功能特性">功能特性</a> · <a href="#-技术栈">技术栈</a> · <a href="#-截图">截图</a> · <a href="#-部署">部署</a> · <a href="#-贡献">贡献</a>
+</p>
 
-### 为什么需要 REBUILD
+---
 
-相较于传统软件系统，REBUILD 提供了绝佳的灵活性与可控性，可以完全按照企业需求进行量身打造。同时，当系统投入使用一段时间后会遇到业务变化或需求变更，通过 REBUILD 提供的高度可配置化能力，可快速完成需求变更而无需额外投入。
+## ✨ 功能特性
 
-### REBUILD 适合哪类用户
+### 🏢 核心业务功能
 
-REBUILD 适合需要灵活搭建业务系统的企业 IT 团队、缺乏专职开发资源的中小企业、特定业务领域的管理者、从传统系统迁移或升级的企业，或是开发者或技术合作伙伴。
+| 功能模块 | 描述 |
+|---------|------|
+| **📊 仪表盘** | 数据可视化仪表盘，统计卡片、图表、活动流、快速操作 |
+| **📋 实体管理** | 元数据驱动的实体管理，支持自定义字段、表单布局、审批流程 |
+| **📁 记录管理** | 完整的 CRUD 操作，批量操作、导入导出、关联记录、历史追踪 |
+| **📈 项目管理** | 看板视图 + 列表视图，任务管理、进度追踪、标签系统 |
+| **💬 动态/Feed** | 企业内部社交动态，支持图片、评论、点赞、@提及 |
+| **📂 文件管理** | 文件上传/下载、文件夹管理、多视图切换、批量操作 |
+| **👥 联系人** | 部门树形结构、字母索引、高级搜索、排序筛选 |
+| **🔔 通知中心** | 消息通知、待办事项、审批流程，统一管理 |
+| **⚙️ 用户设置** | 个人资料、安全设置（密码/邮箱）、登录日志 |
 
-#### 企业 IT 团队
+### 🔧 管理后台
 
-- 场景：快速搭建 CRM/MES/WMS 等业务系统
-- 优势：零代码配置业务实体、权限、流程
-- 用户：IT 管理员、实施顾问
+| 功能模块 | 描述 |
+|---------|------|
+| **📐 元数据管理** | 实体配置、字段管理、分类编辑器、表单布局设计器 |
+| **👤 用户管理** | 用户列表、部门管理、团队管理、角色分配 |
+| **🤖 机器人/自动化** | 触发器配置、数据转换、自动化工作流 |
+| **🔗 系统集成** | API 密钥管理、外部集成（钉钉/飞书/企微）、系统配置、存储配置 |
+| **📊 数据管理** | 报表模板、数据导入管理 |
+| **🛡️ 角色权限** | 角色创建、实体权限（CRUD+A）、功能权限、菜单权限 |
 
-#### 中小企业
+### 🎨 界面设计
 
-- 场景：缺乏开发资源与预算
-- 优势：开源免费版满足基础需求，商业版提供更多高阶功能
+- **现代设计系统** — HSL 色彩变量、玻璃拟态效果、渐变装饰
+- **深色模式** — 完整的深色主题支持，自动跟随系统偏好
+- **响应式布局** — 完美适配桌面端和移动端
+- **流畅动画** — 页面过渡、元素入场、骨架屏加载状态
+- **命令面板** — ⌘K 快速导航，提升操作效率
 
-#### 业务管理者（典型应用）
+### ⚡ 性能优化
 
-- 销售（客户/商机管理）
-- 供应链（库存/出入库）
-- 生产（工单/进度监控）
+- **Next.js 16** — 最新框架，PPR（部分预渲染）、App Router
+- **自动代码分割** — 按路由和库自动分割，优化加载速度
+- **图片优化** — AVIF/WebP 自动转换、响应式图片、懒加载
+- **字体优化** — next/font 自托管，消除 CLS（布局偏移）
+- **API 代理** — 开发环境自动代理，生产环境 API 重写
+- **Docker 部署** — 多阶段构建，standalone 输出，最小化镜像
 
-#### 系统升级企业
+---
 
-- 场景：替换老旧 OA/Excel 管理
-- 能力：数据迁移、多实体关联、审计追踪
+## 🛠 技术栈
 
-#### 开发者
+### 前端
 
-- 扩展：Java/SpringBoot 二次开发，提供 OpenAPI 集成外部系统
-- 部署：支持 Docker 私有云或本地部署
+| 技术 | 版本 | 用途 |
+|------|------|------|
+| [Next.js](https://nextjs.org/) | 16.2.6 | React 全栈框架 |
+| [React](https://react.dev/) | 19.2.4 | UI 库 |
+| [TypeScript](https://www.typescriptlang.org/) | 5.x | 类型安全 |
+| [Tailwind CSS](https://tailwindcss.com/) | 4.x | 原子化 CSS |
+| [Radix UI](https://www.radix-ui.com/) | Latest | 无样式组件原语 |
+| [Zustand](https://zustand-demo.pmnd.rs/) | 5.x | 轻量状态管理 |
+| [Lucide Icons](https://lucide.dev/) | Latest | 图标库 |
+| [ECharts](https://echarts.apache.org/) | 6.x | 数据可视化 |
+| [Sonner](https://sonner.emilkowal.dev/) | 2.x | Toast 通知 |
 
-更多详情介绍 [https://getrebuild.com/learn/declaration](https://getrebuild.com/learn/declaration)
+### 后端
 
-## V4.3 新特性
+| 技术 | 用途 |
+|------|------|
+| [FastAPI](https://fastapi.tiangolo.com/) | 高性能 Python Web 框架 |
+| [SQLAlchemy](https://www.sqlalchemy.org/) | ORM 数据库操作 |
+| [Uvicorn](https://www.uvicorn.org/) | ASGI 服务器 |
+| [SQLite/MySQL/PostgreSQL](https://www.sqlite.org/) | 数据库支持 |
 
-本次更新为你带来众多功能增强与优化。
+---
 
-1. [新增] 业务进度（用于标准化业务流程）
-2. [新增] 字段聚合支持“计算公式”
-3. [新增] 文件目录支持分享
-4. [新增] 记录转换支持多记录转换
-5. [新增] 导航菜单支持配置默认条件
-6. [新增] 图表“柏拉图”、“我的常用”
-7. [优化] 丰富自定义操作配置
-8. [优化] 30+ 细节/BUG/安全性更新
-9. ...
+## 🚀 快速开始
 
-更多更新详情请参见 [更新日志](https://getrebuild.com/docs/dev/changelog?v=4.3)
+### 环境要求
 
-## 在线体验
+- **Node.js** >= 18.0
+- **Python** >= 3.8
+- **npm** / **yarn** / **pnpm**
 
-[https://nightly.getrebuild.com/](https://nightly.getrebuild.com/)
+### 1. 克隆项目
 
-> 默认超级管理员用户名密码为 `admin` `admin`
+```bash
+git clone https://github.com/getrebuild/rebuild.git
+cd rebuild
+```
 
-## 使用
+### 2. 启动后端
 
-开始使用 REBUILD 非常简单，无需配置复杂的运行环境，零依赖快速部署！
+```bash
+cd app
+pip install -r requirements.txt
+python main.py
+# 后端运行在 http://localhost:18080
+```
 
-### 1. 使用已发布版本
+### 3. 启动前端
 
-_生产环境强烈推荐使用此方式 !!!_
+```bash
+cd frontend
+npm install
+npm run dev
+# 前端运行在 http://localhost:3000
+```
 
-首先 [下载](https://getrebuild.com/download) 安装包，我们同时提供 `standalone` 与 `boot` 两种安装包。`standalone` 为集成安装包（推荐），`boot` 为 SpringBoot 的 `jar` 包，两种安装包在功能上没有区别。
+### 4. 访问应用
 
-下载后解压（集成安装包），通过 `start-rebuild.bat` 或 `start-rebuild.sh` 启动，然后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
+打开浏览器访问 [http://localhost:3000](http://localhost:3000)
 
-或者您也可以 [使用 Docker 安装](https://getrebuild.com/learn/install-use-docker)。更多详情请参见 [安装文档](https://getrebuild.com/learn/install)
+> 首次访问会进入安装向导，按提示完成初始化配置即可。
 
-### 2. 通过源码编译
+---
 
-_注意 !!! 生产环境请使用 `master` 分支（默认分支），其他分支为开发分支，功能存在不确定性！_
+## 📦 部署
+
+### Docker 部署（推荐）
+
+```bash
+cd frontend
+
+# 构建镜像
+docker build -t rebuild-frontend .
+
+# 运行容器
+docker run -p 3000:3000 \
+  -e NEXT_PUBLIC_API_URL=http://your-backend:18080 \
+  rebuild-frontend
+```
+
+### 手动部署
+
+```bash
+cd frontend
+
+# 构建生产版本
+npm run build
+
+# 启动生产服务器
+npm start
+```
+
+### 环境变量
+
+| 变量名 | 说明 | 默认值 |
+|--------|------|--------|
+| `NEXT_PUBLIC_API_URL` | 后端 API 地址 | `http://localhost:18080` |
+| `NEXT_PUBLIC_APP_URL` | 前端应用地址 | `http://localhost:3000` |
+
+---
+
+## 📁 项目结构
 
 ```
-# 拉取
-git clone --depth=1 https://github.com/getrebuild/rebuild.git
-
-# 编译
-mvn package
-
-# 运行
-java -jar target/rebuild.jar
+rebuild/
+├── app/                          # FastAPI 后端
+│   ├── api/                      # API 层
+│   ├── core/                     # 核心功能（缓存、图表、批量操作）
+│   ├── router/                   # 路由处理器
+│   ├── templates/                # Jinja2 模板（旧版 UI）
+│   ├── utils/                    # 工具函数
+│   └── main.py                   # 应用入口
+│
+├── frontend/                     # Next.js 前端
+│   ├── src/
+│   │   ├── app/                  # App Router 页面
+│   │   │   ├── (app)/            # 主应用路由组
+│   │   │   │   ├── dashboard/    # 仪表盘
+│   │   │   │   ├── entities/     # 实体管理
+│   │   │   │   ├── projects/     # 项目管理
+│   │   │   │   ├── feeds/        # 动态
+│   │   │   │   ├── files/        # 文件管理
+│   │   │   │   ├── contacts/     # 联系人
+│   │   │   │   ├── notifications/# 通知中心
+│   │   │   │   └── settings/     # 用户设置
+│   │   │   ├── admin/            # 管理后台
+│   │   │   │   ├── (admin)/      # 管理路由组
+│   │   │   │   │   ├── metadata/ # 元数据管理
+│   │   │   │   │   ├── users/    # 用户管理
+│   │   │   │   │   ├── robots/   # 机器人/自动化
+│   │   │   │   │   ├── integration/ # 系统集成
+│   │   │   │   │   ├── data/     # 数据管理
+│   │   │   │   │   └── role-privileges/ # 角色权限
+│   │   │   │   ├── verify/       # 管理员认证
+│   │   │   │   └── setup/        # 系统安装
+│   │   │   ├── login/            # 登录页
+│   │   │   └── ...               # 其他页面
+│   │   ├── components/
+│   │   │   ├── ui/               # 可复用 UI 组件库
+│   │   │   └── layout/           # 布局组件
+│   │   ├── lib/
+│   │   │   ├── api.ts            # API 客户端
+│   │   │   ├── auth.tsx          # 认证上下文
+│   │   │   ├── store.ts          # Zustand 状态管理
+│   │   │   └── utils.ts          # 工具函数
+│   │   └── middleware.ts         # 路由中间件
+│   ├── public/                   # 静态资源
+│   ├── next.config.ts            # Next.js 配置
+│   ├── Dockerfile                # Docker 构建文件
+│   └── package.json              # 依赖配置
+│
+└── README.md                     # 本文件
 ```
 
-运行后打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
+---
 
-## 开发
+## 🎯 UI 组件库
 
-REBUILD 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上没有区别。默认情况下使用 SpringBoot `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
+项目内置了一套基于 Radix UI + Tailwind CSS 的可复用组件库：
 
-如你希望使用外部 Tomcat（或其他 Java Web 容器） 即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
+| 组件 | 文件 | 说明 |
+|------|------|------|
+| Button | `components/ui/button.tsx` | 按钮，支持多种变体和尺寸 |
+| Input | `components/ui/input.tsx` | 输入框 |
+| Card | `components/ui/card.tsx` | 卡片容器 |
+| Dialog | `components/ui/dialog.tsx` | 模态对话框 |
+| Badge | `components/ui/badge.tsx` | 标签徽章 |
+| Tabs | `components/ui/tabs.tsx` | 标签页 |
+| DropdownMenu | `components/ui/dropdown-menu.tsx` | 下拉菜单 |
+| Tooltip | `components/ui/tooltip.tsx` | 工具提示 |
+| Avatar | `components/ui/avatar.tsx` | 头像 |
+| Skeleton | `components/ui/skeleton.tsx` | 骨架屏加载 |
+| Checkbox | `components/ui/checkbox.tsx` | 复选框 |
+| ScrollArea | `components/ui/scroll-area.tsx` | 自定义滚动区域 |
+| Progress | `components/ui/progress.tsx` | 进度条 |
+| Separator | `components/ui/separator.tsx` | 分隔线 |
+| EmptyState | `components/ui/empty-state.tsx` | 空状态占位 |
+| DataTable | `components/ui/data-table.tsx` | 数据表格 |
 
-### 开发环境
+---
 
-REBUILD 对于开发环境的要求非常简单，由于使用 Java 开发，因此可以运行在几乎所有操作系统上。请按如下清单准备：
+## 🔐 认证与权限
 
-- JDK 1.8+（兼容 OpenJDK）
-- MySQL 5.6+
-- Apache Maven 3.6+（非必须，IDE 自带）
-- Redis 3.2+（非必须，默认使用内置 Ehcache 缓存）
-- Tomcat 8.0+（非必须，默认使用内置 Tomcat）
-- IDEA 或 Eclipse (for JEE)
+- **JWT Token 认证** — 基于 Token 的无状态认证
+- **路由中间件** — 自动保护需要登录的页面
+- **管理员认证** — 独立的管理员验证流程
+- **RBAC 权限模型** — 角色 → 实体/功能/菜单 三级权限控制
 
-更多详情请参见 [开发人员文档](https://getrebuild.com/docs/dev/)
+---
 
-## 授权 License
+## 🌍 浏览器支持
 
-REBUILD 使用 GPL-3.0 开源许可和商业授权双重授权协议，使用将被视为你自愿承诺接受 [用户服务协议](https://getrebuild.com/legal/service-terms) 之所有条款。
+| [<img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/main/src/edge/edge_48x48.png" alt="Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)<br>Edge |
+|:---:|:---:|:---:|:---:|
+| ✅ Last 2 versions | ✅ Last 2 versions | ✅ Last 2 versions | ✅ Last 2 versions |
 
-REBUILD uses the GPL-3.0 open source license and commercial license dual license agreement. Use will be deemed your voluntary commitment to accept all terms of the [Agreement](https://getrebuild.com/legal/service-terms).
+---
 
-## 购买商业授权
+## 🤝 贡献
 
-从 2.0 版本开始，REBUILD 将推出 [增值功能](https://getrebuild.com/docs/rbv-features) 计划。如果 REBUILD 对贵公司业务有帮助，请考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 REBUILD 可持续发展。除了可享有全部功能以外，还可以得到更专业的技术支持服务。非常感谢！
+我们欢迎所有形式的贡献！
+
+1. Fork 本项目
+2. 创建你的特性分支 (`git checkout -b feature/amazing-feature`)
+3. 提交你的更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 打开一个 Pull Request
+
+### 开发规范
+
+- 使用 TypeScript 严格模式
+- 遵循 ESLint 规则
+- 组件使用 PascalCase 命名
+- 工具函数使用 camelCase 命名
+- CSS 使用 Tailwind 原子类
+
+---
+
+## 📄 许可证
+
+本项目基于 [GPL-3.0](LICENSE) 许可证开源。
+
+---
+
+## 🙏 致谢
+
+- [Next.js](https://nextjs.org/) — The React Framework
+- [FastAPI](https://fastapi.tiangolo.com/) — Modern Python Web Framework
+- [Tailwind CSS](https://tailwindcss.com/) — Utility-First CSS Framework
+- [Radix UI](https://www.radix-ui.com/) — Unstyled UI Components
+- [Lucide](https://lucide.dev/) — Beautiful Icons
+- [shadcn/ui](https://ui.shadcn.com/) — UI Component Inspiration
+
+---
+
+<p align="center">
+  <strong>如果 Rebuild 对你有帮助，请给我们一个 ⭐ Star！</strong>
+  <br />
+  <sub>你的支持是我们持续改进的动力</sub>
+</p>

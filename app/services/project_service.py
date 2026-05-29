@@ -241,3 +241,54 @@ def delete_task_comment(db: Session, comment_id: str, user_id: str) -> bool:
     comment.is_deleted = True
     db.commit()
     return True
+
+
+def save_task(db: Session, data: dict, user_id: str) -> dict:
+    """Create or update a task."""
+    task_id = data.get("id") or data.get("task_id")
+    if task_id:
+        # Update existing task
+        task = db.query(ProjectTask).filter(ProjectTask.task_id == task_id).first()
+        if not task:
+            return {"error": "Task not found"}
+        for field in ("task_name", "description", "priority", "status", "deadline", "project_plan_id"):
+            val = data.get(field)
+            if val is not None:
+                setattr(task, field, val)
+        task.modified_on = datetime.utcnow()
+        db.commit()
+        return {"task_id": task.task_id}
+    else:
+        # Create new task
+        new_id = uuid.uuid4().hex[:20]
+        # Get next task number
+        max_num = db.query(func.max(ProjectTask.task_number)).filter(
+            ProjectTask.project_id == data.get("projectId") or data.get("project_id")
+        ).scalar() or 0
+        task = ProjectTask(
+            task_id=new_id,
+            project_id=data.get("projectId") or data.get("project_id"),
+            project_plan_id=data.get("projectPlanId") or data.get("project_plan_id"),
+            task_number=max_num + 1,
+            task_name=data.get("taskName") or data.get("task_name", ""),
+            description=data.get("description"),
+            priority=data.get("priority", 1),
+            status=data.get("status", 0),
+            deadline=data.get("deadline"),
+            seq=max_num + 1,
+            created_by=user_id,
+        )
+        db.add(task)
+        db.commit()
+        return {"task_id": new_id}
+
+
+def delete_task(db: Session, task_id: str) -> bool:
+    """Soft-delete a task."""
+    task = db.query(ProjectTask).filter(ProjectTask.task_id == task_id).first()
+    if not task:
+        return False
+    task.is_deleted = True
+    task.modified_on = datetime.utcnow()
+    db.commit()
+    return True

@@ -117,6 +117,25 @@ def list_files(db: Session, user_id: str, folder_id: str = None, page_no: int = 
     ]
 
 
+def create_folder(db: Session, user_id: str, folder_name: str, parent_id: str = None) -> dict:
+    """Create a new folder."""
+    folder = AttachmentFolder(
+        folder_id=uuid.uuid4().hex[:20],
+        folder_name=folder_name,
+        parent_id=parent_id,
+        scope=1,
+        created_by=user_id,
+    )
+    db.add(folder)
+    db.commit()
+    db.refresh(folder)
+    return {
+        "folder_id": folder.folder_id,
+        "folder_name": folder.folder_name,
+        "scope": folder.scope,
+    }
+
+
 def list_folders(db: Session, user_id: str, parent_id: str = None) -> list[dict]:
     """List folders."""
     query = db.query(AttachmentFolder).filter(AttachmentFolder.is_deleted == False)

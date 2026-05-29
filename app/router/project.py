@@ -131,6 +131,16 @@ async def task_details(
     }
 
 
+@router.get("/project/plan-list")
+async def plan_list(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get all projects with their plans (frontend-compatible endpoint)."""
+    data = project_service.get_project_and_plans(db, current_user.user_id)
+    return {"ok": True, "data": data}
+
+
 @router.get("/project/alist")
 async def get_project_and_plans(
     db: Session = Depends(get_db),
@@ -225,4 +235,43 @@ async def delete_task_comment(
     success = project_service.delete_task_comment(db, body.comment_id, current_user.user_id)
     if not success:
         raise HTTPException(status_code=404, detail="Comment not found or not owned by you")
+    return {"ok": True}
+
+
+# ── Task CRUD routes ──────────────────────────────────────────────
+
+
+@router.post("/project/tasks/save")
+async def save_task(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Create or update a task."""
+    body = await request.json()
+    # 检查 metadata 中是否有 id（更新模式）
+    metadata = body.get("metadata", {})
+    task_id = metadata.get("id") or body.get("task_id") or body.get("id")
+    if task_id:
+        body["id"] = task_id
+    result = project_service.save_task(db, body, str(current_user.user_id))
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return {"ok": True, "data": result}
+
+
+@router.post("/project/tasks/delete")
+async def delete_task_endpoint(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Delete (soft) a task."""
+    body = await request.json()
+    task_id = body.get("task_id") or body.get("id")
+    if not task_id:
+        raise HTTPException(status_code=400, detail="task_id required")
+    success = project_service.delete_task(db, task_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Task not found")
     return {"ok": True}

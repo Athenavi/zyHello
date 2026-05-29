@@ -27,7 +27,7 @@ class ApiClient {
     return localStorage.getItem("access_token");
   }
 
-  private async request<T = any>(
+  async request<T = any>(
     path: string,
     options: RequestInit = {}
   ): Promise<T> {
@@ -63,25 +63,25 @@ class ApiClient {
     return data as T;
   }
 
-  async get<T = any>(path: string): Promise<T> {
+  async get<T = any>(path: string): Promise<any> {
     return this.request<T>(path, { method: "GET" });
   }
 
-  async post<T = any>(path: string, body?: any): Promise<T> {
+  async post<T = any>(path: string, body?: any): Promise<any> {
     return this.request<T>(path, {
       method: "POST",
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  async put<T = any>(path: string, body?: any): Promise<T> {
+  async put<T = any>(path: string, body?: any): Promise<any> {
     return this.request<T>(path, {
       method: "PUT",
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  async delete<T = any>(path: string): Promise<T> {
+  async delete<T = any>(path: string): Promise<any> {
     return this.request<T>(path, { method: "DELETE" });
   }
 
@@ -94,7 +94,7 @@ class ApiClient {
     }>("/user/user-login", { username, password, captcha });
   }
 
-  async getCaptchaUrl(): string {
+  getCaptchaUrl(): string {
     return `${this.baseUrl}/user/captcha?t=${Date.now()}`;
   }
 
@@ -154,8 +154,24 @@ class ApiClient {
     return this.get<Record<string, any>[]>("/commons/entities");
   }
 
+  async getEntityFields(entityName: string) {
+    return this.get<Record<string, any>[]>(`/commons/fields?entity=${entityName}`);
+  }
+
   async getFields(entity: string) {
     return this.get<Record<string, any>[]>(`/commons/fields?entity=${entity}`);
+  }
+
+  async getEntityMeta(entityName: string) {
+    return this.get<Record<string, any>>(`/commons/meta-info?entity=${entityName}`);
+  }
+
+  async getEntityList() {
+    return this.get<Record<string, any>[]>("/commons/entities");
+  }
+
+  async getFilters(entityName: string) {
+    return this.get<Record<string, any>[]>(`/app/${entityName}/advfilter/list`);
   }
 
   // ── Records ───────────────────────────────────────────────────────
@@ -167,8 +183,8 @@ class ApiClient {
     filter?: Record<string, any>
   ) {
     return this.post<Record<string, any>>(`/app/${entity}/data-list`, {
-      page_no: page,
-      page_size: pageSize,
+      pageNo: page,
+      pageSize: pageSize,
       sort,
       filter,
     });
@@ -181,9 +197,11 @@ class ApiClient {
   }
 
   async saveRecord(entity: string, data: Record<string, any>) {
+    const recordId = data.id || undefined;
+    const { id, ...fields } = data;
     return this.post<Record<string, any>>(
       `/app/${entity}/record-save`,
-      data
+      { id: recordId, data: fields }
     );
   }
 
@@ -201,6 +219,10 @@ class ApiClient {
 
   async getChartData(chartId: string) {
     return this.get<Record<string, any>>(`/dashboard/chart-data?id=${chartId}`);
+  }
+
+  async listCharts() {
+    return this.get<Record<string, any>>("/dashboard/chart-list");
   }
 
   // ── Admin: Metadata ───────────────────────────────────────────────
@@ -319,8 +341,8 @@ class ApiClient {
     return this.get<Record<string, any>>("/admin/project/project-list");
   }
 
-  async saveAdminProject(data: Record<string, any>) {
-    return this.post("/admin/project/project-save", data);
+  async saveAdminProject(projectId: string, data: Record<string, any> = {}) {
+    return this.post("/admin/project/project-save", { projectId, ...data });
   }
 
   // ── Admin: System ─────────────────────────────────────────────────
@@ -335,7 +357,7 @@ class ApiClient {
   // ── Feeds ─────────────────────────────────────────────────────────
   async listFeeds(pageNo = 1, type?: string) {
     return this.post<Record<string, any>>("/feeds/feeds-list", {
-      page_no: pageNo,
+      pageNo,
       type,
     });
   }
@@ -350,30 +372,30 @@ class ApiClient {
   }
 
   async getProjectTasks(projectId: string, planId: string, sort?: string, search?: string, pageNo = 1, pageSize = 100) {
-    const params = new URLSearchParams({ plan: planId, project: projectId, pageNo: String(pageNo), pageSize: String(pageSize) });
+    const params = new URLSearchParams({ project_id: projectId, plan_key: planId, page_no: String(pageNo), page_size: String(pageSize) });
     if (sort) params.set("sort", sort);
     if (search) params.set("search", search);
-    return this.post<Record<string, any>>(`/project/tasks/list?${params.toString()}`, {});
+    return this.get<Record<string, any>>(`/project/tasks/list?${params.toString()}`);
   }
 
   async getProjectTaskDetail(taskId: string) {
-    return this.get<Record<string, any>>(`/project/tasks/details?task=${taskId}`);
+    return this.get<Record<string, any>>(`/project/tasks/details?task_id=${taskId}`);
   }
 
   async getProjectTask(taskId: string) {
-    return this.get<Record<string, any>>(`/project/tasks/get?task=${taskId}`);
+    return this.get<Record<string, any>>(`/project/tasks/get?task_id=${taskId}`);
   }
 
   async saveProjectTask(data: Record<string, any>) {
-    return this.post("/app/entity/common-save", data);
+    return this.post("/project/tasks/save", data);
   }
 
   async deleteProjectTask(taskId: string) {
-    return this.post(`/app/entity/common-delete?id=${taskId}`);
+    return this.post("/project/tasks/delete", { task_id: taskId });
   }
 
   async addProjectTaskComment(taskId: string, content: string) {
-    return this.post("/project/tasks/comment", { taskId, content });
+    return this.post("/project/task/comment/save", { task_id: taskId, content });
   }
 
   async listTriggers(entity?: string) {
@@ -453,48 +475,32 @@ class ApiClient {
   }
 
   async saveTeam(data: Record<string, any>) {
-    return this.post<Record<string, any>>("/admin/bizuser/team/save", data);
+    return this.post<Record<string, any>>("/admin/bizuser/team-save", data);
   }
 
   async deleteTeam(teamId: string) {
-    return this.post("/admin/bizuser/team/delete", { id: teamId });
+    return this.post("/admin/bizuser/team-delete", { id: teamId });
   }
 
   // ── Departments ────────────────────────────────────────────────────
-  async listDepartments() {
-    return this.get<Record<string, any>>("/admin/bizuser/departments");
-  }
-
   async getDepartment(deptId: string) {
-    return this.get<Record<string, any>>(`/admin/bizuser/department/${deptId}`);
+    return this.get<Record<string, any>>(`/admin/bizuser/dept-list`);
   }
 
-  async saveDepartment(data: Record<string, any>) {
-    return this.post<Record<string, any>>("/admin/bizuser/department/save", data);
-  }
-
-  async deleteDepartment(deptId: string) {
-    return this.post("/admin/bizuser/department/delete", { id: deptId });
-  }
-
-  // ── Roles ──────────────────────────────────────────────────────────
+  // ── Roles (paths corrected to match backend) ──────────────────────
   async getRole(roleId: string) {
-    return this.get<Record<string, any>>(`/admin/bizuser/role/${roleId}`);
+    return this.get<Record<string, any>>(`/admin/bizuser/Role/view/${roleId}`);
   }
 
   async saveRole(data: Record<string, any>) {
-    return this.post<Record<string, any>>("/admin/bizuser/role/save", data);
+    return this.post<Record<string, any>>("/admin/bizuser/role-save", data);
   }
 
   async deleteRole(roleId: string) {
-    return this.post("/admin/bizuser/role/delete", { id: roleId });
+    return this.post("/admin/bizuser/role-delete", { id: roleId });
   }
 
   // ── User Admin Actions ─────────────────────────────────────────────
-  async enableUser(userId: string) {
-    return this.post("/admin/bizuser/user/enable", { id: userId });
-  }
-
   async disableUser(userId: string) {
     return this.post("/admin/bizuser/user/disable", { id: userId });
   }

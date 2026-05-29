@@ -227,6 +227,22 @@ async def list_folder(
     return {"ok": True, "data": data}
 
 
+@router.post("/files/create-folder")
+async def create_folder(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Create a new folder."""
+    body = await request.json()
+    folder_name = body.get("name") or body.get("folder_name")
+    parent_id = body.get("parentId") or body.get("parent_id")
+    if not folder_name:
+        return {"ok": False, "error": "Folder name required"}
+    result = file_service.create_folder(db, current_user.user_id, folder_name, parent_id)
+    return {"ok": True, "data": result}
+
+
 @router.get("/files/tree-entity")
 async def list_entity(
     db: Session = Depends(get_db),

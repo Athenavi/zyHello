@@ -96,12 +96,16 @@ export default function AdminSystemCfgPage() {
   const loadSettings = async () => {
     setLoading(true);
     try {
-      const data = await api.getSystemSettings();
-      if (data && typeof data === "object") {
-        const d = data as Record<string, unknown>;
+      const raw = await api.getSystemSettings();
+      if (raw && typeof raw === "object") {
+        // Unwrap {error_code, data} wrapper if present (old API format)
+        let d = raw as Record<string, unknown>;
+        if ("error_code" in d && "data" in d && typeof d.data === "object" && d.data !== null) {
+          d = d.data as Record<string, unknown>;
+        }
         const s: Record<string, string | boolean | number> = {};
         Object.keys(SECTION_DEFINITIONS).forEach((section) => {
-          SECTION_DEFINITION: SECTION_DEFINITIONS[section].fields.forEach((f) => {
+          SECTION_DEFINITIONS[section].fields.forEach((f) => {
             if (f.key in d) {
               s[f.key] = d[f.key] as string | boolean | number;
             }

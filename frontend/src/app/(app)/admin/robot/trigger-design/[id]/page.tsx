@@ -79,7 +79,7 @@ export default function TriggerDesignPage() {
       setName((d.name as string) || "未命名");
       setIsDisabled(!!d.isDisabled);
       setSourceEntity((d.sourceEntity as string) || "");
-      setSourceEntityLabel((d.sourceEntityLabel as string) || d.sourceEntity || "");
+      setSourceEntityLabel((d.sourceEntityLabel as string) || (d.sourceEntity as string) || "");
       setActionType((d.actionType as string) || "");
       setActionTypeLabel(ACTION_TYPES[(d.actionType as string) || ""] || (d.actionType as string) || "");
       setWhen((d.when as number) || 0);

@@ -69,6 +69,26 @@ async def list_dashboards(
     return {"ok": True, "data": data}
 
 
+@router.get("/dashboard/dash-gets")
+async def dash_gets(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get dashboards for the current user (legacy endpoint)."""
+    data = dashboard_service.get_dashboards(db, current_user.user_id)
+    return {"ok": True, "data": data}
+
+
+@router.get("/dashboard/chart-list")
+async def chart_list(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """List all charts for the current user."""
+    data = dashboard_service.get_chart_list(db, current_user.user_id, myself=True)
+    return {"ok": True, "data": data}
+
+
 @router.get("/dashboard/{dashboardId}")
 async def get_dashboard(
     dashboardId: str,
@@ -107,6 +127,24 @@ async def chart_design(
     })
 
 
+@router.post("/dashboard/chart-create")
+async def create_chart_compat(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Create a new chart (frontend-compatible endpoint)."""
+    body = await request.json()
+    title = body.get("title", "")
+    chart_type = body.get("type") or body.get("chart_type", "LINE")
+    belong_entity = body.get("belong_entity", "")
+    config = body.get("config", "{}")
+    chart = dashboard_service.create_chart(
+        db, current_user.user_id, title, chart_type, belong_entity, config,
+    )
+    return {"ok": True, "data": {"chart_id": chart.chart_id}}
+
+
 @router.post("/dashboard/chart/save")
 async def save_chart(
     body: ChartCreateRequest,
@@ -134,6 +172,28 @@ async def delete_chart(
 
 
 # ── Chart Data routes (ChartDataController) ─────────────────────────
+
+
+@router.get("/dashboard/chart-data")
+async def chart_data_compat(
+    id: str = Query(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get chart data for rendering (frontend-compatible endpoint)."""
+    from app.models import ChartConfig
+    chart = db.query(ChartConfig).filter(ChartConfig.chart_id == id).first()
+    if not chart:
+        raise HTTPException(status_code=404, detail="Chart not found")
+    return {
+        "ok": True,
+        "data": {
+            "chart_id": chart.chart_id,
+            "title": chart.title,
+            "chart_type": chart.chart_type,
+            "rows": [],
+        },
+    }
 
 
 @router.get("/dashboard/chart/data/{chartId}")

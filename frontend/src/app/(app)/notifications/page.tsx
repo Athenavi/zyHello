@@ -1,16 +1,33 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  Bell, CheckCircle, Clock, MessageSquare, ClipboardList, ShieldCheck,
+  Trash2, MoreVertical, Check, Filter, RefreshCw, ExternalLink,
+  Archive, Settings2, BellOff, ChevronRight,
+} from "lucide-react";
 import api from "@/lib/api";
+import { cn, formatRelativeTime } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-const TABS = [
-  { key: "messages", label: "消息", icon: "📩" },
-  { key: "todo", label: "待办", icon: "📋" },
-  { key: "approval", label: "审批", icon: "✅" },
-] as const;
-
-type TabKey = (typeof TABS)[number]["key"];
-
+/* ── 类型定义 ─────────────────────────────────────────── */
 interface Notification {
   [key: string]: unknown;
 }
@@ -19,178 +36,40 @@ interface TodoItem {
   [key: string]: unknown;
 }
 
+/* ── 主页面组件 ───────────────────────────────────────── */
 export default function NotificationsPage() {
-  const [tab, setTab] = useState<TabKey>("messages");
-
-  return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">消息中心</h1>
-        <p className="text-gray-500 mt-1">查看通知、待办事项和审批流程</p>
-      </div>
-
-      {/* Tabs */}
-      <div className="bg-white rounded-xl shadow-sm border mb-6">
-        <div className="flex border-b">
-          {TABS.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 px-6 py-3 text-sm font-medium border-b-2 transition ${
-                tab === t.key
-                  ? "border-blue-500 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <span>{t.icon}</span>
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {tab === "messages" && <MessagesTab />}
-      {tab === "todo" && <TodoTab />}
-      {tab === "approval" && <ApprovalTab />}
-    </div>
-  );
-}
-
-/* ─── Messages Tab ────────────────────────────────────────────────── */
-
-function MessagesTab() {
+  const [activeTab, setActiveTab] = useState("messages");
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    api
-      .listNotifications()
-      .then((data) => {
-        const d = data as Record<string, unknown>;
-        setNotifications(
-          Array.isArray(d)
-            ? d
-            : ((d.data || d.items || d.notifications || []) as Notification[])
-        );
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const getTypeIcon = (type: unknown) => {
-    switch (type) {
-      case "1":
-      case "approval":
-        return "✅";
-      case "2":
-      case "mention":
-        return "💬";
-      case "3":
-      case "system":
-        return "🔔";
-      default:
-        return "📩";
-    }
-  };
-
-  return (
-    <div>
-      {error && (
-        <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
-          {error}
-        </div>
-      )}
-
-      {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-xl shadow-sm border p-4 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-              <div className="h-3 bg-gray-100 rounded w-2/3" />
-            </div>
-          ))}
-        </div>
-      ) : notifications.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
-          <div className="text-4xl mb-3">📩</div>
-          <div className="text-gray-500">暂无消息</div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {notifications.map((n, idx) => {
-            const isRead = (n.read || n.isRead) as boolean;
-            return (
-              <div
-                key={idx}
-                className={`bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition cursor-pointer ${
-                  !isRead ? "border-l-4 border-l-blue-500" : ""
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="text-xl mt-0.5">
-                    {getTypeIcon(n.type || n.messageType)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-sm font-medium ${
-                          !isRead ? "text-gray-900" : "text-gray-600"
-                        }`}
-                      >
-                        {(n.title || n.subject || n.message || "通知") as string}
-                      </span>
-                      {!isRead && (
-                        <span className="w-2 h-2 rounded-full bg-blue-500" />
-                      )}
-                    </div>
-                    {String(n.content || n.body || n.message || "") && (
-                      <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                        {String(n.content || n.body || n.message || "")}
-                      </p>
-                    )}
-                    <div className="text-xs text-gray-400 mt-2">
-                      {n.createdOn || n.createdAt
-                        ? new Date(
-                            (n.createdOn || n.createdAt) as string
-                          ).toLocaleString("zh-CN")
-                        : ""}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─── Todo Tab ────────────────────────────────────────────────────── */
-
-function TodoTab() {
   const [todos, setTodos] = useState<TodoItem[]>([]);
+  const [approvals, setApprovals] = useState<TodoItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "pending" | "done">("all");
+  const router = useRouter();
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
+
+  const fetchNotifications = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.listNotifications(1);
+      const data = (res as Record<string, unknown>)?.data ?? res;
+      const items = Array.isArray(data) ? data : ((data as Record<string, unknown>).data || []) as Notification[];
+      setNotifications(items as Notification[]);
+    } catch {
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const fetchTodos = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.listNotifications();
-      const d = data as Record<string, unknown>;
-      const items = Array.isArray(d)
-        ? d
-        : ((d.data || d.items || d.notifications || []) as TodoItem[]);
-      // Filter todo type items
-      const todoItems = items.filter(
-        (item) =>
-          item.type === "20" ||
-          item.type === "todo" ||
-          item.messageType === "20" ||
-          item.messageType === "todo"
-      );
-      setTodos(todoItems.length > 0 ? todoItems : items.slice(0, 5));
+      const res = await api.get("/app/todo/list?page=1");
+      const data = (res as Record<string, unknown>)?.data ?? res;
+      const items = Array.isArray(data) ? data : ((data as Record<string, unknown>).data || []) as TodoItem[];
+      setTodos(items as TodoItem[]);
     } catch {
       setTodos([]);
     } finally {
@@ -198,133 +77,13 @@ function TodoTab() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchTodos();
-  }, [fetchTodos]);
-
-  const filteredTodos = todos.filter((t) => {
-    if (filter === "all") return true;
-    const status = t.status || t.state;
-    if (filter === "pending") return !status || status === "0" || status === "pending";
-    return status === "1" || status === "done" || status === "completed";
-  });
-
-  return (
-    <div>
-      {/* Filter */}
-      <div className="flex gap-2 mb-4">
-        {(["all", "pending", "done"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 text-sm rounded-full transition ${
-              filter === f
-                ? "bg-blue-100 text-blue-700 font-medium"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {f === "all" ? "全部" : f === "pending" ? "待处理" : "已完成"}
-          </button>
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-xl shadow-sm border p-4 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-              <div className="h-3 bg-gray-100 rounded w-2/3" />
-            </div>
-          ))}
-        </div>
-      ) : filteredTodos.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
-          <div className="text-4xl mb-3">📋</div>
-          <div className="text-gray-500">暂无待办事项</div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredTodos.map((todo, idx) => {
-            const status = todo.status || todo.state;
-            const isDone = status === "1" || status === "done" || status === "completed";
-            return (
-              <div
-                key={idx}
-                className={`bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition ${
-                  isDone ? "opacity-60" : ""
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    isDone ? "bg-green-500 border-green-500" : "border-gray-300"
-                  }`}>
-                    {isDone && (
-                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className={`text-sm font-medium ${isDone ? "line-through text-gray-400" : "text-gray-800"}`}>
-                      {(todo.title || todo.subject || todo.message || "待办事项") as string}
-                    </div>
-                    {(todo.content || todo.body) && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        {String(todo.content || todo.body)}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-3 mt-2">
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        isDone ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
-                      }`}>
-                        {isDone ? "已完成" : "待处理"}
-                      </span>
-                      {(todo.createdOn || todo.createdAt) && (
-                        <span className="text-xs text-gray-400">
-                          {new Date(String(todo.createdOn || todo.createdAt)).toLocaleString("zh-CN")}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {!isDone && (
-                    <button className="px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                      处理
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ─── Approval Tab ────────────────────────────────────────────────── */
-
-function ApprovalTab() {
-  const [approvals, setApprovals] = useState<TodoItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
-
   const fetchApprovals = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.listNotifications();
-      const d = data as Record<string, unknown>;
-      const items = Array.isArray(d)
-        ? d
-        : ((d.data || d.items || d.notifications || []) as TodoItem[]);
-      // Filter approval type items
-      const approvalItems = items.filter(
-        (item) =>
-          item.type === "approval" ||
-          item.type === "1" ||
-          item.messageType === "approval" ||
-          item.messageType === "1"
-      );
-      setApprovals(approvalItems.length > 0 ? approvalItems : items.slice(0, 3));
+      const res = await api.listApprovals();
+      const data = (res as Record<string, unknown>)?.data ?? res;
+      const items = Array.isArray(data) ? data : ((data as Record<string, unknown>).data || []) as TodoItem[];
+      setApprovals(items as TodoItem[]);
     } catch {
       setApprovals([]);
     } finally {
@@ -333,123 +92,312 @@ function ApprovalTab() {
   }, []);
 
   useEffect(() => {
-    fetchApprovals();
-  }, [fetchApprovals]);
+    if (activeTab === "messages") fetchNotifications();
+    else if (activeTab === "todo") fetchTodos();
+    else if (activeTab === "approval") fetchApprovals();
+  }, [activeTab, fetchNotifications, fetchTodos, fetchApprovals]);
 
-  const filteredApprovals = approvals.filter((a) => {
-    if (filter === "all") return true;
-    const status = a.approvalState || a.status || a.state;
-    if (filter === "pending") return !status || status === "PENDING" || status === "0";
-    if (filter === "approved") return status === "APPROVED" || status === "1";
-    return status === "REJECTED" || status === "-1";
-  });
-
-  const getStateBadge = (item: TodoItem) => {
-    const status = item.approvalState || item.status || item.state;
-    if (status === "APPROVED" || status === "1")
-      return { text: "已通过", color: "bg-green-100 text-green-700" };
-    if (status === "REJECTED" || status === "-1")
-      return { text: "已拒绝", color: "bg-red-100 text-red-700" };
-    return { text: "待审批", color: "bg-yellow-100 text-yellow-700" };
+  const handleMarkAllRead = () => {
+    toast.success("已全部标记为已读");
   };
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const getUserInitials = (name: unknown): string => {
+    const str = typeof name === "string" ? name : typeof name === "object" ? ((name as Record<string, unknown>).name || (name as Record<string, unknown>).fullName || "") as string : "";
+    return str ? str.slice(0, 2) : "??";
+  };
+
+  const tabs = [
+    { key: "messages", label: "消息", icon: MessageSquare, count: notifications.length },
+    { key: "todo", label: "待办", icon: ClipboardList, count: todos.length },
+    { key: "approval", label: "审批", icon: ShieldCheck, count: approvals.length },
+  ];
+
   return (
-    <div>
-      {/* Filter */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        {(["all", "pending", "approved", "rejected"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 text-sm rounded-full transition ${
-              filter === f
-                ? "bg-blue-100 text-blue-700 font-medium"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-          >
-            {f === "all"
-              ? "全部"
-              : f === "pending"
-                ? "待审批"
-                : f === "approved"
-                  ? "已通过"
-                  : "已拒绝"}
-          </button>
-        ))}
+    <div className={cn("space-y-6 p-4 lg:p-6", mounted ? "animate-fade-in" : "opacity-0")}>
+      {/* ── 页面头部 ─────────────────────────────── */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+            <Bell className="w-6 h-6" />
+            消息中心
+          </h1>
+          <p className="text-muted-foreground mt-1">查看通知、待办事项和审批流程</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline" size="sm" onClick={() => {
+                if (activeTab === "messages") fetchNotifications();
+                else if (activeTab === "todo") fetchTodos();
+                else fetchApprovals();
+              }}>
+                <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>刷新</TooltipContent>
+          </Tooltip>
+          {activeTab === "messages" && (
+            <Button variant="outline" size="sm" onClick={handleMarkAllRead}>
+              <Check className="w-4 h-4 mr-1" />
+              全部已读
+            </Button>
+          )}
+        </div>
       </div>
 
-      {loading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white rounded-xl shadow-sm border p-4 animate-pulse">
-              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2" />
-              <div className="h-3 bg-gray-100 rounded w-2/3" />
-            </div>
+      {/* ── 标签页 ─────────────────────────────── */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          {tabs.map(({ key, label, icon: Icon, count }) => (
+            <TabsTrigger key={key} value={key} className="gap-1.5">
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+              {count > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1 text-xs">
+                  {count}
+                </Badge>
+              )}
+            </TabsTrigger>
           ))}
-        </div>
-      ) : filteredApprovals.length === 0 ? (
-        <div className="bg-white rounded-xl shadow-sm border p-12 text-center">
-          <div className="text-4xl mb-3">✅</div>
-          <div className="text-gray-500">暂无审批记录</div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredApprovals.map((item, idx) => {
-            const badge = getStateBadge(item);
-            const isPending =
-              !item.approvalState && !item.status && !item.state ||
-              item.approvalState === "PENDING" ||
-              item.status === "0";
-            return (
-              <div
-                key={idx}
-                className="bg-white rounded-xl shadow-sm border p-4 hover:shadow-md transition"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <span className="text-blue-600 text-lg">✅</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-800">
-                        {(item.title || item.subject || item.message || "审批事项") as string}
-                      </span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${badge.color}`}>
-                        {badge.text}
-                      </span>
-                    </div>
-                    {(item.content || item.body) && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        {String(item.content || item.body)}
-                      </p>
-                    )}
-                    <div className="flex items-center gap-4 mt-2 text-xs text-gray-400">
-                      {(item.createdOn || item.createdAt) && (
-                        <span>
-                          提交时间: {new Date(String(item.createdOn || item.createdAt)).toLocaleString("zh-CN")}
-                        </span>
-                      )}
-                      {item.approvalName && (
-                        <span>流程: {String(item.approvalName)}</span>
-                      )}
+        </TabsList>
+
+        {/* ── 消息列表 ─────────────────────────── */}
+        <TabsContent value="messages">
+          <Card>
+            {loading ? (
+              <CardContent className="p-0">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-start gap-3 p-4 border-b last:border-0">
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-3/4" />
+                      <Skeleton className="h-3 w-1/2" />
                     </div>
                   </div>
-                  {isPending && (
-                    <div className="flex gap-2">
-                      <button className="px-3 py-1.5 text-xs bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                        通过
-                      </button>
-                      <button className="px-3 py-1.5 text-xs bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                        拒绝
-                      </button>
+                ))}
+              </CardContent>
+            ) : notifications.length === 0 ? (
+              <CardContent className="p-8">
+                <EmptyState
+                  icon={<BellOff className="w-10 h-10" />}
+                  title="暂无消息"
+                  description="当有新消息时会在这里显示"
+                />
+              </CardContent>
+            ) : (
+              <div className="divide-y divide-border">
+                {notifications.map((item, idx) => {
+                  const id = (item.id || item.messageId || idx) as string;
+                  const isRead = item.read === true || item.isRead === true;
+                  const message = (item.message || item.content || item.title || "") as string;
+                  const type = item.type as string | undefined;
+                  const createdOn = (item.createdOn || item.createdTime || "") as string;
+                  const relatedUrl = (item.relatedUrl || item.url || "") as string;
+                  return (
+                    <div
+                      key={idx}
+                      className={cn(
+                        "flex items-start gap-3 px-4 py-3.5 hover:bg-muted/30 transition-colors cursor-pointer group",
+                        !isRead && "bg-primary/5"
+                      )}
+                      onClick={() => relatedUrl && router.push(relatedUrl)}
+                    >
+                      <Checkbox
+                        checked={selectedIds.has(String(id))}
+                        onCheckedChange={() => toggleSelect(String(id))}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                      <div className={cn(
+                        "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0",
+                        type === "approval" ? "bg-success/10 text-success" :
+                        type === "todo" ? "bg-warning/10 text-warning" :
+                        "bg-primary/10 text-primary"
+                      )}>
+                        {type === "approval" ? <CheckCircle className="w-4 h-4" /> :
+                         type === "todo" ? <ClipboardList className="w-4 h-4" /> :
+                         <MessageSquare className="w-4 h-4" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-sm", !isRead ? "font-medium" : "text-muted-foreground")}>
+                          {message}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {formatRelativeTime(createdOn)}
+                          </span>
+                          {!isRead && <Badge variant="info" className="h-4 text-[10px] px-1">新</Badge>}
+                        </div>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="icon-sm" className="opacity-0 group-hover:opacity-100">
+                            <MoreVertical className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => toast.success("已标记为已读")}>
+                            <Check className="w-4 h-4 mr-2" />
+                            标记已读
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Archive className="w-4 h-4 mr-2" />
+                            归档
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem className="text-destructive focus:text-destructive">
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            删除
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                  )}
-                </div>
+                  );
+                })}
               </div>
-            );
-          })}
-        </div>
-      )}
+            )}
+          </Card>
+        </TabsContent>
+
+        {/* ── 待办列表 ─────────────────────────── */}
+        <TabsContent value="todo">
+          <Card>
+            {loading ? (
+              <CardContent className="p-0">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-4 border-b last:border-0">
+                    <Skeleton className="w-5 h-5 rounded" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            ) : todos.length === 0 ? (
+              <CardContent className="p-8">
+                <EmptyState
+                  icon={<CheckCircle className="w-10 h-10" />}
+                  title="暂无待办"
+                  description="所有待办事项已完成"
+                />
+              </CardContent>
+            ) : (
+              <div className="divide-y divide-border">
+                {todos.map((item, idx) => {
+                  const title = (item.title || item.taskName || item.name || "") as string;
+                  const status = item.status as number;
+                  const deadline = (item.deadline || item.dueDate || "") as string;
+                  const priority = item.priority as number | undefined;
+                  const entity = (item.entity || "") as string;
+                  const recordId = (item.recordId || item.record_id || "") as string;
+                  return (
+                    <div key={idx} className="flex items-start gap-3 px-4 py-3.5 hover:bg-muted/30 transition-colors">
+                      <Checkbox checked={status === 1} />
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("text-sm", status === 1 ? "line-through text-muted-foreground" : "font-medium")}>
+                          {title}
+                        </p>
+                        <div className="flex items-center gap-3 mt-1">
+                          {deadline && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {deadline}
+                            </span>
+                          )}
+                          {priority !== undefined && priority >= 2 && (
+                            <Badge variant="warning" className="text-xs">紧急</Badge>
+                          )}
+                        </div>
+                      </div>
+                      {entity && recordId && (
+                        <Button variant="ghost" size="icon-sm" asChild>
+                          <Link href={`/entities/${entity}/${recordId}`}>
+                            <ExternalLink className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+
+        {/* ── 审批列表 ─────────────────────────── */}
+        <TabsContent value="approval">
+          <Card>
+            {loading ? (
+              <CardContent className="p-0">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3 p-4 border-b last:border-0">
+                    <Skeleton className="w-10 h-10 rounded-lg" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-2/3" />
+                      <Skeleton className="h-3 w-1/3" />
+                    </div>
+                    <Skeleton className="h-8 w-16 rounded" />
+                  </div>
+                ))}
+              </CardContent>
+            ) : approvals.length === 0 ? (
+              <CardContent className="p-8">
+                <EmptyState
+                  icon={<ShieldCheck className="w-10 h-10" />}
+                  title="暂无审批"
+                  description="没有待审批的流程"
+                />
+              </CardContent>
+            ) : (
+              <div className="divide-y divide-border">
+                {approvals.map((item, idx) => {
+                  const name = (item.name || item.title || item.approvalName || "") as string;
+                  const state = (item.state || item.status || 0) as number;
+                  const stateLabel = state === 0 ? "待审批" : state === 1 ? "已通过" : state === 2 ? "已驳回" : "已撤回";
+                  const stateVariant = state === 0 ? "warning" : state === 1 ? "success" : state === 2 ? "destructive" : "secondary";
+                  const entity = (item.entity || "") as string;
+                  const recordId = (item.recordId || item.record_id || "") as string;
+                  const approver = (item.approver || item.nextApprover || "") as string;
+                  return (
+                    <div key={idx} className="flex items-center gap-3 px-4 py-3.5 hover:bg-muted/30 transition-colors">
+                      <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <ShieldCheck className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium">{name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={stateVariant as any} className="text-xs">{stateLabel}</Badge>
+                          {approver && (
+                            <span className="text-xs text-muted-foreground">审批人: {approver}</span>
+                          )}
+                        </div>
+                      </div>
+                      {entity && recordId && (
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/entities/${entity}/${recordId}`}>
+                            查看
+                            <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

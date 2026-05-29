@@ -90,7 +90,7 @@ export default function FieldEditPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.saveField(entity, { fieldName: field, ...form });
+      await api.saveField(entity, { ...form, fieldName: field });
       alert("保存成功");
     } catch {
       alert("保存失败");

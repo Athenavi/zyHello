@@ -34,6 +34,20 @@ async def page_todo(
     })
 
 
+@router.get("/notification/list")
+async def list_notification(
+    page: int = Query(1),
+    page_size: int = Query(40),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """List notifications (frontend-compatible endpoint)."""
+    data = notification_service.list_messages(
+        db, current_user.user_id, page_no=page, page_size=page_size,
+    )
+    return {"ok": True, "data": data}
+
+
 @router.get("/notification/check-state")
 async def check_message(
     db: Session = Depends(get_db),

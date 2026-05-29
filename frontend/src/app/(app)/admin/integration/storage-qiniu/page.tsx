@@ -8,6 +8,7 @@ interface ConfigField {
   label: string;
   type: "text" | "password" | "number" | "select" | "boolean";
   tip?: string;
+  options?: { value: string; label: string }[];
 }
 
 const STORAGE_FIELDS: ConfigField[] = [

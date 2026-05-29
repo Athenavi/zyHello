@@ -59,6 +59,21 @@ async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Load entity metadata from DB into memory on startup."""
+    from app.database import SessionLocal
+    from app.core.metadata import reload_metadata
+
+    db = SessionLocal()
+    try:
+        reload_metadata(db)
+    except Exception as exc:
+        logger.warning(f"Failed to load metadata at startup: {exc}")
+    finally:
+        db.close()
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
