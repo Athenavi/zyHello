@@ -3,6 +3,7 @@ uvicorn[standard]
 jinja2
 sqlalchemy
 databases
+psycopg2-binary          # PostgreSQL adapter
 alembic
 pyyaml
 loguru

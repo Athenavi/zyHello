@@ -1,13 +1,22 @@
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path so absolute imports work
+# when running this file directly: python app/main.py
+_project_root = str(Path(__file__).resolve().parent.parent)
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from .config import settings
-from .logger import logger
-from .router import router
-from .api.gateway import router as api_gateway_router
+from app.config import settings
+from app.logger import logger
+from app.router import router
+from app.api.gateway import router as api_gateway_router
 
 app = FastAPI(title=settings.PROJECT_NAME, version="0.1.0")
 
@@ -48,3 +57,8 @@ async def api_health_check():
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error: {exc}")
     return JSONResponse(status_code=500, content={"detail": "Internal Server Error"})
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)

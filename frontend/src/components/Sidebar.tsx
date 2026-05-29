@@ -11,6 +11,9 @@ const navItems = [
   { href: "/feeds", label: "动态", icon: "📢" },
   { href: "/projects", label: "项目", icon: "📁" },
   { href: "/notifications", label: "消息", icon: "🔔" },
+  { href: "/contacts", label: "通讯录", icon: "📇" },
+  { href: "/files", label: "文件管理", icon: "📂" },
+  { href: "/ai-chat", label: "AI 助手", icon: "🤖" },
 ];
 
 const adminItems = [
@@ -110,6 +113,13 @@ export default function Sidebar() {
                 {user.email || user.login_name}
               </div>
             </div>
+            <Link
+              href="/settings"
+              className="text-gray-400 hover:text-white text-sm"
+              title="设置"
+            >
+              ⚙
+            </Link>
             <button
               onClick={logout}
               className="text-gray-500 hover:text-red-400 text-sm"
@@ -119,13 +129,22 @@ export default function Sidebar() {
             </button>
           </div>
         ) : (
-          <button
-            onClick={logout}
-            className="text-gray-500 hover:text-red-400 text-sm w-full text-center"
-            title="退出登录"
-          >
-            ⏻
-          </button>
+          <div className="flex flex-col items-center gap-2">
+            <Link
+              href="/settings"
+              className="text-gray-400 hover:text-white text-sm"
+              title="设置"
+            >
+              ⚙
+            </Link>
+            <button
+              onClick={logout}
+              className="text-gray-500 hover:text-red-400 text-sm w-full text-center"
+              title="退出登录"
+            >
+              ⏻
+            </button>
+          </div>
         )}
       </div>
     </aside>

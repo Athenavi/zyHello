@@ -31,7 +31,10 @@ export default function AdminMetadataPage() {
     if (!newEntity.entityName || !newEntity.entityLabel) return;
     setCreating(true);
     try {
-      await api.createEntity(newEntity);
+      await api.createEntity({
+        entityName: newEntity.entityName,
+        label: newEntity.entityLabel,
+      });
       setShowCreate(false);
       setNewEntity({ entityName: "", entityLabel: "" });
       fetchEntities();

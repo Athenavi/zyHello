@@ -14,6 +14,21 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+def reinit_engine(database_url: str) -> None:
+    """Re-initialize the global engine and SessionLocal with a new DATABASE_URL.
+
+    Called during the install wizard when the user configures a different database.
+    """
+    global engine, SessionLocal
+    engine.dispose()
+    engine = create_engine(
+        database_url,
+        connect_args={"check_same_thread": False} if "sqlite" in database_url else {},
+        echo=settings.DEBUG,
+    )
+    SessionLocal.configure(bind=engine)
+
+
 def get_db():
     """FastAPI dependency that yields a database session."""
     db = SessionLocal()

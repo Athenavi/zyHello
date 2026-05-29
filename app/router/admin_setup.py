@@ -38,6 +38,13 @@ async def rbsystem(
 # API endpoints — install wizard
 # ---------------------------------------------------------------------------
 
+@router.get("/admin/setup/install-status")
+async def api_install_status():
+    """Check whether the system has already been installed."""
+    result = setup_service.check_install_status()
+    return {"error_code": 0, "data": result}
+
+
 @router.post("/admin/setup/test-connection")
 async def api_test_connection(
     request: Request,

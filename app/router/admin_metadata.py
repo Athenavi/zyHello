@@ -1,4 +1,4 @@
-"""Admin metadata routes — entities, fields, forms, classifications, i18n, CRUD APIs."""
+﻿"""Admin metadata routes — entities, fields, forms, classifications, i18n, CRUD APIs."""
 from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -207,7 +207,7 @@ async def api_entity_create(
     if not entity_name or not label:
         return {"error_code": 400, "error_msg": "Entity name and label required"}
 
-    result = create_entity(db, entity_name, label, icon, comments, str(current_user.id))
+    result = create_entity(db, entity_name, label, icon, comments, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -232,7 +232,7 @@ async def api_entity_update(
     if not entity_name:
         return {"error_code": 400, "error_msg": "Entity name required"}
 
-    result = update_entity(db, entity_name, label, icon, comments, str(current_user.id))
+    result = update_entity(db, entity_name, label, icon, comments, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -254,7 +254,7 @@ async def api_entity_delete(
     if not entity_name:
         return {"error_code": 400, "error_msg": "Entity name required"}
 
-    result = delete_entity(db, entity_name, str(current_user.id))
+    result = delete_entity(db, entity_name, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": True}
@@ -303,7 +303,7 @@ async def api_field_create(
         return {"error_code": 400, "error_msg": "Entity name, field name, and label required"}
 
     result = create_field(db, entity_name, field_name, label, field_type,
-                          comments, nullable, default_value, str(current_user.id))
+                          comments, nullable, default_value, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -329,7 +329,7 @@ async def api_field_update(
     if not entity_name or not field_name:
         return {"error_code": 400, "error_msg": "Entity name and field name required"}
 
-    result = update_field(db, entity_name, field_name, label, comments, nullable, str(current_user.id))
+    result = update_field(db, entity_name, field_name, label, comments, nullable, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -352,7 +352,7 @@ async def api_field_delete(
     if not entity_name or not field_name:
         return {"error_code": 400, "error_msg": "Entity name and field name required"}
 
-    result = delete_field(db, entity_name, field_name, str(current_user.id))
+    result = delete_field(db, entity_name, field_name, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": True}
@@ -397,7 +397,7 @@ async def api_save_form_layout(
     if not entity_name or not config:
         return {"error_code": 400, "error_msg": "Entity name and config required"}
 
-    result = save_form_layout(db, entity_name, config, layout, str(current_user.id))
+    result = save_form_layout(db, entity_name, config, layout, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -434,7 +434,7 @@ async def api_save_list_config(
     if not entity_name or not config:
         return {"error_code": 400, "error_msg": "Entity name and config required"}
 
-    result = save_list_config(db, entity_name, config, str(current_user.id))
+    result = save_list_config(db, entity_name, config, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -471,7 +471,7 @@ async def api_save_view_config(
     if not entity_name or not config:
         return {"error_code": 400, "error_msg": "Entity name and config required"}
 
-    result = save_view_config(db, entity_name, config, str(current_user.id))
+    result = save_view_config(db, entity_name, config, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}

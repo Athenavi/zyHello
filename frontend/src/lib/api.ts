@@ -86,16 +86,67 @@ class ApiClient {
   }
 
   // ── Auth ──────────────────────────────────────────────────────────
-  async login(username: string, password: string) {
+  async login(username: string, password: string, captcha?: string) {
     return this.post<{
       access_token: string;
       token_type: string;
       user_id: string;
-    }>("/user/login", { username, password });
+    }>("/user/user-login", { username, password, captcha });
+  }
+
+  async getCaptchaUrl(): string {
+    return `${this.baseUrl}/user/captcha?t=${Date.now()}`;
+  }
+
+  async getSsoProviders() {
+    return this.get<Record<string, any>>("/user/sso-providers");
+  }
+
+  async getLoginAnnouncement() {
+    return this.get<{ msg?: string }>("/user/login-announcement");
   }
 
   async getUserInfo() {
     return this.get<Record<string, any>>("/user/info");
+  }
+
+  // ── Signup ─────────────────────────────────────────────────────────
+  async sendSignupEmailVcode(email: string) {
+    return this.get(`/user/signup-email-vcode?email=${encodeURIComponent(email)}`);
+  }
+
+  async checkoutName(fullName: string) {
+    return this.get<{ data?: string }>(`/user/checkout-name?fullName=${encodeURIComponent(fullName)}`);
+  }
+
+  async signupConfirm(data: { loginName: string; fullName: string; email: string; vcode: string }) {
+    return this.post("/user/signup-confirm", data);
+  }
+
+  // ── Password Reset ────────────────────────────────────────────────
+  async forgotPassword(email: string) {
+    return this.post(`/user/user-forgot-passwd?email=${encodeURIComponent(email)}`);
+  }
+
+  async confirmPassword(data: { email: string; vcode: string; newpwd: string }) {
+    return this.post("/user/user-confirm-passwd", data);
+  }
+
+  // ── User Settings ─────────────────────────────────────────────────
+  async updateUserProfile(data: Record<string, any>) {
+    return this.post("/user/profile-save", data);
+  }
+
+  async updateEmail(email: string, vcode: string) {
+    return this.post("/user/email-update", { email, vcode });
+  }
+
+  async updatePassword(oldpwd: string, newpwd: string) {
+    return this.post("/user/passwd-update", { oldpwd, newpwd });
+  }
+
+  async getLoginLogs(page = 1) {
+    return this.get<Record<string, any>>(`/user/login-logs?page=${page}`);
   }
 
   // ── Entities ──────────────────────────────────────────────────────
@@ -154,26 +205,122 @@ class ApiClient {
 
   // ── Admin: Metadata ───────────────────────────────────────────────
   async listEntities() {
-    return this.get<Record<string, any>[]>("/admin/metadata/entities");
+    return this.get<Record<string, any>[]>("/admin/metadata/entity-list");
   }
 
   async createEntity(data: Record<string, any>) {
-    return this.post("/admin/metadata/entity/new", data);
+    return this.post("/admin/metadata/entity-create", data);
   }
 
   async updateEntity(entity: string, data: Record<string, any>) {
-    return this.post(`/admin/metadata/entity/${entity}/update`, data);
+    return this.post("/admin/metadata/entity-update", { entityName: entity, ...data });
   }
 
   // ── Admin: Users ──────────────────────────────────────────────────
-  async listUsers(page = 1, pageSize = 20) {
-    return this.get<Record<string, any>>(
-      `/admin/bizuser/users?page=${page}&pageSize=${pageSize}`
-    );
+  async listUsers(page = 1, pageSize = 20, deptId?: string, filter?: number) {
+    let url = `/admin/bizuser/user-list?pageNo=${page}&pageSize=${pageSize}`;
+    if (deptId) url += `&dept=${deptId}`;
+    if (filter !== undefined) url += `&filter=${filter}`;
+    return this.get<Record<string, any>>(url);
   }
 
   async listDepartments() {
-    return this.get<Record<string, any>[]>("/admin/bizuser/departments");
+    return this.get<Record<string, any>[]>("/admin/bizuser/dept-list");
+  }
+
+  async getDepartmentTree() {
+    return this.get<Record<string, any>[]>("/admin/bizuser/dept-tree");
+  }
+
+  async saveUser(data: Record<string, any>) {
+    return this.post("/admin/bizuser/user-save", data);
+  }
+
+  async deleteUser(userId: string) {
+    return this.post("/admin/bizuser/user-delete", { id: userId });
+  }
+
+  async enableUser(userId: string, enabled: boolean) {
+    return this.post("/admin/bizuser/user-enable", { id: userId, enabled });
+  }
+
+  async saveDepartment(data: Record<string, any>) {
+    return this.post("/admin/bizuser/dept-save", data);
+  }
+
+  async deleteDepartment(deptId: string) {
+    return this.post("/admin/bizuser/dept-delete", { id: deptId });
+  }
+
+  // ── Admin: Roles ──────────────────────────────────────────────────
+  async listRoles() {
+    return this.get<Record<string, any>[]>("/admin/bizuser/role-list");
+  }
+
+  async getRolePrivileges(roleId: string) {
+    return this.get<Record<string, any>>(`/admin/bizuser/role-privileges?role=${roleId}`);
+  }
+
+  async saveRolePrivileges(roleId: string, privileges: Record<string, any>) {
+    return this.post("/admin/bizuser/role-privileges-save", { roleId, ...privileges });
+  }
+
+  // ── Admin: Audit ──────────────────────────────────────────────────
+  async listLoginLogs(page = 1, pageSize = 20, query?: string) {
+    let url = `/admin/audit/login-logs?pageNo=${page}&pageSize=${pageSize}`;
+    if (query) url += `&q=${encodeURIComponent(query)}`;
+    return this.get<Record<string, any>>(url);
+  }
+
+  async listOnlineUsers() {
+    return this.get<Record<string, any>>("/admin/audit/online-users");
+  }
+
+  async listRecycleBin(page = 1, pageSize = 20, entity?: string, query?: string) {
+    let url = `/admin/audit/recycle-bin?pageNo=${page}&pageSize=${pageSize}`;
+    if (entity) url += `&entity=${entity}`;
+    if (query) url += `&q=${encodeURIComponent(query)}`;
+    return this.get<Record<string, any>>(url);
+  }
+
+  async restoreRecord(recordId: string) {
+    return this.post("/admin/audit/recycle-restore", { record_id: recordId });
+  }
+
+  // ── Admin: System Config ──────────────────────────────────────────
+  async getSystemSettings() {
+    return this.get<Record<string, any>>("/admin/system/settings");
+  }
+
+  async saveSystemSettings(data: Record<string, any>) {
+    return this.post("/admin/system/settings-save", data);
+  }
+
+  // ── Admin: CLI ────────────────────────────────────────────────────
+  async execCliCommand(command: string) {
+    return this.post<{ data?: string; error_msg?: string }>("/admin/admin-cli/exec", command);
+  }
+
+  // ── Admin: API Keys ───────────────────────────────────────────────
+  async listApiKeys() {
+    return this.get<Record<string, any>>("/admin/integration/apis-list");
+  }
+
+  async createApiKey(data: Record<string, any>) {
+    return this.post("/admin/integration/apis-create", data);
+  }
+
+  async deleteApiKey(appId: string) {
+    return this.post("/admin/integration/apis-delete", { appId });
+  }
+
+  // ── Admin: Projects ───────────────────────────────────────────────
+  async listAdminProjects() {
+    return this.get<Record<string, any>>("/admin/project/project-list");
+  }
+
+  async saveAdminProject(data: Record<string, any>) {
+    return this.post("/admin/project/project-save", data);
   }
 
   // ── Admin: System ─────────────────────────────────────────────────
@@ -202,14 +349,372 @@ class ApiClient {
     return this.get<Record<string, any>>("/project/plan-list");
   }
 
-  async listTriggers() {
-    return this.get<Record<string, any>>("/admin/robot/trigger/list");
+  async getProjectTasks(projectId: string, planId: string, sort?: string, search?: string, pageNo = 1, pageSize = 100) {
+    const params = new URLSearchParams({ plan: planId, project: projectId, pageNo: String(pageNo), pageSize: String(pageSize) });
+    if (sort) params.set("sort", sort);
+    if (search) params.set("search", search);
+    return this.post<Record<string, any>>(`/project/tasks/list?${params.toString()}`, {});
+  }
+
+  async getProjectTaskDetail(taskId: string) {
+    return this.get<Record<string, any>>(`/project/tasks/details?task=${taskId}`);
+  }
+
+  async getProjectTask(taskId: string) {
+    return this.get<Record<string, any>>(`/project/tasks/get?task=${taskId}`);
+  }
+
+  async saveProjectTask(data: Record<string, any>) {
+    return this.post("/app/entity/common-save", data);
+  }
+
+  async deleteProjectTask(taskId: string) {
+    return this.post(`/app/entity/common-delete?id=${taskId}`);
+  }
+
+  async addProjectTaskComment(taskId: string, content: string) {
+    return this.post("/project/tasks/comment", { taskId, content });
+  }
+
+  async listTriggers(entity?: string) {
+    const params = new URLSearchParams();
+    if (entity) params.set("entity", entity);
+    return this.get<Record<string, any>>(`/admin/robot/trigger/list?${params}`);
+  }
+
+  async getTrigger(triggerId: string) {
+    return this.get<Record<string, any>>(`/admin/robot/trigger/${triggerId}`);
+  }
+
+  async saveTrigger(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/robot/trigger/save", data);
+  }
+
+  async deleteTrigger(triggerId: string) {
+    return this.post("/admin/robot/trigger/delete", { id: triggerId });
   }
 
   // ── Notifications ─────────────────────────────────────────────────
   async listNotifications(page = 1) {
     return this.get<Record<string, any>>(
       `/notification/list?page=${page}`
+    );
+  }
+
+  // ── Setup / Install ───────────────────────────────────────────────
+  async getInstallStatus() {
+    return this.get<{ installed: boolean }>("/admin/setup/install-status");
+  }
+
+  async testDatabaseConnection(data: Record<string, any>) {
+    return this.post<{ success: boolean; message?: string; error?: string }>(
+      "/admin/setup/test-connection",
+      data
+    );
+  }
+
+  async testCacheConnection(data: Record<string, any>) {
+    return this.post<{ success: boolean; message?: string; error?: string }>(
+      "/admin/setup/test-cache",
+      data
+    );
+  }
+
+  async installRebuild(data: Record<string, any> = {}) {
+    return this.post<{ success: boolean; error?: string }>(
+      "/admin/setup/install-rebuild",
+      data
+    );
+  }
+
+  // ── Audit ──────────────────────────────────────────────────────────
+  async listRevisionHistory(page = 1, pageSize = 20, entity?: string, query?: string) {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+    if (entity) params.set("entity", entity);
+    if (query) params.set("q", query);
+    return this.get<Record<string, any>>(`/admin/audit/revision-history?${params}`);
+  }
+
+  async listSmsLogs(page = 1, pageSize = 20, query?: string) {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+    if (query) params.set("q", query);
+    return this.get<Record<string, any>>(`/admin/audit/smsend-logs?${params}`);
+  }
+
+  // ── Teams ──────────────────────────────────────────────────────────
+  async listTeams(page = 1, pageSize = 20, query?: string) {
+    const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+    if (query) params.set("q", query);
+    return this.get<Record<string, any>>(`/admin/bizuser/teams?${params}`);
+  }
+
+  async getTeam(teamId: string) {
+    return this.get<Record<string, any>>(`/admin/bizuser/team/${teamId}`);
+  }
+
+  async saveTeam(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/bizuser/team/save", data);
+  }
+
+  async deleteTeam(teamId: string) {
+    return this.post("/admin/bizuser/team/delete", { id: teamId });
+  }
+
+  // ── Departments ────────────────────────────────────────────────────
+  async listDepartments() {
+    return this.get<Record<string, any>>("/admin/bizuser/departments");
+  }
+
+  async getDepartment(deptId: string) {
+    return this.get<Record<string, any>>(`/admin/bizuser/department/${deptId}`);
+  }
+
+  async saveDepartment(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/bizuser/department/save", data);
+  }
+
+  async deleteDepartment(deptId: string) {
+    return this.post("/admin/bizuser/department/delete", { id: deptId });
+  }
+
+  // ── Roles ──────────────────────────────────────────────────────────
+  async getRole(roleId: string) {
+    return this.get<Record<string, any>>(`/admin/bizuser/role/${roleId}`);
+  }
+
+  async saveRole(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/bizuser/role/save", data);
+  }
+
+  async deleteRole(roleId: string) {
+    return this.post("/admin/bizuser/role/delete", { id: roleId });
+  }
+
+  // ── User Admin Actions ─────────────────────────────────────────────
+  async enableUser(userId: string) {
+    return this.post("/admin/bizuser/user/enable", { id: userId });
+  }
+
+  async disableUser(userId: string) {
+    return this.post("/admin/bizuser/user/disable", { id: userId });
+  }
+
+  async resetUserPassword(userId: string) {
+    return this.post("/admin/bizuser/user/reset-password", { id: userId });
+  }
+
+  async changeUserDept(userId: string, deptId: string) {
+    return this.post("/admin/bizuser/user/change-dept", { id: userId, deptId });
+  }
+
+  async changeUserRole(userId: string, roleId: string) {
+    return this.post("/admin/bizuser/user/change-role", { id: userId, roleId });
+  }
+
+  // ── Integration Config ─────────────────────────────────────────────
+  async getIntegrationConfig(type: string) {
+    return this.get<Record<string, any>>(`/admin/integration/${type}`);
+  }
+
+  async saveIntegrationConfig(type: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/integration/${type}/save`, data);
+  }
+
+  // ── Classifications ────────────────────────────────────────────────
+  async listClassifications() {
+    return this.get<Record<string, any>>("/admin/metadata/classifications");
+  }
+
+  async getClassification(classId: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/classification/${classId}`);
+  }
+
+  async saveClassification(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/metadata/classification/save", data);
+  }
+
+  async deleteClassification(classId: string) {
+    return this.post("/admin/metadata/classification/delete", { id: classId });
+  }
+
+  // ── Metadata ───────────────────────────────────────────────────────
+  async listEntityFields(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/fields`);
+  }
+
+  async getEntityOverview(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/overview`);
+  }
+
+  async saveEntity(entityName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/save`, data);
+  }
+
+  async getEntityDetail(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/detail`);
+  }
+
+  async getEntityAdvanced(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/advanced`);
+  }
+
+  async saveEntityAdvanced(entityName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/advanced`, data);
+  }
+
+  async deleteEntity(entityName: string) {
+    return this.post(`/admin/metadata/${entityName}/delete`);
+  }
+
+  async getFormDesign(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/form-design`);
+  }
+
+  async saveFormDesign(entityName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/form-design`, data);
+  }
+
+  async getEntityI18n(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/i18n`);
+  }
+
+  async saveEntityI18n(entityName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/i18n`, data);
+  }
+
+  async getFieldDetail(entityName: string, fieldName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/field/${fieldName}`);
+  }
+
+  async saveField(entityName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/field/save`, data);
+  }
+
+  async listAutoFillins(entityName: string, fieldName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/field/${fieldName}/auto-fillin`);
+  }
+
+  async saveAutoFillin(entityName: string, fieldName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/field/${fieldName}/auto-fillin`, data);
+  }
+
+  async deleteAutoFillin(entityName: string, fieldName: string, fillinId: string) {
+    return this.post(`/admin/metadata/${entityName}/field/${fieldName}/auto-fillin/delete`, { id: fillinId });
+  }
+
+  async getViewAddons(entityName: string, type: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/view-addons?type=${type}`);
+  }
+
+  async saveViewAddons(entityName: string, type: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/view-addons?type=${type}`, data);
+  }
+
+  async getListFilterpane(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/list-filterpane`);
+  }
+
+  async saveListFilterpane(entityName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/list-filterpane`, data);
+  }
+
+  async getListStats(entityName: string) {
+    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/list-stats`);
+  }
+
+  async saveListStats(entityName: string, data: Record<string, any>) {
+    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/list-stats`, data);
+  }
+
+  async addProjectPlan(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/project/plan-add", data);
+  }
+
+  async deleteProjectPlan(planId: string) {
+    return this.post("/admin/project/plan-delete", { id: planId });
+  }
+
+  // ── Report Templates ───────────────────────────────────────────────
+  async listReportTemplates(entity?: string, query?: string) {
+    const params = new URLSearchParams();
+    if (entity) params.set("entity", entity);
+    if (query) params.set("q", query);
+    return this.get<Record<string, any>>(`/admin/data/report-templates?${params}`);
+  }
+
+  async deleteReportTemplate(templateId: string) {
+    return this.post("/admin/data/report-template/delete", { id: templateId });
+  }
+
+  // ── Data Imports ───────────────────────────────────────────────────
+  async listDataImports(page = 1, pageSize = 20) {
+    return this.get<Record<string, any>>(`/admin/data/imports?page=${page}&pageSize=${pageSize}`);
+  }
+
+  async getDataImport(importId: string) {
+    return this.get<Record<string, any>>(`/admin/data/import/${importId}`);
+  }
+
+  // ── Approvals ──────────────────────────────────────────────────────
+  async listApprovals(entity?: string) {
+    const params = new URLSearchParams();
+    if (entity) params.set("entity", entity);
+    return this.get<Record<string, any>>(`/admin/robot/approvals?${params}`);
+  }
+
+  async getApproval(approvalId: string) {
+    return this.get<Record<string, any>>(`/admin/robot/approval/${approvalId}`);
+  }
+
+  async saveApproval(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/robot/approval/save", data);
+  }
+
+  async deleteApproval(approvalId: string) {
+    return this.post("/admin/robot/approval/delete", { id: approvalId });
+  }
+
+  // ── Transforms ─────────────────────────────────────────────────────
+  async listTransforms(sourceEntity?: string) {
+    const params = new URLSearchParams();
+    if (sourceEntity) params.set("sourceEntity", sourceEntity);
+    return this.get<Record<string, any>>(`/admin/robot/transforms?${params}`);
+  }
+
+  async getTransform(transformId: string) {
+    return this.get<Record<string, any>>(`/admin/robot/transform/${transformId}`);
+  }
+
+  async saveTransform(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/robot/transform/save", data);
+  }
+
+  async deleteTransform(transformId: string) {
+    return this.post("/admin/robot/transform/delete", { id: transformId });
+  }
+
+  // ── Projects Admin ─────────────────────────────────────────────────
+  async getAdminProject(projectId: string) {
+    return this.get<Record<string, any>>(`/admin/project/${projectId}`);
+  }
+
+  async deleteAdminProject(projectId: string) {
+    return this.post("/admin/project/delete", { id: projectId });
+  }
+
+  // ── Admin Verify ─────────────────────────────────────────────────
+  async adminVerify(password: string) {
+    return this.post<{ success: boolean }>("/admin/admin-verify", password);
+  }
+
+  // ── RB System Templates ──────────────────────────────────────────
+  async loadRbSystems() {
+    return this.get<Record<string, any>[]>("/setup/load-index?type=rbsystems");
+  }
+
+  async installRbsystem(file: string) {
+    return this.post<{ success: boolean; error?: string }>(
+      `/setup/install-rbsystem?file=${encodeURIComponent(file)}`
     );
   }
 }

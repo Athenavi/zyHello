@@ -1,4 +1,4 @@
-"""Admin bizuser routes — user, department, role, team management with CRUD APIs."""
+﻿"""Admin bizuser routes — user, department, role, team management with CRUD APIs."""
 from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -341,9 +341,9 @@ async def api_role_save(
         return {"error_code": 400, "error_msg": "Role name required"}
 
     if role_id:
-        result = update_role(db, role_id, name, str(current_user.id))
+        result = update_role(db, role_id, name, str(current_user.user_id))
     else:
-        result = create_role(db, name, str(current_user.id))
+        result = create_role(db, name, str(current_user.user_id))
 
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
@@ -366,7 +366,7 @@ async def api_role_delete(
     if not role_id:
         return {"error_code": 400, "error_msg": "Role ID required"}
 
-    result = delete_role(db, role_id, str(current_user.id))
+    result = delete_role(db, role_id, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": True}
@@ -403,7 +403,7 @@ async def api_save_role_privileges(
     if not role_id:
         return {"error_code": 400, "error_msg": "Role ID required"}
 
-    result = set_role_privileges(db, role_id, privileges, str(current_user.id))
+    result = set_role_privileges(db, role_id, privileges, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": True}
@@ -446,9 +446,9 @@ async def api_team_save(
         return {"error_code": 400, "error_msg": "Team name required"}
 
     if team_id:
-        result = update_team(db, team_id, name, str(current_user.id))
+        result = update_team(db, team_id, name, str(current_user.user_id))
     else:
-        result = create_team(db, name, str(current_user.id))
+        result = create_team(db, name, str(current_user.user_id))
 
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
@@ -471,7 +471,7 @@ async def api_team_delete(
     if not team_id:
         return {"error_code": 400, "error_msg": "Team ID required"}
 
-    result = delete_team(db, team_id, str(current_user.id))
+    result = delete_team(db, team_id, str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": True}
@@ -510,7 +510,7 @@ async def api_team_add_member(
 
     results = []
     for uid in user_ids:
-        err = add_team_member(db, team_id, uid, str(current_user.id))
+        err = add_team_member(db, team_id, uid, str(current_user.user_id))
         results.append({"userId": uid, "error": err} if err else {"userId": uid, "success": True})
 
     return {"error_code": 0, "data": results}
@@ -535,7 +535,7 @@ async def api_team_remove_member(
 
     results = []
     for uid in user_ids:
-        err = remove_team_member(db, team_id, uid, str(current_user.id))
+        err = remove_team_member(db, team_id, uid, str(current_user.user_id))
         results.append({"userId": uid, "error": err} if err else {"userId": uid, "success": True})
 
     return {"error_code": 0, "data": results}

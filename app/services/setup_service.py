@@ -84,36 +84,115 @@ def test_cache_connection(cache_props: dict) -> dict:
         return {"success": False, "error": f"连接错误 : {str(e)}"}
 
 
+def check_install_status() -> dict:
+    """Check whether the system has already been installed.
+
+    Returns {"installed": True/False}.
+    """
+    from app.database import engine, SessionLocal
+    from sqlalchemy import inspect as sa_inspect
+    try:
+        insp = sa_inspect(engine)
+        tables = insp.get_table_names()
+        if "user" not in tables:
+            return {"installed": False}
+        # Check if admin user exists (use ORM to avoid SQL keyword issues)
+        from app.models import User
+        session = SessionLocal()
+        try:
+            count = session.query(User).filter(User.login_name == "admin").count()
+            return {"installed": count > 0}
+        finally:
+            session.close()
+    except Exception:
+        return {"installed": False}
+
+
 def install_rebuild(db: Session, install_props: dict) -> dict:
     """Execute initial installation — create tables, seed admin user.
+
+    Uses the database properties from install_props to connect to the correct DB.
 
     Returns {"success": True} or {"success": False, "error": "..."}.
     """
     try:
+        # Build database URL from install properties
+        db_type = install_props.get("dbType", "sqlite")
+        host = install_props.get("dbHost", "127.0.0.1")
+        port = install_props.get("dbPort", "3306")
+        name = install_props.get("dbName", "")
+        user = install_props.get("dbUser", "")
+        password = install_props.get("dbPassword", "")
+
+        if db_type == "mysql":
+            database_url = f"mysql+pymysql://{user}:{password}@{host}:{port}/{name}"
+        elif db_type == "postgresql":
+            database_url = f"postgresql://{user}:{password}@{host}:{port}/{name}"
+        elif db_type == "sqlite":
+            database_url = f"sqlite:///{name or 'rebuild.db'}"
+        else:
+            return {"success": False, "error": f"不支持的数据库类型: {db_type}"}
+
+        # Re-initialize the global engine with the user-provided database URL
+        from app.database import reinit_engine
+        reinit_engine(database_url)
+
         from app.models import Base
         from app.database import engine
         Base.metadata.create_all(bind=engine)
 
-        # Seed admin user if not exists
-        from app.models import User
-        admin = db.query(User).filter(User.login_name == "admin").first()
-        if not admin:
-            import hashlib
-            default_password = hashlib.sha256("admin".encode()).hexdigest()
-            admin = User(
-                user_id="001-0000000000000001",
-                login_name="admin",
-                full_name="管理员",
-                email="admin@getrebuild.com",
-                password=default_password,
-                is_active=True,
-            )
-            db.add(admin)
-            db.commit()
+        # Re-open a session on the new engine to seed admin user
+        from app.database import SessionLocal
+        new_session = SessionLocal()
+        try:
+            from app.models import User
+            admin = new_session.query(User).filter(User.login_name == "admin").first()
+            if not admin:
+                import hashlib
+                default_password = hashlib.sha256("admin".encode()).hexdigest()
+                admin = User(
+                    user_id="001-0000000000000001",
+                    login_name="admin",
+                    full_name="管理员",
+                    email="admin@getrebuild.com",
+                    password=default_password,
+                    is_active=True,
+                )
+                new_session.add(admin)
+                new_session.commit()
+        finally:
+            new_session.close()
+
+        # Persist DATABASE_URL to .env so it survives server restarts
+        _save_env_database_url(database_url)
 
         return {"success": True}
     except Exception as e:
         return {"success": False, "error": f"安装失败 : {str(e)}"}
+
+
+def _save_env_database_url(database_url: str) -> None:
+    """Write DATABASE_URL to the .env file, preserving other existing keys."""
+    import os
+    env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), ".env")
+    lines: list[str] = []
+    if os.path.isfile(env_path):
+        with open(env_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+
+    found = False
+    new_lines: list[str] = []
+    for line in lines:
+        if line.strip().startswith("DATABASE_URL="):
+            new_lines.append(f"DATABASE_URL={database_url}\n")
+            found = True
+        else:
+            new_lines.append(line)
+    if not found:
+        new_lines.append(f"DATABASE_URL={database_url}\n")
+
+    with open(env_path, "w", encoding="utf-8") as f:
+        f.writelines(new_lines)
 
 
 def request_sn(sn: str = None) -> dict:

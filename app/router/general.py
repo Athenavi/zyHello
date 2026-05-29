@@ -1,4 +1,4 @@
-"""General entity routes — record CRUD, list data, view models, related lists, print, reference search."""
+﻿"""General entity routes — record CRUD, list data, view models, related lists, print, reference search."""
 from fastapi import APIRouter, Depends, Query, Request, Body
 from sqlalchemy.orm import Session
 from typing import Optional
@@ -165,9 +165,9 @@ async def api_record_save(
     fields_approval = body.get("fieldsApproval", [])
 
     if record_id:
-        result = save_record(db, entity, record_id, data, str(current_user.id))
+        result = save_record(db, entity, record_id, data, str(current_user.user_id))
     else:
-        result = save_record(db, entity, None, data, str(current_user.id))
+        result = save_record(db, entity, None, data, str(current_user.user_id))
 
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
@@ -193,7 +193,7 @@ async def api_record_delete(
     deleted = 0
     errors = []
     for rid in record_ids:
-        err = delete_record(db, entity, rid, str(current_user.id))
+        err = delete_record(db, entity, rid, str(current_user.user_id))
         if err:
             errors.append(err)
         else:
@@ -228,7 +228,7 @@ async def api_record_assign(
 
     results = []
     for rid in record_ids:
-        err = assign_record(db, entity, rid, assign_to, str(current_user.id))
+        err = assign_record(db, entity, rid, assign_to, str(current_user.user_id))
         results.append({"id": rid, "error": err} if err else {"id": rid, "success": True})
 
     return {"error_code": 0, "data": results}
@@ -261,7 +261,7 @@ async def api_record_share(
     results = []
     for rid in record_ids:
         for uid in share_to:
-            err = share_record(db, entity, rid, uid, str(current_user.id))
+            err = share_record(db, entity, rid, uid, str(current_user.user_id))
             results.append({"id": rid, "to": uid, "error": err} if err else {"id": rid, "to": uid, "success": True})
 
     return {"error_code": 0, "data": results}
@@ -290,7 +290,7 @@ async def api_record_unshare(
     results = []
     for rid in record_ids:
         for uid in unshare_from:
-            err = unshare_record(db, entity, rid, uid, str(current_user.id))
+            err = unshare_record(db, entity, rid, uid, str(current_user.user_id))
             results.append({"id": rid, "to": uid, "error": err} if err else {"id": rid, "to": uid, "success": True})
 
     return {"error_code": 0, "data": results}
@@ -319,7 +319,7 @@ async def api_record_unshare_batch(
     count = 0
     for rid in record_ids:
         for uid in unshare_from:
-            err = unshare_record(db, entity, rid, uid, str(current_user.id))
+            err = unshare_record(db, entity, rid, uid, str(current_user.user_id))
             if not err:
                 count += 1
 
@@ -365,7 +365,7 @@ async def api_data_list(
     fields_filter = body.get("fieldsFilter")
 
     records, total = list_records(
-        db, entity, str(current_user.id),
+        db, entity, str(current_user.user_id),
         page_no=page_no, page_size=page_size,
         sort=sort, filter_expr=filter_expr,
     )
@@ -396,7 +396,7 @@ async def api_data_list_get(
     Migrated from GeneralListController.
     """
     records, total = list_records(
-        db, entity, str(current_user.id),
+        db, entity, str(current_user.user_id),
         page_no=page_no, page_size=page_size,
         sort=sort, filter_expr=filter,
     )
@@ -428,7 +428,7 @@ async def api_view_model(
 
     Migrated from GeneralModelController.view-model.
     """
-    record_data = get_record(db, entity, record, str(current_user.id))
+    record_data = get_record(db, entity, record, str(current_user.user_id))
     if not record_data:
         return {"error_code": 404, "error_msg": "Record not found"}
 
@@ -465,7 +465,7 @@ async def api_form_model(
 
     record_data = None
     if record_id:
-        record_data = get_record(db, entity, record_id, str(current_user.id))
+        record_data = get_record(db, entity, record_id, str(current_user.user_id))
 
     return {
         "error_code": 0,
@@ -490,7 +490,7 @@ async def api_print_model(
     """
     record_data = None
     if record:
-        record_data = get_record(db, entity, record, str(current_user.id))
+        record_data = get_record(db, entity, record, str(current_user.user_id))
 
     form_layout = get_form_layout(db, entity)
     meta = get_record_meta(db, entity)
@@ -522,7 +522,7 @@ async def api_detail_models(
     if not record_id:
         return {"error_code": 400, "error_msg": "Record ID required"}
 
-    record_data = get_record(db, entity, record_id, str(current_user.id))
+    record_data = get_record(db, entity, record_id, str(current_user.user_id))
     if not record_data:
         return {"error_code": 404, "error_msg": "Record not found"}
 
@@ -532,7 +532,7 @@ async def api_detail_models(
     for de in detail_entities:
         if hasattr(de, 'main_entity') and de.get('main_entity') == entity:
             detail_records, _ = list_records(
-                db, de['entity_name'], str(current_user.id),
+                db, de['entity_name'], str(current_user.user_id),
                 page_no=1, page_size=50,
                 filter_expr=f"mainid='{record_id}'",
             )
@@ -610,7 +610,7 @@ async def api_record_last_modified(
 
     Migrated from ModelExtrasController.record-last-modified.
     """
-    record_data = get_record(db, entity, record, str(current_user.id))
+    record_data = get_record(db, entity, record, str(current_user.user_id))
     if not record_data:
         return {"error_code": 404, "error_msg": "Record not found"}
 
@@ -664,7 +664,7 @@ async def api_check_creates(
     Migrated from ModelExtrasController.check-creates.
     """
     from app.core.privileges import allow, Permission
-    can_create = allow(db, str(current_user.id), entity, Permission.CREATE)
+    can_create = allow(db, str(current_user.user_id), entity, Permission.CREATE)
     return {"error_code": 0, "data": {"canCreate": can_create}}
 
 
@@ -714,7 +714,7 @@ async def api_related_list(
     filter_expr = f"{'$MAINID$' if entity.lower() in ('user', 'department') else 'mainid'}='{record}'"
 
     records, total = list_records(
-        db, related, str(current_user.id),
+        db, related, str(current_user.user_id),
         page_no=page_no, page_size=page_size,
         filter_expr=filter_expr,
     )
@@ -747,7 +747,7 @@ async def api_related_counts(
         if hasattr(de, 'main_entity') and de.get('main_entity') == entity:
             ename = de['entity_name']
             _, total = list_records(
-                db, ename, str(current_user.id),
+                db, ename, str(current_user.user_id),
                 page_no=1, page_size=1,
                 filter_expr=f"mainid='{record}'",
             )
@@ -792,7 +792,7 @@ async def api_advfilter_save(
     filter_items = body.get("filter", [])
     share_to = body.get("shareTo")
 
-    result = save_adv_filter(db, entity, name, filter_items, str(current_user.id), share_to)
+    result = save_adv_filter(db, entity, name, filter_items, str(current_user.user_id), share_to)
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -825,7 +825,7 @@ async def api_advfilter_list(
 
     Migrated from AdvFilterController.advfilter/list.
     """
-    filters = list_adv_filters(db, entity, str(current_user.id))
+    filters = list_adv_filters(db, entity, str(current_user.user_id))
     return {"error_code": 0, "data": filters}
 
 
@@ -864,7 +864,7 @@ async def api_entities(
 
     Migrated from MetadataGetting.entities.
     """
-    entities = get_entities(db)
+    entities = get_entities()
     return {"error_code": 0, "data": entities}
 
 

@@ -22,7 +22,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string, captcha?: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -58,8 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fetchUser();
   }, [fetchUser]);
 
-  const login = async (username: string, password: string) => {
-    const res = await api.login(username, password);
+  const login = async (username: string, password: string, captcha?: string) => {
+    const res = await api.login(username, password, captcha);
     localStorage.setItem("access_token", res.access_token);
     localStorage.setItem("user_id", res.user_id);
     await fetchUser();

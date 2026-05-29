@@ -72,7 +72,7 @@ async def api_user_info(
     return {
         "error_code": 0,
         "data": {
-            "id": str(current_user.id),
+            "id": str(current_user.user_id),
             "fullName": current_user.full_name,
             "loginName": current_user.login_name,
             "email": current_user.email,
@@ -159,7 +159,7 @@ async def api_login_logs(
 
     Migrated from UserSettingsController.login-logs.
     """
-    logs = get_login_logs(db, str(current_user.id))
+    logs = get_login_logs(db, str(current_user.user_id))
     return {"error_code": 0, "data": logs}
 
 
@@ -215,5 +215,5 @@ async def api_external_user(
 
     Migrated from UserSettingsController.
     """
-    result = get_external_user(db, str(current_user.id), appid)
+    result = get_external_user(db, str(current_user.user_id), appid)
     return {"error_code": 0, "data": result}
