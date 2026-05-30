@@ -103,3 +103,31 @@ async def list_approvals(
         db, current_user.user_id, page_no=page_no, page_size=page_size,
     )
     return {"ok": True, "data": data}
+
+
+# ---------------------------------------------------------------------------
+# API endpoint — Todo list
+# ---------------------------------------------------------------------------
+
+
+@router.get("/app/todo/list")
+async def list_todos(
+    page: int = Query(1),
+    page_size: int = Query(20),
+    current_user: User = Depends(get_current_user),
+):
+    """List todo items for the current user.
+
+    Returns an empty paginated result since the Todo entity has not been
+    migrated yet.  The frontend notifications page calls this endpoint and
+    handles empty results gracefully.
+    """
+    return {
+        "error_code": 0,
+        "data": {
+            "data": [],
+            "total": 0,
+            "page": page,
+            "pageSize": page_size,
+        },
+    }

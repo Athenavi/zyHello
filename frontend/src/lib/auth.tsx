@@ -62,12 +62,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const res = await api.login(username, password, captcha);
     localStorage.setItem("access_token", res.access_token);
     localStorage.setItem("user_id", res.user_id);
+    // Set cookie for middleware authentication check
+    document.cookie = `auth_token=${res.access_token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
     await fetchUser();
   };
 
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_id");
+    // Clear auth cookie
+    document.cookie = "auth_token=; path=/; max-age=0";
+    // Clear admin verification cookie
+    document.cookie = "admin_token=; path=/; max-age=0";
     setUser(null);
     window.location.href = "/login";
   };

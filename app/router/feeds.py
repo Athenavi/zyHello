@@ -13,24 +13,10 @@ router = APIRouter()
 
 
 # ---------------------------------------------------------------------------
-# Page route
-# ---------------------------------------------------------------------------
-
-@router.get("/feeds/{type}")
-async def feeds_home(
-    type: str,
-    request: Request,
-    current_user: User = Depends(get_current_user),
-):
-    """Render feeds page by type."""
-    return templates.TemplateResponse(request, "feeds/home.html", {
-        "user": current_user,
-        "feeds_type": type,
-    })
-
-
-# ---------------------------------------------------------------------------
 # API endpoints — feeds listing & details
+# NOTE: Specific API routes MUST be defined BEFORE the catch-all /feeds/{type}
+# page route, otherwise FastAPI's order-based matching will intercept API
+# requests and return HTML templates instead of JSON.
 # ---------------------------------------------------------------------------
 
 @router.post("/feeds/feeds-list")
@@ -200,3 +186,20 @@ async def api_feeds_top(
         return {"error_code": 400, "error_msg": "缺少动态ID"}
     feeds_service.toggle_feed_top(db, feeds_id, current_user.user_id)
     return {"error_code": 0, "data": {"topped": True}}
+
+
+# ---------------------------------------------------------------------------
+# Page route — catch-all MUST be last so specific API routes above match first
+# ---------------------------------------------------------------------------
+
+@router.get("/feeds/{type}")
+async def feeds_home(
+    type: str,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+):
+    """Render feeds page by type."""
+    return templates.TemplateResponse(request, "feeds/home.html", {
+        "user": current_user,
+        "feeds_type": type,
+    })

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import api from "@/lib/api";
@@ -38,6 +38,7 @@ const FEATURES = [
 export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -100,7 +101,8 @@ export default function LoginPage() {
         localStorage.removeItem("remembered_user");
       }
       toast.success("登录成功", { description: "欢迎回来！" });
-      router.push("/dashboard");
+      const redirect = searchParams.get("redirect");
+      router.push(redirect && redirect.startsWith("/") ? redirect : "/dashboard");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "登录失败";
       setError(msg);

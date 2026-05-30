@@ -1,18 +1,17 @@
 """Admin routes — system config, admin verify, admin CLI, user settings APIs."""
 from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from app.database import get_db
 from app.deps import get_current_user
 from app.models import User
-from app.template_deps import templates
+from app.services import configuration_service
 from app.services.user_service import (
     send_email_vcode, save_email, save_password,
     get_login_logs, passwd_expired_save,
     cancel_external_user, get_external_user,
 )
-from app.services import configuration_service
+from app.template_deps import templates
 
 router = APIRouter()
 
@@ -53,6 +52,35 @@ async def admin_cli(
     return templates.TemplateResponse(request, "admin/admin-cli.html", {
         "user": current_user,
     })
+
+
+# ══════════════════════════════════════════════════════════════════════
+# API endpoints — Admin Verify
+# ══════════════════════════════════════════════════════════════════════
+
+
+@router.post("/admin/admin-verify")
+async def api_admin_verify(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Verify admin identity by confirming login password.
+
+    Expects the raw password string as the request body.
+    """
+    from app.services.auth_service import _hash_password
+
+    body = await request.json()
+    # body may be a raw string or {"password": "..."}
+    password = body if isinstance(body, str) else body.get("password", "")
+    if not password:
+        return {"error_code": 400, "error_msg": "请输入密码"}
+
+    if _hash_password(password) != current_user.password:
+        return {"error_code": 400, "error_msg": "密码错误"}
+
+    return {"error_code": 0, "success": True}
 
 
 # ══════════════════════════════════════════════════════════════════════

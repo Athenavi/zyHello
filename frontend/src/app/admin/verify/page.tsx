@@ -32,6 +32,8 @@ function AdminVerifyContent() {
     try {
       const res = await api.adminVerify(password);
       if ((res as any)?.success || (res as any)?.error_code === 0) {
+        // Set admin verification cookie so middleware lets the request through
+        document.cookie = "admin_token=verified; path=/; max-age=86400; SameSite=Lax";
         router.replace(nexturl);
       } else {
         setError((res as any)?.error_msg || "验证失败，请检查密码");
