@@ -232,7 +232,7 @@ async def api_entity_update(
     if not entity_name:
         return {"error_code": 400, "error_msg": "Entity name required"}
 
-    result = update_entity(db, entity_name, label, icon, comments, str(current_user.user_id))
+    result = update_entity(db, entity_name, label=label, icon=icon, comments=comments)
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
@@ -254,8 +254,8 @@ async def api_entity_delete(
     if not entity_name:
         return {"error_code": 400, "error_msg": "Entity name required"}
 
-    result = delete_entity(db, entity_name, str(current_user.user_id))
-    if isinstance(result, str):
+    result = delete_entity(db, entity_name)
+    if not result:
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": True}
 

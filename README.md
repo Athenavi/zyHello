@@ -1,23 +1,9 @@
-<p align="center">
-  <br />
-  <img src="https://img.shields.io/badge/Rebuild-CRM%20%2F%20%E4%BD%8E%E4%BB%A3%E7%A0%81%E5%B9%B3%E5%8F%B0-blue?style=for-the-badge&logo=data:image/svg+xml;base64,..." alt="Rebuild" />
-  <br /><br />
-</p>
-
-<h1 align="center">Rebuild</h1>
+<h1 align="center">zyHello</h1>
 
 <p align="center">
   <strong>企业级 CRM / 低代码平台</strong>
   <br />
   <em>元数据驱动 · 工作流自动化 · AI 赋能 · 开箱即用</em>
-</p>
-
-<p align="center">
-  <a href="https://github.com/getrebuild/rebuild/stargazers"><img src="https://img.shields.io/github/stars/getrebuild/rebuild?style=social" alt="Stars" /></a>
-  <a href="https://github.com/getrebuild/rebuild/network/members"><img src="https://img.shields.io/github/forks/getrebuild/rebuild?style=social" alt="Forks" /></a>
-  <a href="https://github.com/getrebuild/rebuild/issues"><img src="https://img.shields.io/github/issues/getrebuild/rebuild" alt="Issues" /></a>
-  <a href="https://github.com/getrebuild/rebuild/blob/main/LICENSE"><img src="https://img.shields.io/github/license/getrebuild/rebuild" alt="License" /></a>
-  <img src="https://img.shields.io/github/last-commit/getrebuild/rebuild" alt="Last Commit" />
 </p>
 
 <p align="center">
@@ -117,9 +103,8 @@ cd rebuild
 ### 2. 启动后端
 
 ```bash
-cd app
 pip install -r requirements.txt
-python main.py
+python app/main.py
 # 后端运行在 http://localhost:18080
 ```
 
@@ -312,7 +297,7 @@ rebuild/
 ---
 
 <p align="center">
-  <strong>如果 Rebuild 对你有帮助，请给我们一个 ⭐ Star！</strong>
+  <strong>如果 zyHello 对你有帮助，请给我们一个 ⭐ Star！</strong>
   <br />
   <sub>你的支持是我们持续改进的动力</sub>
 </p>

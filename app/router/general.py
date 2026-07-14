@@ -11,7 +11,8 @@ from app.core import (
     save_record, delete_record, get_record, list_records, find_records,
     assign_record, share_record, unshare_record, get_shared_list,
     get_record_meta, get_record_history,
-    contains_entity, get_entity, get_entities, list_fields,
+    contains_entity, get_entity, get_entities, get_detail_entities, list_fields,
+    list_fields_as_dicts, entity_meta_to_dict,
     get_form_layout, get_list_fields, get_view_config,
     get_classification, get_picklist,
     parse_filter_to_sql, save_adv_filter, get_adv_filter, list_adv_filters,
@@ -869,7 +870,7 @@ async def api_entities(
     Migrated from MetadataGetting.entities.
     """
     entities = get_entities()
-    return {"error_code": 0, "data": entities}
+    return {"error_code": 0, "data": [entity_meta_to_dict(e) for e in entities]}
 
 
 @router.get("/commons/fields")
@@ -882,7 +883,7 @@ async def api_fields(
 
     Migrated from MetadataGetting.fields.
     """
-    fields = list_fields(db, entity)
+    fields = list_fields_as_dicts(db, entity)
     return {"error_code": 0, "data": fields}
 
 
@@ -911,10 +912,9 @@ async def api_meta_info(
 
     Migrated from MetadataGetting.meta-info.
     """
-    from app.core.metadata import list_fields, get_entity
-    ent = get_entity(db, entity)
-    fields = list_fields(db, entity) if ent else []
-    return {"error_code": 0, "data": {"entity": ent, "fields": fields}}
+    ent = get_entity(entity)
+    fields = list_fields_as_dicts(db, entity) if ent else []
+    return {"error_code": 0, "data": {"entity": entity_meta_to_dict(ent), "fields": fields} if ent else {"entity": None, "fields": []}}
 
 
 @router.get("/commons/entity-and-details")
@@ -927,14 +927,14 @@ async def api_entity_and_details(
 
     Migrated from MetadataGetting.entity-and-details.
     """
-    ent = get_entity(db, entity)
-    details = get_entities(db)
-    detail_list = [d for d in details if hasattr(d, 'main_entity') and d.get('main_entity') == entity]
+    ent = get_entity(entity)
+    details = get_detail_entities(entity)
+    detail_list = [entity_meta_to_dict(d) for d in details]
 
     return {
         "error_code": 0,
         "data": {
-            "entity": ent,
+            "entity": entity_meta_to_dict(ent) if ent else None,
             "details": detail_list,
         },
     }

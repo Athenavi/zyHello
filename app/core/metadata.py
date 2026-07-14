@@ -461,6 +461,53 @@ def list_fields(db: Session, entity_name: str, include_disabled: bool = False) -
     return query.order_by(MetaField.seq).all()
 
 
+def meta_field_to_dict(field: MetaField) -> dict:
+    """Convert a MetaField ORM object to a frontend-friendly dict (camelCase keys)."""
+    return {
+        "field": field.field_name,
+        "name": field.field_name,
+        "fieldLabel": field.field_label or field.field_name,
+        "label": field.field_label or field.field_name,
+        "type": field.field_type,
+        "displayType": field.display_type or field.field_type,
+        "nullable": field.nullable,
+        "creatable": field.creatable,
+        "updatable": field.updatable,
+        "is_hidden": field.is_hidden,
+        "is_disabled": field.is_disabled,
+        "is_default": field.is_default,
+        "sortable": field.sortable,
+        "queryable": field.queryable,
+        "repeatable": field.repeatable,
+        "defaultValue": field.default_value,
+        "refEntity": field.ref_entity,
+        "refField": field.ref_field,
+        "seq": field.seq,
+        "comments": field.comments,
+        "extraAttrs": field.extra_attrs,
+    }
+
+
+def list_fields_as_dicts(db: Session, entity_name: str, include_disabled: bool = False) -> list[dict]:
+    """List fields and return as frontend-friendly dict list."""
+    fields = list_fields(db, entity_name, include_disabled)
+    return [meta_field_to_dict(f) for f in fields]
+
+
+def entity_meta_to_dict(em: EntityMeta) -> dict:
+    """Convert an EntityMeta dataclass to a frontend-friendly dict (camelCase keys)."""
+    return {
+        "entity": em.entity_name,
+        "name": em.entity_name,
+        "entityLabel": em.entity_label,
+        "label": em.entity_label,
+        "entityType": em.entity_type,
+        "physicalName": em.physical_name,
+        "parentEntity": em.parent_entity,
+        "comments": em.comments,
+    }
+
+
 def list_entities(db: Session, include_disabled: bool = False) -> list[MetaEntity]:
     """List all entities."""
     query = db.query(MetaEntity)
