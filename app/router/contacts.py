@@ -62,7 +62,7 @@ async def api_contacts_departments(
     result = []
     for d in depts:
         result.append({
-            "id": str(d.id),
+            "id": str(d.dept_id),
             "name": d.name,
             "parentId": str(d.parent_id) if d.parent_id else None,
         })
@@ -79,21 +79,21 @@ async def api_contacts_user_info(
 
     Migrated from UsersGetting.
     """
-    u = db.query(User).filter(User.id == user).first()
+    u = db.query(User).filter(User.user_id == user).first()
     if not u:
         return {"error_code": 404, "error_msg": "User not found"}
 
     teams = get_user_teams(db, user)
     dept = None
     if u.dept_id:
-        d = db.query(Department).filter(Department.id == u.dept_id).first()
+        d = db.query(Department).filter(Department.dept_id == u.dept_id).first()
         if d:
-            dept = {"id": str(d.id), "name": d.name}
+            dept = {"id": str(d.dept_id), "name": d.name}
 
     return {
         "error_code": 0,
         "data": {
-            "id": str(u.id),
+            "id": str(u.user_id),
             "fullName": u.full_name,
             "loginName": u.login_name,
             "email": u.email,

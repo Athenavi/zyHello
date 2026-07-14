@@ -112,20 +112,20 @@ class ApiClient {
 
   // ── Signup ─────────────────────────────────────────────────────────
   async sendSignupEmailVcode(email: string) {
-    return this.get(`/user/signup-email-vcode?email=${encodeURIComponent(email)}`);
+    return this.post("/user/signup-email-vcode", { email });
   }
 
-  async checkoutName(fullName: string) {
-    return this.get<{ data?: string }>(`/user/checkout-name?fullName=${encodeURIComponent(fullName)}`);
+  async checkoutName(name: string) {
+    return this.post<{ data?: string }>("/user/checkout-name", { name });
   }
 
-  async signupConfirm(data: { loginName: string; fullName: string; email: string; vcode: string }) {
+  async signupConfirm(data: { login_name: string; full_name: string; email: string; vcode: string }) {
     return this.post("/user/signup-confirm", data);
   }
 
   // ── Password Reset ────────────────────────────────────────────────
   async forgotPassword(email: string) {
-    return this.post(`/user/user-forgot-passwd?email=${encodeURIComponent(email)}`);
+    return this.post("/user/user-forgot-passwd", { email });
   }
 
   async confirmPassword(data: { email: string; vcode: string; newpwd: string }) {
@@ -414,7 +414,7 @@ class ApiClient {
   }
 
   async deleteTrigger(triggerId: string) {
-    return this.post("/admin/robot/trigger/delete", { id: triggerId });
+    return this.post("/admin/robot/trigger/delete", { configId: triggerId });
   }
 
   // ── Notifications ─────────────────────────────────────────────────
@@ -492,7 +492,7 @@ class ApiClient {
   }
 
   // ── Departments ────────────────────────────────────────────────────
-  async getDepartment(deptId: string) {
+  async getDepartment(_deptId: string) {
     return this.get<Record<string, any>>(`/admin/bizuser/dept-list`);
   }
 
@@ -657,7 +657,7 @@ class ApiClient {
     const params = new URLSearchParams();
     if (entity) params.set("entity", entity);
     if (query) params.set("q", query);
-    return this.get<Record<string, any>>(`/admin/data/report-templates?${params}`);
+    return this.get<Record<string, any>>(`/admin/data/report-templates/list?${params}`);
   }
 
   async deleteReportTemplate(templateId: string) {
@@ -677,7 +677,7 @@ class ApiClient {
   async listApprovals(entity?: string) {
     const params = new URLSearchParams();
     if (entity) params.set("entity", entity);
-    return this.get<Record<string, any>>(`/admin/robot/approvals?${params}`);
+    return this.get<Record<string, any>>(`/admin/robot/approval/list?${params}`);
   }
 
   async getApproval(approvalId: string) {
