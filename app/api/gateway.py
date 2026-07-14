@@ -141,7 +141,8 @@ def _verify_context(request: Request, params: dict[str, str], app_id: str) -> Ap
     bind_ips = api_config.get("bindIps")
     if bind_ips:
         client_ip = request.client.host if request.client else "unknown"
-        if client_ip not in bind_ips:
+        ip_list = [ip.strip() for ip in bind_ips.split(",")]
+        if client_ip not in ip_list:
             raise ApiInvokeException(
                 f"Client ip not in whitelist : {client_ip}",
                 error_code=ApiInvokeException.ERR_BADAUTH,
@@ -176,7 +177,7 @@ async def gateway(request: Request, api_name: str) -> Response:
     request_time = time.time()
 
     # Rate limit by IP
-    if _rate_limiter.is_rate_limited(f"ip:{remote_ip}"):
+    if not _rate_limiter.is_allowed():
         error = Controller.format_failure(
             "Request frequency exceeded",
             ApiInvokeException.ERR_FREQUENCY,

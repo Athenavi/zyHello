@@ -1,4 +1,4 @@
-"""Authentication service â€” login, signup, password reset, JWT tokens."""
+"""Authentication service â€?login, signup, password reset, JWT tokens."""
 import hashlib
 import random
 import string
@@ -138,8 +138,6 @@ def change_password(db: Session, user: User, old_password: str, new_password: st
     if old_password == new_password:
         return "New password must differ from the old one"
     user.password = _hash_password(new_password)
-    db.commit()
-    return None
     db.commit()
     return None
 

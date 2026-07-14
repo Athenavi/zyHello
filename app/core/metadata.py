@@ -1,4 +1,4 @@
-"""Metadata management — entity/field definitions, references, classifications.
+"""Metadata management �?entity/field definitions, references, classifications.
 
 Migrated from Java: com.rebuild.core.metadata.*
 Uses SQLAlchemy models for persistent metadata storage and an in-memory registry
@@ -231,7 +231,7 @@ def reload_metadata(db: Session) -> None:
                 display_type=fld.display_type,
                 default_value=fld.default_value,
                 ref_entity=fld.ref_entity,
-                ref_field=fld.ref_entity,
+                ref_field=fld.ref_field,
                 extra_attrs=extra,
             )
             em.fields[fld.field_name] = fm
@@ -254,13 +254,13 @@ def _seed_bizz_entities() -> None:
             "comments": "系统用户",
             "fields": {
                 "user_id":      ("用户ID",    "TEXT", True),
-                "login_name":   ("登录名",    "TEXT", True),
+                "login_name":   ("登录�?,    "TEXT", True),
                 "full_name":    ("姓名",      "TEXT", True),
                 "email":        ("邮箱",      "EMAIL", True),
                 "workphone":    ("电话",      "TEXT", True),
-                "is_disabled":  ("已禁用",    "BOOL", False),
-                "dept_id":      ("所属部门",  "REFERENCE", False),
-                "role_id":      ("所属角色",  "REFERENCE", False),
+                "is_disabled":  ("已禁�?,    "BOOL", False),
+                "dept_id":      ("所属部�?,  "REFERENCE", False),
+                "role_id":      ("所属角�?,  "REFERENCE", False),
                 "created_on":   ("创建时间",  "DATETIME", False),
                 "modified_on":  ("修改时间",  "DATETIME", False),
             },
@@ -272,7 +272,7 @@ def _seed_bizz_entities() -> None:
                 "dept_id":    ("部门ID",   "TEXT", True),
                 "name":       ("部门名称",  "TEXT", True),
                 "parent_id":  ("上级部门",  "REFERENCE", False),
-                "is_disabled":("已禁用",    "BOOL", False),
+                "is_disabled":("已禁�?,    "BOOL", False),
             },
         },
         "Role": {
@@ -281,7 +281,7 @@ def _seed_bizz_entities() -> None:
             "fields": {
                 "role_id":       ("角色ID",   "TEXT", True),
                 "name":          ("角色名称",  "TEXT", True),
-                "is_disabled":   ("已禁用",   "BOOL", False),
+                "is_disabled":   ("已禁�?,   "BOOL", False),
                 "created_on":    ("创建时间",  "DATETIME", False),
             },
         },
@@ -291,7 +291,7 @@ def _seed_bizz_entities() -> None:
             "fields": {
                 "team_id":      ("团队ID",   "TEXT", True),
                 "name":         ("团队名称",  "TEXT", True),
-                "is_disabled":  ("已禁用",   "BOOL", False),
+                "is_disabled":  ("已禁�?,   "BOOL", False),
                 "created_on":   ("创建时间",  "DATETIME", False),
             },
         },
@@ -497,81 +497,3 @@ def get_classification(db: Session, data_id: str, parent_id: str = None) -> list
         {"id": i.item_id, "name": i.name, "code": i.code, "level": i.level}
         for i in items
     ]
-    db.refresh(fld)
-    return fld
-
-
-def update_field(db: Session, entity_name: str, field_name: str, **kwargs) -> Optional[MetaField]:
-    """Update field definition."""
-    fld = db.query(MetaField).filter(
-        MetaField.entity_name == entity_name,
-        MetaField.field_name == field_name,
-    ).first()
-    if not fld:
-        return None
-    for k, v in kwargs.items():
-        if hasattr(fld, k) and v is not None:
-            setattr(fld, k, v)
-    db.commit()
-    db.refresh(fld)
-    return fld
-
-
-def delete_field(db: Session, entity_name: str, field_name: str) -> bool:
-    """Soft-delete a field."""
-    fld = db.query(MetaField).filter(
-        MetaField.entity_name == entity_name,
-        MetaField.field_name == field_name,
-    ).first()
-    if not fld:
-        return False
-    fld.is_disabled = True
-    db.commit()
-    return True
-
-
-def list_fields(db: Session, entity_name: str, include_disabled: bool = False) -> list[MetaField]:
-    """List all fields for an entity."""
-    query = db.query(MetaField).filter(MetaField.entity_name == entity_name)
-    if not include_disabled:
-        query = query.filter(MetaField.is_disabled == False)
-    return query.order_by(MetaField.seq).all()
-
-
-def list_entities(db: Session, include_disabled: bool = False) -> list[MetaEntity]:
-    """List all entities."""
-    query = db.query(MetaEntity)
-    if not include_disabled:
-        query = query.filter(MetaEntity.is_disabled == False)
-    return query.order_by(MetaEntity.entity_name).all()
-
-
-def get_picklist(db: Session, entity_name: str, field_name: str) -> list[dict]:
-    """Get picklist items for a field."""
-    items = db.query(PickList).filter(
-        PickList.belong_entity == entity_name,
-        PickList.belong_field == field_name,
-        PickList.is_disabled == False,
-    ).order_by(PickList.seq).all()
-    return [
-        {"id": i.item_id, "text": i.text, "is_default": i.is_default, "color": i.color}
-        for i in items
-    ]
-
-
-def get_classification(db: Session, data_id: str, parent_id: str = None) -> list[dict]:
-    """Get classification tree items."""
-    query = db.query(ClassificationData).filter(
-        ClassificationData.data_id == data_id,
-        ClassificationData.is_disabled == False,
-    )
-    if parent_id:
-        query = query.filter(ClassificationData.parent_id == parent_id)
-    else:
-        query = query.filter(ClassificationData.parent_id.is_(None))
-    items = query.order_by(ClassificationData.seq).all()
-    return [
-        {"id": i.item_id, "name": i.name, "code": i.code, "level": i.level}
-        for i in items
-    ]
-
