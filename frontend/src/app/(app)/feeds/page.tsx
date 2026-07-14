@@ -73,6 +73,7 @@ export default function FeedsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [newContent, setNewContent] = useState("");
+  const [newType, setNewType] = useState("1");
   const [publishing, setPublishing] = useState(false);
   const [filterType, setFilterType] = useState<string>("");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -150,8 +151,9 @@ export default function FeedsPage() {
     if (!newContent.trim()) return;
     setPublishing(true);
     try {
-      await api.publishFeed({ content: newContent, type: 1 });
+      await api.publishFeed({ content: newContent, type: parseInt(newType) });
       setNewContent("");
+      setNewType("1");
       toast.success("发布成功");
       fetchFeeds(1);
     } catch (e: unknown) {
@@ -247,6 +249,26 @@ export default function FeedsPage() {
           {/* Publish area */}
           <Card>
             <CardContent className="p-4">
+              {/* Type selector */}
+              <div className="flex gap-1 mb-3">
+                {Object.entries(TYPE_LABELS).map(
+                  ([key, { label, icon: Icon, color }]) => (
+                    <button
+                      key={key}
+                      onClick={() => setNewType(key)}
+                      className={cn(
+                        "flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg transition-colors",
+                        newType === key
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "text-muted-foreground hover:bg-muted"
+                      )}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {label}
+                    </button>
+                  )
+                )}
+              </div>
               <textarea
                 value={newContent}
                 onChange={(e) => setNewContent(e.target.value)}

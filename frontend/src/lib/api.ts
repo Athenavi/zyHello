@@ -225,6 +225,10 @@ class ApiClient {
     return this.get<Record<string, any>>("/dashboard/chart-list");
   }
 
+  async deleteChart(chartId: string) {
+    return this.post("/dashboard/chart/delete", { chart_id: chartId });
+  }
+
   // ── Admin: Metadata ───────────────────────────────────────────────
   async listEntities() {
     return this.get<Record<string, any>[]>("/admin/metadata/entity-list");

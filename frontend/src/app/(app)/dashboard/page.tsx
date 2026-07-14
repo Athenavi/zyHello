@@ -42,6 +42,7 @@ import {
   AlertCircle,
   Timer,
   ArrowRight,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -160,6 +161,17 @@ export default function DashboardPage() {
 
   const refreshLabels: Record<number, string> = {
     30: "30秒", 60: "1分钟", 300: "5分钟", 600: "10分钟", 1800: "30分钟",
+  };
+
+  const handleDeleteChart = async (chartId: string, chartTitle: string) => {
+    if (!confirm(`确定删除图表"${chartTitle}"？`)) return;
+    try {
+      await api.deleteChart(chartId);
+      toast.success("图表已删除");
+      fetchDashboards();
+    } catch {
+      toast.error("删除失败");
+    }
   };
 
   return (
@@ -321,9 +333,18 @@ export default function DashboardPage() {
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between">
                         <CardTitle className="text-sm">{chart.title}</CardTitle>
-                        <Badge variant="outline" className="text-[10px]">
-                          {chart.type === "BAR" ? "柱状图" : chart.type === "LINE" ? "折线图" : chart.type === "PIE" ? "饼图" : chart.type}
-                        </Badge>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="outline" className="text-[10px]">
+                            {chart.type === "BAR" ? "柱状图" : chart.type === "LINE" ? "折线图" : chart.type === "PIE" ? "饼图" : chart.type}
+                          </Badge>
+                          <button
+                            onClick={(e) => { e.preventDefault(); handleDeleteChart(chart.id, chart.title); }}
+                            className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                            title="删除图表"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </CardHeader>
                     <CardContent>
