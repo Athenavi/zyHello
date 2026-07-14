@@ -1,4 +1,4 @@
-"""Metadata management �?entity/field definitions, references, classifications.
+"""Metadata management entity/field definitions, references, classifications.
 
 Migrated from Java: com.rebuild.core.metadata.*
 Uses SQLAlchemy models for persistent metadata storage and an in-memory registry
@@ -254,13 +254,13 @@ def _seed_bizz_entities() -> None:
             "comments": "系统用户",
             "fields": {
                 "user_id":      ("用户ID",    "TEXT", True),
-                "login_name":   ("登录�?,    "TEXT", True),
+                "login_name":   ("登录",    "TEXT", True),
                 "full_name":    ("姓名",      "TEXT", True),
                 "email":        ("邮箱",      "EMAIL", True),
                 "workphone":    ("电话",      "TEXT", True),
-                "is_disabled":  ("已禁�?,    "BOOL", False),
-                "dept_id":      ("所属部�?,  "REFERENCE", False),
-                "role_id":      ("所属角�?,  "REFERENCE", False),
+                "is_disabled":  ("已禁",    "BOOL", False),
+                "dept_id":      ("所属部",  "REFERENCE", False),
+                "role_id":      ("所属角",  "REFERENCE", False),
                 "created_on":   ("创建时间",  "DATETIME", False),
                 "modified_on":  ("修改时间",  "DATETIME", False),
             },
@@ -272,7 +272,7 @@ def _seed_bizz_entities() -> None:
                 "dept_id":    ("部门ID",   "TEXT", True),
                 "name":       ("部门名称",  "TEXT", True),
                 "parent_id":  ("上级部门",  "REFERENCE", False),
-                "is_disabled":("已禁�?,    "BOOL", False),
+                "is_disabled":("已禁",    "BOOL", False),
             },
         },
         "Role": {
@@ -281,7 +281,7 @@ def _seed_bizz_entities() -> None:
             "fields": {
                 "role_id":       ("角色ID",   "TEXT", True),
                 "name":          ("角色名称",  "TEXT", True),
-                "is_disabled":   ("已禁�?,   "BOOL", False),
+                "is_disabled":   ("已禁",   "BOOL", False),
                 "created_on":    ("创建时间",  "DATETIME", False),
             },
         },
@@ -291,7 +291,7 @@ def _seed_bizz_entities() -> None:
             "fields": {
                 "team_id":      ("团队ID",   "TEXT", True),
                 "name":         ("团队名称",  "TEXT", True),
-                "is_disabled":  ("已禁�?,   "BOOL", False),
+                "is_disabled":  ("已禁",   "BOOL", False),
                 "created_on":   ("创建时间",  "DATETIME", False),
             },
         },

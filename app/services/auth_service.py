@@ -1,4 +1,4 @@
-"""Authentication service â€?login, signup, password reset, JWT tokens."""
+"""Authentication service login, signup, password reset, JWT tokens."""
 import hashlib
 import random
 import string
