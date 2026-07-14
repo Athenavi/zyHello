@@ -19,7 +19,7 @@ from app.schemas.auth import (
     UserForgotPasswdRequest,
     UserConfirmPasswdRequest,
 )
-from app.services import auth_service
+from app.services import auth_service, sso_service
 from app.template_deps import templates
 
 router = APIRouter()
@@ -223,14 +223,75 @@ async def captcha():
 
 
 @router.get("/user/sso-providers")
-async def sso_providers():
+async def sso_providers(
+    db: Session = Depends(get_db),
+):
     """Return available SSO login providers.
 
     Returns a list of enabled SSO provider keys (e.g. ["dingtalk", "wxwork"]).
-    Currently returns an empty list since SSO is not yet configured.
     """
-    # TODO: Read from configuration_service when SSO is implemented
-    return {"data": []}
+    providers = sso_service.get_enabled_providers(db)
+    return {"data": providers}
+
+
+@router.get("/user/sso")
+async def sso_redirect(
+    protocol: str,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """Redirect user to the SSO provider's OAuth authorization page."""
+    config = sso_service.get_provider_config(db, protocol)
+    provider = sso_service.get_provider(protocol, config)
+    if not provider:
+        raise HTTPException(status_code=400, detail=f"不支持的 SSO 协议: {protocol}")
+
+    state = __import__("secrets").token_urlsafe(16)
+    # Note: In production, store state in cache/Redis for CSRF validation
+
+    # Build redirect URI (this callback endpoint)
+    base_url = str(request.base_url).rstrip("/")
+    redirect_uri = f"{base_url}/user/sso/callback"
+
+    authorize_url = provider.get_authorize_url(redirect_uri, state)
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=authorize_url)
+
+
+@router.get("/user/sso/callback")
+async def sso_callback(
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    """SSO OAuth callback — handle provider redirect with authorization code.
+
+    Query params:
+      - code: authorization code from provider
+      - state: CSRF state token
+      - protocol: provider key (dingtalk|wxwork|feishu), extracted from state
+    """
+    code = request.query_params.get("code", "")
+    protocol = request.query_params.get("protocol", "")
+
+    if not code:
+        raise HTTPException(status_code=400, detail="Missing authorization code")
+    if not protocol:
+        raise HTTPException(status_code=400, detail="Missing protocol parameter")
+
+    base_url = str(request.base_url).rstrip("/")
+    redirect_uri = f"{base_url}/user/sso/callback"
+
+    try:
+        result = await sso_service.sso_login(db, protocol, code, redirect_uri)
+        # Redirect to frontend with token
+        frontend_url = "http://localhost:3000"  # In production, use config
+        redirect_url = f"{frontend_url}/login/sso?token={result['access_token']}"
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=redirect_url)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"SSO 登录失败: {str(e)}")
 
 
 @router.get("/user/login-announcement")

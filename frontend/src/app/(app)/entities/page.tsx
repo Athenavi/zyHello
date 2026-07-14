@@ -148,7 +148,7 @@ export default function EntitiesPage() {
           <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 transition-all", mounted ? "animate-fade-up" : "")}>
             {filtered.map((entity, idx) => {
               const e = entity as Record<string, unknown>;
-              const entityName = (e.entity || e.name || "") as string;
+              const entityName = (e.entity_name || e.entity || e.name || "") as string;
               const label = (e.entity_label || e.entityLabel || e.label || entityName) as string;
               const desc = String(e.comments || e.description || "");
               const icon = ENTITY_ICONS[entityName] || "📋";
@@ -191,7 +191,7 @@ export default function EntitiesPage() {
           <div className={cn("space-y-2 transition-all", mounted ? "animate-fade-up" : "")}>
             {filtered.map((entity, idx) => {
               const e = entity as Record<string, unknown>;
-              const entityName = (e.entity || e.name || "") as string;
+              const entityName = (e.entity_name || e.entity || e.name || "") as string;
               const label = (e.entity_label || e.entityLabel || e.label || entityName) as string;
               const desc = String(e.comments || e.description || "");
               const icon = ENTITY_ICONS[entityName] || "📋";

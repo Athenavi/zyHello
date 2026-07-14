@@ -117,6 +117,23 @@ def list_files(db: Session, user_id: str, folder_id: str = None, page_no: int = 
     ]
 
 
+def delete_folder(db: Session, folder_id: str, user_id: str) -> bool:
+    """Soft-delete a folder (and its files)."""
+    folder = db.query(AttachmentFolder).filter(
+        AttachmentFolder.folder_id == folder_id,
+        AttachmentFolder.created_by == user_id,
+    ).first()
+    if not folder:
+        return False
+    folder.is_deleted = True
+    # Also soft-delete files in this folder
+    db.query(Attachment).filter(
+        Attachment.in_folder == folder_id
+    ).update({"is_deleted": True})
+    db.commit()
+    return True
+
+
 def create_folder(db: Session, user_id: str, folder_name: str, parent_id: str = None) -> dict:
     """Create a new folder."""
     folder = AttachmentFolder(

@@ -119,6 +119,8 @@ export default function FilesPage() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [previewFile, setPreviewFile] = useState<FileItem | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -251,6 +253,32 @@ export default function FilesPage() {
     }
     if (fileRef.current) fileRef.current.value = "";
   };
+
+  const handleDeleteItem = async (item: FileItem) => {
+    if (item.type === "folder") {
+      if (!confirm(`确定删除文件夹 "${item.name}" 及其所有文件？`)) return;
+      try {
+        await api.post("/files/delete-folder", { folder_id: item.id });
+        toast.success(`文件夹 "${item.name}" 已删除`);
+        fetchFiles();
+      } catch { toast.error("删除失败"); }
+    } else {
+      if (!confirm(`确定删除文件 "${item.name}"？`)) return;
+      try {
+        await api.post("/files/delete-files", { file_ids: [item.id] });
+        toast.success(`文件 "${item.name}" 已删除`);
+        fetchFiles();
+      } catch { toast.error("删除失败"); }
+    }
+  };
+
+  const handlePreview = async (file: FileItem) => {
+    setPreviewFile(file);
+    setShowPreview(true);
+  };
+
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+  const getToken = () => localStorage.getItem("access_token");
 
   const handleDeleteSelected = async () => {
     if (selected.size === 0) return;
@@ -617,16 +645,22 @@ export default function FilesPage() {
                                   </Button>
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => window.open(`${API_BASE}/files/download?file_id=${file.id}?token=${getToken()}`, '_blank')}>
                                     <Download className="w-4 h-4 mr-2" />
                                     下载
                                   </DropdownMenuItem>
+                                  {file.type === "file" && (
+                                    <DropdownMenuItem onClick={() => handlePreview(file)}>
+                                      <FileText className="w-4 h-4 mr-2" />
+                                      预览
+                                    </DropdownMenuItem>
+                                  )}
                                   <DropdownMenuItem>
                                     <Move className="w-4 h-4 mr-2" />
                                     移动
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
-                                  <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                  <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={() => handleDeleteItem(file)}>
                                     <Trash2 className="w-4 h-4 mr-2" />
                                     删除
                                   </DropdownMenuItem>
@@ -676,6 +710,43 @@ export default function FilesPage() {
               创建
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* File preview dialog */}
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5 text-primary" />
+              {previewFile?.name || "文件预览"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 min-h-[200px] flex items-center justify-center bg-muted/20 rounded-lg">
+            {(() => {
+              const ext = previewFile?.name?.split(".").pop()?.toLowerCase() || "";
+              const imgExts = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"];
+              const url = `${API_BASE}/files/download?file_id=${previewFile?.id}`;
+              if (imgExts.includes(ext)) {
+                return <img src={url + `&token=${getToken()}`} alt={previewFile?.name || ""} className="max-w-full max-h-[60vh] object-contain rounded" />;
+              }
+              return (
+                <div className="text-center text-muted-foreground">
+                  <FileText className="w-16 h-16 mx-auto mb-3 opacity-30" />
+                  <p className="text-sm mb-3">该文件类型不支持在线预览</p>
+                  <a
+                    href={url + `&token=${getToken()}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:opacity-90 text-sm"
+                  >
+                    <Download className="w-4 h-4" />
+                    下载查看
+                  </a>
+                </div>
+              );
+            })()}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

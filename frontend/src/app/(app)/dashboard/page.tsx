@@ -62,27 +62,10 @@ interface DashboardData {
 interface StatCard {
   label: string;
   value: string | number;
-  change?: number;
   icon: React.ElementType;
   color: string;
   href?: string;
 }
-
-/* ── Mock Stats (would be replaced with real API data) ── */
-const MOCK_STATS: StatCard[] = [
-  { label: "总记录数", value: "12,846", change: 12.5, icon: FileText, color: "from-blue-500 to-blue-600", href: "/entities" },
-  { label: "活跃用户", value: "156", change: 8.2, icon: Users, color: "from-emerald-500 to-emerald-600", href: "/admin/users" },
-  { label: "本月新增", value: "2,340", change: -3.1, icon: TrendingUp, color: "from-violet-500 to-violet-600" },
-  { label: "待处理任务", value: "42", change: 0, icon: Timer, color: "from-amber-500 to-amber-600", href: "/projects" },
-];
-
-const RECENT_ACTIVITIES = [
-  { id: "1", user: "张三", action: "创建了新客户", target: "北京科技有限公司", time: "5分钟前", type: "create" },
-  { id: "2", user: "李四", action: "更新了商机状态", target: "Q2大单-华东区域", time: "12分钟前", type: "update" },
-  { id: "3", user: "王五", action: "完成了审批", target: "采购申请 #2024-0529", time: "30分钟前", type: "approve" },
-  { id: "4", user: "赵六", action: "添加了跟进记录", target: "上海贸易集团", time: "1小时前", type: "comment" },
-  { id: "5", user: "系统", action: "自动备份完成", target: "数据备份", time: "2小时前", type: "system" },
-];
 
 const QUICK_ACTIONS = [
   { label: "新建记录", icon: Plus, href: "/entities", color: "text-blue-600 bg-blue-50 dark:bg-blue-500/10" },
@@ -102,6 +85,8 @@ export default function DashboardPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [entities, setEntities] = useState<Record<string, unknown>[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [stats, setStats] = useState<Record<string, number>>({});
+  const [activities, setActivities] = useState<Record<string, unknown>[]>([]);
   const refreshTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -110,10 +95,12 @@ export default function DashboardPage() {
   const fetchDashboards = useCallback(async () => {
     setLoading(true);
     try {
-      const [dashRes, entityRes, chartRes] = await Promise.all([
+      const [dashRes, entityRes, chartRes, statsRes, feedsRes] = await Promise.all([
         api.getDashboards().catch(() => []),
         api.getEntities().catch(() => []),
         api.listCharts().catch(() => ({ data: [] })),
+        api.get("/dashboard/stats").catch(() => ({ data: {} })),
+        api.listFeeds(1).catch(() => ({ data: [] })),
       ]);
       const dashList = Array.isArray(dashRes) ? dashRes : ((dashRes as Record<string, unknown>).data || []) as DashboardData[];
       setDashboards(dashList);
@@ -130,6 +117,15 @@ export default function DashboardPage() {
       setCharts(mappedCharts);
 
       if (dashList.length > 0) setActiveDashboard(dashList[0]);
+
+      // Real stats from API
+      const statsData = ((statsRes as Record<string, unknown>)?.data || {}) as Record<string, number>;
+      setStats(statsData);
+
+      // Real recent activities from feeds
+      const feedsData = (feedsRes as Record<string, unknown>)?.data || feedsRes;
+      const feedList = Array.isArray(feedsData) ? feedsData : (feedsData as Record<string, unknown>)?.data || [];
+      setActivities(Array.isArray(feedList) ? feedList.slice(0, 5) : []);
     } catch { /* ignore */ } finally { setLoading(false); }
   }, []);
 
@@ -212,7 +208,12 @@ export default function DashboardPage() {
       <div className="flex-1 overflow-auto p-6 space-y-6">
         {/* Stat Cards */}
         <div className={cn("grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-700", mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4")}>
-          {MOCK_STATS.map((stat, idx) => {
+          {[
+            { label: "用户数", value: stats.total_users?.toLocaleString() || "-", icon: Users, color: "from-emerald-500 to-emerald-600", href: "/admin/users" },
+            { label: "任务总数", value: stats.total_tasks?.toLocaleString() || "-", icon: FileText, color: "from-blue-500 to-blue-600", href: "/projects" },
+            { label: "待处理任务", value: stats.pending_tasks?.toLocaleString() || "-", icon: Timer, color: "from-amber-500 to-amber-600", href: "/projects" },
+            { label: "未读通知", value: stats.unread_notifications?.toLocaleString() || "-", icon: Activity, color: "from-violet-500 to-violet-600", href: "/notifications" },
+          ].map((stat, idx) => {
             const Icon = stat.icon;
             return stat.href ? (
               <Link key={idx} href={stat.href}>
@@ -222,13 +223,6 @@ export default function DashboardPage() {
                       <div>
                         <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
                         <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
-                        {stat.change !== undefined && stat.change !== 0 && (
-                          <div className={cn("flex items-center gap-1 mt-1.5 text-xs font-medium", stat.change > 0 ? "text-emerald-600" : "text-red-500")}>
-                            {stat.change > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                            {Math.abs(stat.change)}%
-                            <span className="text-muted-foreground font-normal">较上月</span>
-                          </div>
-                        )}
                       </div>
                       <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-transform group-hover:scale-110", stat.color)}>
                         <Icon className="w-5 h-5 text-white" />
@@ -245,13 +239,6 @@ export default function DashboardPage() {
                       <div>
                         <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
                         <p className="text-2xl font-bold text-foreground mt-1">{stat.value}</p>
-                        {stat.change !== undefined && stat.change !== 0 && (
-                          <div className={cn("flex items-center gap-1 mt-1.5 text-xs font-medium", stat.change > 0 ? "text-emerald-600" : "text-red-500")}>
-                            {stat.change > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                            {Math.abs(stat.change)}%
-                            <span className="text-muted-foreground font-normal">较上月</span>
-                          </div>
-                        )}
                       </div>
                       <div className={cn("w-10 h-10 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg transition-transform group-hover:scale-110", stat.color)}>
                         <Icon className="w-5 h-5 text-white" />
@@ -370,31 +357,25 @@ export default function DashboardPage() {
             <Card>
               <CardContent className="p-0">
                 <div className="divide-y">
-                  {RECENT_ACTIVITIES.map((activity) => (
-                    <div key={activity.id} className="flex items-start gap-3 p-4 hover:bg-muted/30 transition-colors">
-                      <div className={cn(
-                        "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs",
-                        activity.type === "create" ? "bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400" :
-                        activity.type === "update" ? "bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400" :
-                        activity.type === "approve" ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" :
-                        activity.type === "comment" ? "bg-violet-100 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400" :
-                        "bg-gray-100 text-gray-600 dark:bg-gray-500/10 dark:text-gray-400"
-                      )}>
-                        {activity.user[0]}
+                  {activities.length > 0 ? activities.map((activity: Record<string, unknown>, idx: number) => {
+                    const displayText = String(activity.content || activity.message || "");
+                    return (
+                    <div key={String(activity.feeds_id || activity.id || idx)} className="flex items-start gap-3 p-4 hover:bg-muted/30 transition-colors">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 text-xs bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400">
+                        {String(activity.created_by || "?")[0]}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm">
-                          <span className="font-medium text-foreground">{activity.user}</span>
-                          <span className="text-muted-foreground"> {activity.action}</span>
-                        </p>
-                        <p className="text-xs text-primary mt-0.5 truncate">{activity.target}</p>
+                        <p className="text-sm text-muted-foreground">{displayText.slice(0, 80) || "暂无内容"}</p>
                         <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {activity.time}
+                          {activity.created_on ? String(activity.created_on).slice(0, 16) : ""}
                         </p>
                       </div>
                     </div>
-                  ))}
+                    );
+                  }) : (
+                    <div className="p-6 text-center text-sm text-muted-foreground">暂无最近动态</div>
+                  )}
                 </div>
               </CardContent>
             </Card>

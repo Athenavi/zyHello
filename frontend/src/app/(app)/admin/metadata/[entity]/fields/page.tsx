@@ -33,9 +33,22 @@ export default function EntityFieldsPage() {
   const fetchFields = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.getEntityFields(entity);
+      const data = await api.get(`/admin/metadata/field-list?entity=${entity}`);
       const d = data as Record<string, unknown>;
-      setFields((d.fields || d.data || data || []) as FieldItem[]);
+      const rawFields = ((d.data || d.fields || []) as Record<string, unknown>[]);
+      const mapped: FieldItem[] = rawFields.map((f) => ({
+        fieldId: (f.field_id || f.fieldId || f.field_name || f.fieldName || "") as string,
+        fieldName: (f.field_name || f.fieldName || "") as string,
+        fieldLabel: (f.field_label || f.fieldLabel || "") as string,
+        displayType: (f.display_type || f.displayType || f.field_type || "TEXT") as string,
+        comments: (f.comments || "") as string,
+        nullable: f.nullable !== false,
+        creatable: f.creatable !== false,
+        updatable: f.updatable !== false,
+        repeatable: f.repeatable !== false,
+        buildin: !!f.is_builtin,
+      }));
+      setFields(mapped);
     } catch {
       setFields([]);
     }
@@ -59,10 +72,11 @@ export default function EntityFieldsPage() {
   const handleNewField = async () => {
     if (!newFieldLabel) return;
     try {
-      await api.post(`/admin/metadata/fields/${entity}`, {
+      await api.post("/admin/metadata/field-create", {
+        entityName: entity,
         fieldLabel: newFieldLabel,
         fieldName: newFieldName || undefined,
-        displayType: newFieldType,
+        fieldType: newFieldType,
       });
       setShowNewField(false);
       setNewFieldLabel("");
@@ -205,8 +219,8 @@ export default function EntityFieldsPage() {
                     </td>
                   </tr>
                 ) : (
-                  filtered.map((field) => (
-                    <tr key={field.fieldId} className={`hover:bg-gray-50 ${field.buildin ? "bg-yellow-50/30" : ""}`}>
+                  filtered.map((field, idx) => (
+                    <tr key={field.fieldId || idx} className={`hover:bg-gray-50 ${field.buildin ? "bg-yellow-50/30" : ""}`}>
                       <td className="px-4 py-3 text-sm">
                         <div className="flex items-center gap-2">
                           {field.buildin && <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">内置</span>}

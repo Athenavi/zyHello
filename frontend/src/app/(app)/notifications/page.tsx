@@ -97,8 +97,20 @@ export default function NotificationsPage() {
     else if (activeTab === "approval") fetchApprovals();
   }, [activeTab, fetchNotifications, fetchTodos, fetchApprovals]);
 
-  const handleMarkAllRead = () => {
-    toast.success("已全部标记为已读");
+  const handleMarkAllRead = async () => {
+    try {
+      await api.markAllRead();
+      toast.success("已全部标记为已读");
+      fetchNotifications();
+    } catch { toast.error("操作失败"); }
+  };
+
+  const handleMakeRead = async (ids: string[]) => {
+    try {
+      await api.makeRead(ids);
+      setSelectedIds(new Set());
+      fetchNotifications();
+    } catch { toast.error("操作失败"); }
   };
 
   const toggleSelect = (id: string) => {

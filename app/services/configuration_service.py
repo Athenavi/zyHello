@@ -169,6 +169,7 @@ def cancel_maintenance_mode() -> None:
 
 def get_system_config_data(db: Session) -> dict:
     """Get all system configuration for the admin systems page."""
+    # Core legacy keys
     config_keys = [
         "HomeURL", "LOGO", "LOGOWhite", "CustomWallpaper",
         "RecycleBinKeepingDays", "RevisionHistoryKeepingDays",
@@ -176,8 +177,17 @@ def get_system_config_data(db: Session) -> dict:
         "DefaultLanguage", "PortalOfficePreviewUrl", "OnlyofficeJwt",
         "PortalBaiduMapAk",
     ]
+    # Frontend system-cfg page keys
+    frontend_keys = [
+        "AppName", "PageFooter", "LiveWallpaper",
+        "MarkWatermark", "FileSharable", "OpenSignUp",
+        "LoginCaptchaPolicy", "PasswordPolicy", "Login2FAMode",
+        "DBBackupsEnable", "ShowViewHistory",
+        "OnlyofficeServer",
+    ]
+    all_keys = list(dict.fromkeys(config_keys + frontend_keys))
     result = {}
-    for k in config_keys:
+    for k in all_keys:
         result[k] = get_config(db, k)
     return result
 

@@ -15,7 +15,8 @@ export default function AdminMetadataPage() {
     setLoading(true);
     try {
       const data = await api.listEntities();
-      setEntities(Array.isArray(data) ? data : []);
+      const list = (data as Record<string, unknown>)?.data ?? data;
+      setEntities(Array.isArray(list) ? list : []);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "加载失败");
     } finally {
@@ -143,16 +144,22 @@ export default function AdminMetadataPage() {
             ) : (
               entities.map((entity, idx) => {
                 const e = entity as Record<string, unknown>;
+                const entityName = (e.entity_name || e.entity || e.name || "") as string;
+                const label = (e.entity_label || e.entityLabel || e.label || entityName) as string;
                 return (
-                  <tr key={idx} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-sm font-mono text-gray-700">
-                      {(e.entity || e.name || "") as string}
+                  <tr
+                    key={idx}
+                    onClick={() => window.location.href = `/admin/metadata/${entityName}/fields`}
+                    className="hover:bg-gray-50 cursor-pointer"
+                  >
+                    <td className="px-4 py-3 text-sm font-mono text-blue-600 hover:text-blue-800">
+                      {entityName}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-800">
-                      {(e.entityLabel || e.label || "") as string}
+                      {label}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
-                      {(e.type || "业务实体") as string}
+                      业务实体
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <span className="px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-700">

@@ -117,6 +117,19 @@ async def do_approve(
     return {"ok": True, "data": result}
 
 
+@router.post("/app/entity/approval/reject")
+async def do_reject(
+    body: ApprovalApproveRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Reject an approval step."""
+    result = approval_service.do_reject(db, body.step_id, current_user.user_id, body.remark)
+    if "error" in result:
+        raise HTTPException(status_code=400, detail=result["error"])
+    return {"ok": True, "data": result}
+
+
 @router.post("/app/entity/approval/cancel")
 async def do_cancel(
     body: ApprovalCancelRequest,

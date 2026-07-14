@@ -99,14 +99,14 @@ export default function EntityRecordListPage() {
 
   /* ── 数据加载 ─────────────────────────────────────── */
   const fetchRecords = useCallback(
-    async (p: number) => {
+    async (p: number, filterData?: Record<string, unknown>) => {
       setLoading(true);
       setError("");
       try {
-        const filterData =
-          activeFilter !== "$ALL$"
+        const fd = filterData ??
+          (activeFilter !== "$ALL$"
             ? filters.find((f) => f.id === activeFilter)?.filter
-            : undefined;
+            : undefined);
         const sort = sortField ? `${sortField}:${sortOrder}` : undefined;
         const res = await api.getDataList(entity, p, pageSize, sort, filterData);
         const outer = (res as Record<string, unknown>)?.data ?? res;
@@ -123,7 +123,7 @@ export default function EntityRecordListPage() {
         setInitialLoading(false);
       }
     },
-    [entity, activeFilter, filters, sortField, sortOrder]
+    [entity, activeFilter, sortField, sortOrder]
   );
 
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function EntityRecordListPage() {
       })
       .catch(() => {});
 
-    api.get(`/app/${entity}/filters`)
+    api.getFilters(entity)
       .then((data) => {
         const list = Array.isArray(data) ? data : (data as Record<string, unknown>).data || [];
         setFilters([{ id: "$ALL$", name: "全部数据" }, ...(list as FilterItem[])]);
@@ -162,7 +162,7 @@ export default function EntityRecordListPage() {
     fetchRecords(1);
     setPage(1);
     setSelectedIds(new Set());
-  }, [entity, fetchRecords]);
+  }, [entity]); // Only re-run when entity changes (avoid loop with fetchRecords)
 
   useEffect(() => { fetchRecords(page); }, [page, fetchRecords]);
 
@@ -634,12 +634,13 @@ export default function EntityRecordListPage() {
                       return (
                         <tr
                           key={idx}
+                          onClick={() => window.location.href = `/entities/${entity}/${rid}`}
                           className={cn(
-                            "group hover:bg-muted/50 transition-colors",
+                            "group hover:bg-muted/50 transition-colors cursor-pointer",
                             isSelected && "bg-primary/5"
                           )}
                         >
-                          <td className="px-4 py-3">
+                          <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                             <Checkbox
                               checked={isSelected}
                               onCheckedChange={() => toggleSelect(rid)}
@@ -657,7 +658,7 @@ export default function EntityRecordListPage() {
                           <td className="px-4 py-3 text-sm">
                             <Link
                               href={`/entities/${entity}/${rid}`}
-                              className="inline-flex items-center gap-1 text-primary hover:text-primary/80 font-medium transition-colors opacity-0 group-hover:opacity-100"
+                              className="inline-flex items-center gap-1 text-primary hover:text-primary/80 font-medium transition-colors"
                             >
                               <Eye className="w-3.5 h-3.5" />
                               查看

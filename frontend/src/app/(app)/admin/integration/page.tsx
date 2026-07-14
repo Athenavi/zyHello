@@ -15,8 +15,11 @@ export default function AdminIntegrationPage() {
       api.getSystemConfig().catch(() => ({})),
       api.getStorageConfig().catch(() => ({})),
     ]).then(([sys, storage]) => {
-      setSystemConfig((sys || {}) as Record<string, unknown>);
-      setStorageConfig((storage || {}) as Record<string, unknown>);
+      // API returns {error_code: 0, data: {...}} — extract the data field
+      const sysData = ((sys as Record<string, unknown>)?.data || sys || {}) as Record<string, unknown>;
+      const storageData = ((storage as Record<string, unknown>)?.data || storage || {}) as Record<string, unknown>;
+      setSystemConfig(sysData);
+      setStorageConfig(storageData);
       setLoading(false);
     });
   }, []);
@@ -68,9 +71,21 @@ export default function AdminIntegrationPage() {
         <div className="bg-white rounded-xl shadow-sm border p-6">
           {activeTab === "system" && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                系统配置
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  系统配置
+                </h3>
+                <a
+                  href="/admin/system-cfg"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  前往修改
+                </a>
+              </div>
               <div className="space-y-4">
                 {Object.keys(systemConfig).length === 0 ? (
                   <p className="text-gray-400">暂无系统配置</p>
@@ -131,9 +146,18 @@ export default function AdminIntegrationPage() {
               <h3 className="text-lg font-semibold text-gray-800 mb-4">
                 {tabs.find((t) => t.key === activeTab)?.label} 集成
               </h3>
-              <p className="text-gray-400">
-                请在系统配置中设置 {tabs.find((t) => t.key === activeTab)?.label} 相关参数
+              <p className="text-gray-500 mb-4">
+                请前往专用配置页面设置参数
               </p>
+              <a
+                href={`/admin/integration/${activeTab}`}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                前往 {tabs.find((t) => t.key === activeTab)?.label} 配置
+              </a>
             </div>
           )}
         </div>

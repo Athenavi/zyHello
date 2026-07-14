@@ -137,6 +137,23 @@ const nextConfig: NextConfig = {
         source: "/api/:path*",
         destination: `${backendUrl}/api/:path*`,
       },
+      // Proxy auth/user/file paths to backend (SSO, login, downloads)
+      {
+        source: "/user/:path*",
+        destination: `${backendUrl}/user/:path*`,
+      },
+      {
+        source: "/account/:path*",
+        destination: `${backendUrl}/account/:path*`,
+      },
+      {
+        source: "/files/:path*",
+        destination: `${backendUrl}/files/:path*`,
+      },
+      {
+        source: "/auth/:path*",
+        destination: `${backendUrl}/auth/:path*`,
+      },
     ];
   },
 

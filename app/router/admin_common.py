@@ -99,15 +99,15 @@ async def api_user_info(
     Migrated from UserSettingsController.user (GET /user).
     """
     return {
-        "error_code": 0,
-        "data": {
-            "id": str(current_user.user_id),
-            "fullName": current_user.full_name,
-            "loginName": current_user.login_name,
-            "email": current_user.email,
-            "deptId": str(current_user.dept_id) if current_user.dept_id else None,
-            "isDisabled": current_user.is_disabled,
-        },
+        "user_id": current_user.user_id,
+        "login_name": current_user.login_name,
+        "full_name": current_user.full_name,
+        "email": current_user.email,
+        "avatar_url": current_user.avatar_url,
+        "dept_id": current_user.dept_id,
+        "workphone": current_user.workphone,
+        "is_active": current_user.is_active,
+        "is_disabled": current_user.is_disabled,
     }
 
 
@@ -130,6 +130,24 @@ async def api_send_email_vcode(
     result = send_email_vcode(db, email)
     if result:
         return {"error_code": 400, "error_msg": result}
+    return {"error_code": 0, "data": True}
+
+
+@router.post("/user/profile-save")
+async def api_save_profile(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Save user profile (fullName, workphone)."""
+    body = await request.json()
+    full_name = body.get("fullName")
+    workphone = body.get("workphone")
+    if full_name is not None:
+        current_user.full_name = full_name
+    if workphone is not None:
+        current_user.workphone = workphone
+    db.commit()
     return {"error_code": 0, "data": True}
 
 

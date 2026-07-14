@@ -207,7 +207,7 @@ async def api_entity_create(
     if not entity_name or not label:
         return {"error_code": 400, "error_msg": "Entity name and label required"}
 
-    result = create_entity(db, entity_name, label, icon, comments, str(current_user.user_id))
+    result = create_entity(db, entity_name, label, comments=comments)
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}

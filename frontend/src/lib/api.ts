@@ -138,11 +138,11 @@ class ApiClient {
   }
 
   async updateEmail(email: string, vcode: string) {
-    return this.post("/user/email-update", { email, vcode });
+    return this.post("/user/save-email", { email, vcode });
   }
 
   async updatePassword(oldpwd: string, newpwd: string) {
-    return this.post("/user/passwd-update", { oldpwd, newpwd });
+    return this.post("/user/save-passwd", { oldPasswd: oldpwd, newPasswd: newpwd });
   }
 
   async getLoginLogs(page = 1) {
@@ -239,10 +239,11 @@ class ApiClient {
   }
 
   // ── Admin: Users ──────────────────────────────────────────────────
-  async listUsers(page = 1, pageSize = 20, deptId?: string, filter?: number) {
+  async listUsers(page = 1, pageSize = 20, deptId?: string, filter?: number, q?: string) {
     let url = `/admin/bizuser/user-list?pageNo=${page}&pageSize=${pageSize}`;
     if (deptId) url += `&dept=${deptId}`;
     if (filter !== undefined) url += `&filter=${filter}`;
+    if (q) url += `&q=${encodeURIComponent(q)}`;
     return this.get<Record<string, any>>(url);
   }
 
@@ -263,7 +264,7 @@ class ApiClient {
   }
 
   async enableUser(userId: string, enabled: boolean) {
-    return this.post("/admin/bizuser/user-enable", { id: userId, enabled });
+    return this.post("/admin/bizuser/user/disable", { id: userId, enabled });
   }
 
   async saveDepartment(data: Record<string, any>) {
@@ -325,7 +326,7 @@ class ApiClient {
 
   // ── Admin: API Keys ───────────────────────────────────────────────
   async listApiKeys() {
-    return this.get<Record<string, any>>("/admin/integration/apis-list");
+    return this.get<Record<string, any>>("/admin/integration/apis-manager/app-list");
   }
 
   async createApiKey(data: Record<string, any>) {
@@ -338,7 +339,7 @@ class ApiClient {
 
   // ── Admin: Projects ───────────────────────────────────────────────
   async listAdminProjects() {
-    return this.get<Record<string, any>>("/admin/project/project-list");
+    return this.get<Record<string, any>>("/admin/project/projects");
   }
 
   async saveAdminProject(projectId: string, data: Record<string, any> = {}) {
@@ -421,6 +422,14 @@ class ApiClient {
     return this.get<Record<string, any>>(
       `/notification/list?page=${page}`
     );
+  }
+
+  async markAllRead() {
+    return this.post("/notification/make-read", {});
+  }
+
+  async makeRead(messageIds: string[]) {
+    return this.post("/notification/make-read", { messageIds });
   }
 
   // ── Setup / Install ───────────────────────────────────────────────
@@ -545,23 +554,23 @@ class ApiClient {
 
   // ── Metadata ───────────────────────────────────────────────────────
   async listEntityFields(entityName: string) {
-    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/fields`);
+    return this.get<Record<string, any>>(`/admin/metadata/entity/${entityName}/fields`);
   }
 
   async getEntityOverview(entityName: string) {
-    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/overview`);
+    return this.get<Record<string, any>>(`/admin/metadata/entity/${entityName}/overview`);
   }
 
   async saveEntity(entityName: string, data: Record<string, any>) {
-    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/save`, data);
+    return this.post("/admin/metadata/entity-update", { entityName, ...data });
   }
 
   async getEntityDetail(entityName: string) {
-    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/detail`);
+    return this.get<Record<string, any>>(`/admin/metadata/entity/${entityName}/base`);
   }
 
   async getEntityAdvanced(entityName: string) {
-    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/advanced`);
+    return this.get<Record<string, any>>(`/admin/metadata/entity/${entityName}/advanced`);
   }
 
   async saveEntityAdvanced(entityName: string, data: Record<string, any>) {
@@ -569,19 +578,19 @@ class ApiClient {
   }
 
   async deleteEntity(entityName: string) {
-    return this.post(`/admin/metadata/${entityName}/delete`);
+    return this.post("/admin/metadata/entity-delete", { entityName });
   }
 
   async getFormDesign(entityName: string) {
-    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/form-design`);
+    return this.get<Record<string, any>>(`/admin/metadata/entity/${entityName}/form-design`);
   }
 
   async saveFormDesign(entityName: string, data: Record<string, any>) {
-    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/form-design`, data);
+    return this.post("/admin/metadata/form-layout", { entity: entityName, config: data });
   }
 
   async getEntityI18n(entityName: string) {
-    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/i18n`);
+    return this.get<Record<string, any>>(`/admin/metadata/entity/${entityName}/i18n`);
   }
 
   async saveEntityI18n(entityName: string, data: Record<string, any>) {
@@ -589,11 +598,14 @@ class ApiClient {
   }
 
   async getFieldDetail(entityName: string, fieldName: string) {
-    return this.get<Record<string, any>>(`/admin/metadata/${entityName}/field/${fieldName}`);
+    return this.get<Record<string, any>>(`/admin/metadata/entity/${entityName}/field/${fieldName}`);
   }
 
   async saveField(entityName: string, data: Record<string, any>) {
-    return this.post<Record<string, any>>(`/admin/metadata/${entityName}/field/save`, data);
+    if (data.fieldName) {
+      return this.post("/admin/metadata/field-update", { entityName, ...data });
+    }
+    return this.post("/admin/metadata/field-create", { entityName, ...data });
   }
 
   async listAutoFillins(entityName: string, fieldName: string) {
@@ -649,7 +661,7 @@ class ApiClient {
   }
 
   async deleteReportTemplate(templateId: string) {
-    return this.post("/admin/data/report-template/delete", { id: templateId });
+    return this.post("/admin/data/report-templates/delete", { id: templateId });
   }
 
   // ── Data Imports ───────────────────────────────────────────────────
@@ -701,7 +713,7 @@ class ApiClient {
 
   // ── Projects Admin ─────────────────────────────────────────────────
   async getAdminProject(projectId: string) {
-    return this.get<Record<string, any>>(`/admin/project/${projectId}`);
+    return this.get<Record<string, any>>(`/admin/project/project/${projectId}`);
   }
 
   async deleteAdminProject(projectId: string) {

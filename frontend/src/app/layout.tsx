@@ -118,6 +118,11 @@ export default function RootLayout({
         {/* DNS prefetch for common external domains */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+        {/* Material Design Icons for admin pages */}
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css"
+        />
       </head>
       <body
         className={`${inter.className} font-sans antialiased`}

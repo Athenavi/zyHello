@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_user
+from app.services.auth_service import decode_access_token
 from app.models import User
 from app.schemas.file import (
     DeleteFilesRequest,
@@ -17,6 +18,8 @@ from app.schemas.file import (
 )
 from app.services import file_service
 from app.template_deps import templates
+from app.models import Attachment, AttachmentFolder
+import mimetypes
 
 router = APIRouter()
 
@@ -131,10 +134,24 @@ async def download_batch(
 @router.get("/files/download")
 async def download(
     file_id: str = Query(...),
+    token: str = Query(None),
+    request: Request = None,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
 ):
-    """Download a single file."""
+    """Download a single file.
+
+    Supports both Authorization header and ?token= query param (for <img> tags and new-tab links).
+    """
+    # Resolve user from Authorization header or ?token= query param
+    auth_header = request.headers.get("authorization", "") if request else ""
+    jwt_token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else (token or "")
+    user_id = decode_access_token(jwt_token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user or user.is_disabled:
+        raise HTTPException(status_code=403, detail="Access denied")
+
     from app.models import Attachment
     att = db.query(Attachment).filter(Attachment.attachment_id == file_id).first()
     if not att:
@@ -143,6 +160,81 @@ async def download(
     if not os.path.isfile(full_path):
         raise HTTPException(status_code=404, detail="File not found on disk")
     return FileResponse(full_path, filename=att.file_name)
+
+
+@router.get("/files/preview/{file_id}")
+async def preview_file(
+    file_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get file preview info (metadata + download URL)."""
+    att = db.query(Attachment).filter(Attachment.attachment_id == file_id).first()
+    if not att or att.is_deleted:
+        raise HTTPException(status_code=404, detail="File not found")
+    ext = os.path.splitext(att.file_name)[1].lower() if att.file_name else ""
+    preview_types = {
+        ".jpg": "image", ".jpeg": "image", ".png": "image", ".gif": "image", ".webp": "image", ".svg": "image", ".bmp": "image",
+        ".pdf": "pdf",
+        ".txt": "text", ".md": "text", ".csv": "text", ".log": "text",
+        ".mp4": "video", ".webm": "video", ".ogg": "video",
+        ".mp3": "audio", ".wav": "audio", ".flac": "audio",
+    }
+    return {
+        "error_code": 0,
+        "data": {
+            "file_id": att.attachment_id,
+            "file_name": att.file_name,
+            "file_size": att.file_size,
+            "preview_type": preview_types.get(ext, "other"),
+            "download_url": f"/files/download?file_id={att.attachment_id}",
+            "img_url": f"/files/img/{att.attachment_id}" if preview_types.get(ext) == "image" else None,
+        },
+    }
+
+
+@router.get("/files/img/{file_id}")
+async def serve_image(
+    file_id: str,
+    token: str = Query(None),
+    request: Request = None,
+    db: Session = Depends(get_db),
+):
+    """Serve an image file for inline preview."""
+    auth_header = request.headers.get("authorization", "") if request else ""
+    jwt_token = auth_header.replace("Bearer ", "") if auth_header.startswith("Bearer ") else (token or "")
+    user_id = decode_access_token(jwt_token)
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user or user.is_disabled:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    att = db.query(Attachment).filter(Attachment.attachment_id == file_id).first()
+    if not att or att.is_deleted:
+        raise HTTPException(status_code=404, detail="File not found")
+    full_path = os.path.join("app/static", att.file_path)
+    if not os.path.isfile(full_path):
+        raise HTTPException(status_code=404, detail="File not found on disk")
+    media_type, _ = mimetypes.guess_type(att.file_name)
+    return FileResponse(full_path, media_type=media_type or "application/octet-stream")
+
+
+@router.post("/files/delete-folder")
+async def delete_folder_endpoint(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Soft-delete a folder and its files."""
+    body = await request.json()
+    folder_id = body.get("folder_id") or body.get("folderId")
+    if not folder_id:
+        return {"ok": False, "error": "Folder ID required"}
+    ok = file_service.delete_folder(db, folder_id, current_user.user_id)
+    if not ok:
+        return {"ok": False, "error": "Folder not found or not owned by you"}
+    return {"ok": True}
 
 
 @router.post("/files/file-edit")

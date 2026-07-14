@@ -212,6 +212,82 @@ async def api_user_get(
     }
 
 
+# ── User Management API ───────────────────────────────────────────
+
+
+@router.post("/admin/bizuser/user/disable")
+async def api_user_disable(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Disable or enable a user."""
+    body = await request.json()
+    user_id = body.get("id")
+    enable = body.get("enabled", False)
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        return {"error_code": 404, "error_msg": "User not found"}
+    user.is_disabled = not enable
+    db.commit()
+    return {"error_code": 0, "data": True}
+
+
+@router.post("/admin/bizuser/user/reset-password")
+async def api_user_reset_password(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reset a user's password."""
+    body = await request.json()
+    user_id = body.get("id")
+    new_passwd = body.get("password", "123456")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        return {"error_code": 404, "error_msg": "User not found"}
+    from app.services.auth_service import _hash_password
+    user.password = _hash_password(new_passwd)
+    db.commit()
+    return {"error_code": 0, "data": True}
+
+
+@router.post("/admin/bizuser/user/change-dept")
+async def api_user_change_dept(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Change a user's department."""
+    body = await request.json()
+    user_id = body.get("id")
+    dept_id = body.get("deptId")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        return {"error_code": 404, "error_msg": "User not found"}
+    user.dept_id = dept_id
+    db.commit()
+    return {"error_code": 0, "data": True}
+
+
+@router.post("/admin/bizuser/user/change-role")
+async def api_user_change_role(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Change a user's role."""
+    body = await request.json()
+    user_id = body.get("id")
+    role_id = body.get("roleId")
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        return {"error_code": 404, "error_msg": "User not found"}
+    user.role_id = role_id
+    db.commit()
+    return {"error_code": 0, "data": True}
+
+
 # ══════════════════════════════════════════════════════════════════════
 # API endpoints — Department Management
 # ══════════════════════════════════════════════════════════════════════

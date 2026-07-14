@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Optional
 
+import httpx
 from sqlalchemy.orm import Session
 
 from app.models import AibotChat, AibotChatMessage, SystemConfig
@@ -167,24 +168,58 @@ def rename_chat(db: Session, chat_id: str, user_id: str, subject: str) -> bool:
 
 
 def _generate_ai_response(db: Session, chat_id: str, user_content: str) -> str:
-    """Generate an AI response. This is a placeholder that can be replaced
-    with a real LLM integration (OpenAI, Azure, etc.).
+    """Generate an AI response using the configured OpenAI-compatible API,
+    or fall back to a simple echo response.
     """
-    # Check if there's an AI bot API config
-    ds_secret = _get_config(db, "AibotDSSecret")
-    ds_url = _get_config(db, "AibotDSUrl")
+    ds_url = _get_config(db, "AibotApiUrl")
+    ds_secret = _get_config(db, "AibotApiKey")
 
-    if ds_secret and ds_url:
-        # Would call the configured AI service here
-        pass
+    if ds_url and ds_secret:
+        try:
+            # Build conversation history for context
+            messages = db.query(AibotChatMessage).filter(
+                AibotChatMessage.chat_id == chat_id
+            ).order_by(AibotChatMessage.created_on.asc()).all()
 
-    # Simple fallback response
-    responses = [
-        f"收到您的问题：「{user_content}」",
-        "作为 AI 助手，我正在处理您的请求。",
-        "请注意配置 AI 助手的 API 参数以获得更好的回答。",
-    ]
-    return "\n".join(responses)
+            history = []
+            for m in messages:
+                role = "assistant" if m.role == "ai" else m.role
+                history.append({"role": role, "content": m.content})
+
+            # Ensure the latest user message is included
+            if not history or history[-1].get("content") != user_content:
+                history.append({"role": "user", "content": user_content})
+
+            # Call OpenAI-compatible API
+            api_url = ds_url.rstrip("/") + "/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {ds_secret}",
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "model": _get_config(db, "AibotBaseDefModel") or "gpt-3.5-turbo",
+                "messages": [
+                    {"role": "system", "content": _get_config(db, "AibotDefaultPrompt") or "你是一个有用的 AI 助手。"},
+                    *[m for m in history if m["role"] != "system"],
+                ],
+                "temperature": 0.7,
+                "max_tokens": 2048,
+            }
+
+            with httpx.Client(timeout=60.0) as client:
+                resp = client.post(api_url, json=payload, headers=headers)
+                resp.raise_for_status()
+                data = resp.json()
+                return data["choices"][0]["message"]["content"]
+
+        except Exception as e:
+            return f"AI 服务调用失败：{str(e)}\n\n请检查 AI 助手配置中的 API 地址和密钥是否正确。"
+
+    # Fallback response when no AI API is configured
+    return (
+        f"收到您的问题：「{user_content}」\n\n"
+        "AI 服务尚未配置。请在「管理后台 → 系统集成 → AI 助手」中配置 API 地址和密钥。"
+    )
 
 
 def _get_config(db: Session, item: str) -> Optional[str]:

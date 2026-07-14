@@ -33,7 +33,7 @@ export default function AdminUsersPage() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await api.listUsers(page, pageSize, selectedDept || undefined, filter);
+      const data = await api.listUsers(page, pageSize, selectedDept || undefined, filter, search || undefined);
       const d = data as Record<string, unknown>;
       setUsers((d.data || d.items || d.users || []) as Record<string, unknown>[]);
       setTotal(((d.total || d.totalCount || 0) as number) || 0);
@@ -42,7 +42,7 @@ export default function AdminUsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, selectedDept, filter]);
+  }, [page, selectedDept, filter, search]);
 
   useEffect(() => {
     api

@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -9,26 +11,96 @@ interface Message {
   timestamp: Date;
 }
 
+interface ChatItem {
+  chatid: string;
+  subject: string;
+  createdOn: string;
+}
+
 export default function AIChatPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome",
-      role: "assistant",
-      content: "你好！我是 AI 助手，有什么可以帮助你的吗？",
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [conversations, setConversations] = useState<
-    { id: string; title: string; time: string }[]
-  >([
-    { id: "1", title: "新对话", time: "刚刚" },
-  ]);
-  const [activeConv, setActiveConv] = useState("1");
+  const [conversations, setConversations] = useState<ChatItem[]>([]);
+  const [activeConv, setActiveConv] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  const getToken = () => localStorage.getItem("access_token");
+
+  const apiPost = async (path: string, body: Record<string, unknown>) => {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  };
+
+  const apiGet = async (path: string) => {
+    const token = getToken();
+    const res = await fetch(`${API_BASE}${path}`, {
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+    return res.json();
+  };
+
+  // Load conversation list on mount
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data: list } = await apiGet("/aibot/post/chat-list");
+        if (Array.isArray(list) && list.length > 0) {
+          setConversations(list);
+          setActiveConv(list[0].chatid);
+        }
+      } catch {
+        // ignore
+      }
+      setInitialized(true);
+    })();
+  }, []);
+
+  // Load messages when active conversation changes
+  useEffect(() => {
+    if (!activeConv) {
+      setMessages([
+        {
+          id: "welcome",
+          role: "assistant",
+          content: "你好！我是 AI 助手，有什么可以帮助你的吗？\n\n在右侧创建新对话开始聊天吧。",
+          timestamp: new Date(),
+        },
+      ]);
+      return;
+    }
+
+    (async () => {
+      try {
+        const { data } = await apiGet(`/aibot/post/chat-init?chatid=${activeConv}`);
+        if (data?.messages) {
+          setMessages(
+            data.messages.map((m: { role: string; content: string }, i: number) => ({
+              id: `msg-${i}`,
+              role: m.role === "ai" ? "assistant" : "user",
+              content: m.content,
+              timestamp: new Date(),
+            }))
+          );
+        }
+      } catch {
+        // ignore
+      }
+    })();
+  }, [activeConv]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -51,18 +123,44 @@ export default function AIChatPage() {
     setInput("");
     setLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      const aiMsg: Message = {
+    try {
+      // If no active conversation, create one first
+      let chatId = activeConv;
+
+      const { data } = await apiPost("/aibot/post/chat", {
+        chatid: chatId || "",
+        content: text,
+      });
+
+      if (data?.chatid && data.chatid !== chatId) {
+        chatId = data.chatid;
+        setActiveConv(data.chatid);
+        // Refresh conversation list
+        const { data: list } = await apiGet("/aibot/post/chat-list");
+        if (Array.isArray(list)) setConversations(list);
+      }
+
+      if (data?.content) {
+        const aiMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: data.content,
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, aiMsg]);
+      }
+    } catch {
+      const errMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: `收到你的消息："${text}"。这是一个模拟的回复，实际使用时请连接后端 AI 服务。`,
+        content: "请求失败，请检查网络连接或稍后重试。",
         timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, aiMsg]);
+      setMessages((prev) => [...prev, errMsg]);
+    } finally {
       setLoading(false);
-    }, 1000);
-  }, [input, loading]);
+    }
+  }, [input, loading, activeConv]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -72,12 +170,7 @@ export default function AIChatPage() {
   };
 
   const handleNewChat = () => {
-    const id = Date.now().toString();
-    setConversations((prev) => [
-      { id, title: "新对话", time: "刚刚" },
-      ...prev,
-    ]);
-    setActiveConv(id);
+    setActiveConv(null);
     setMessages([
       {
         id: "welcome",
@@ -114,18 +207,24 @@ export default function AIChatPage() {
         <div className="overflow-y-auto px-2">
           {conversations.map((conv) => (
             <button
-              key={conv.id}
-              onClick={() => setActiveConv(conv.id)}
+              key={conv.chatid}
+              onClick={() => setActiveConv(conv.chatid)}
               className={`w-full text-left px-4 py-2.5 rounded-lg text-sm mb-1 transition ${
-                activeConv === conv.id
+                activeConv === conv.chatid
                   ? "bg-gray-700 text-white"
                   : "text-gray-400 hover:bg-gray-800 hover:text-white"
               }`}
             >
-              <div className="truncate">{conv.title}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{conv.time}</div>
+              <div className="truncate">{conv.subject}</div>
+              <div className="text-xs text-gray-500 mt-0.5">{conv.createdOn}</div>
             </button>
           ))}
+          {!initialized && (
+            <div className="px-4 py-2 text-sm text-gray-500">加载中...</div>
+          )}
+          {initialized && conversations.length === 0 && (
+            <div className="px-4 py-2 text-sm text-gray-500">暂无对话记录</div>
+          )}
         </div>
       </div>
 

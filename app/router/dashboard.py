@@ -15,6 +15,8 @@ from app.schemas.dashboard import (
 )
 from app.services import dashboard_service
 from app.template_deps import templates
+from app.models import User, ProjectTask
+from sqlalchemy import func
 
 router = APIRouter()
 
@@ -77,6 +79,43 @@ async def dash_gets(
     """Get dashboards for the current user (legacy endpoint)."""
     data = dashboard_service.get_dashboards(db, current_user.user_id)
     return {"ok": True, "data": data}
+
+
+@router.get("/dashboard/stats")
+async def dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get dashboard statistics (record counts, user counts, etc.)."""
+    from app.models import User as UserModel, ProjectTask, Notification
+
+    total_users = db.query(func.count(UserModel.user_id)).filter(
+        UserModel.is_disabled == False
+    ).scalar() or 0
+
+    total_tasks = db.query(func.count(ProjectTask.task_id)).filter(
+        ProjectTask.is_deleted == False
+    ).scalar() or 0
+
+    pending_tasks = db.query(func.count(ProjectTask.task_id)).filter(
+        ProjectTask.is_deleted == False,
+        ProjectTask.status == 0,
+    ).scalar() or 0
+
+    unread_notifications = db.query(func.count(Notification.message_id)).filter(
+        Notification.to_user == current_user.user_id,
+        Notification.unread == True,
+    ).scalar() or 0
+
+    return {
+        "error_code": 0,
+        "data": {
+            "total_users": total_users,
+            "total_tasks": total_tasks,
+            "pending_tasks": pending_tasks,
+            "unread_notifications": unread_notifications,
+        },
+    }
 
 
 @router.get("/dashboard/chart-list")

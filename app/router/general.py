@@ -165,9 +165,9 @@ async def api_record_save(
     fields_approval = body.get("fieldsApproval", [])
 
     if record_id:
-        result = save_record(db, entity, record_id, data, str(current_user.user_id))
+        result = save_record(db, entity, data, str(current_user.user_id), record_id=record_id)
     else:
-        result = save_record(db, entity, None, data, str(current_user.user_id))
+        result = save_record(db, entity, data, str(current_user.user_id))
 
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
@@ -193,7 +193,7 @@ async def api_record_delete(
     deleted = 0
     errors = []
     for rid in record_ids:
-        err = delete_record(db, entity, rid, str(current_user.user_id))
+        err = delete_record(db, rid, user_id=str(current_user.user_id))
         if err:
             errors.append(err)
         else:
@@ -364,11 +364,13 @@ async def api_data_list(
     filter_expr = body.get("filter")
     fields_filter = body.get("fieldsFilter")
 
-    records, total = list_records(
-        db, entity, str(current_user.user_id),
+    result = list_records(
+        db, entity,
         page_no=page_no, page_size=page_size,
-        sort=sort, filter_expr=filter_expr,
+        user_id=current_user.user_id,
     )
+    records = result.get("data", [])
+    total = result.get("total", 0)
 
     return {
         "error_code": 0,
@@ -395,11 +397,13 @@ async def api_data_list_get(
 
     Migrated from GeneralListController.
     """
-    records, total = list_records(
-        db, entity, str(current_user.user_id),
+    result = list_records(
+        db, entity,
         page_no=page_no, page_size=page_size,
-        sort=sort, filter_expr=filter,
+        user_id=current_user.user_id,
     )
+    records = result.get("data", [])
+    total = result.get("total", 0)
 
     return {
         "error_code": 0,
@@ -428,12 +432,12 @@ async def api_view_model(
 
     Migrated from GeneralModelController.view-model.
     """
-    record_data = get_record(db, entity, record, str(current_user.user_id))
+    record_data = get_record(db, record)
     if not record_data:
         return {"error_code": 404, "error_msg": "Record not found"}
 
     view_config = get_view_config(db, entity)
-    meta = get_record_meta(db, entity)
+    meta = get_record_meta(db, record)
 
     return {
         "error_code": 0,
@@ -461,11 +465,11 @@ async def api_form_model(
     layout_id = body.get("layout")
 
     form_layout = get_form_layout(db, entity, layout_id)
-    meta = get_record_meta(db, entity)
+    meta = get_record_meta(db, record_id) if record_id else {}
 
     record_data = None
     if record_id:
-        record_data = get_record(db, entity, record_id, str(current_user.user_id))
+        record_data = get_record(db, record_id)
 
     return {
         "error_code": 0,
@@ -490,10 +494,10 @@ async def api_print_model(
     """
     record_data = None
     if record:
-        record_data = get_record(db, entity, record, str(current_user.user_id))
+        record_data = get_record(db, record)
 
     form_layout = get_form_layout(db, entity)
-    meta = get_record_meta(db, entity)
+    meta = get_record_meta(db, record) if record else {}
 
     return {
         "error_code": 0,
@@ -522,7 +526,7 @@ async def api_detail_models(
     if not record_id:
         return {"error_code": 400, "error_msg": "Record ID required"}
 
-    record_data = get_record(db, entity, record_id, str(current_user.user_id))
+    record_data = get_record(db, record_id)
     if not record_data:
         return {"error_code": 404, "error_msg": "Record not found"}
 
@@ -531,11 +535,11 @@ async def api_detail_models(
     details = []
     for de in detail_entities:
         if hasattr(de, 'main_entity') and de.get('main_entity') == entity:
-            detail_records, _ = list_records(
-                db, de['entity_name'], str(current_user.user_id),
+            dr = list_records(
+                db, de['entity_name'],
                 page_no=1, page_size=50,
-                filter_expr=f"mainid='{record_id}'",
             )
+            detail_records = dr.get("data", [])
             details.append({
                 "entity": de['entity_name'],
                 "records": detail_records,
@@ -610,7 +614,7 @@ async def api_record_last_modified(
 
     Migrated from ModelExtrasController.record-last-modified.
     """
-    record_data = get_record(db, entity, record, str(current_user.user_id))
+    record_data = get_record(db, record)
     if not record_data:
         return {"error_code": 404, "error_msg": "Record not found"}
 
@@ -634,7 +638,7 @@ async def api_record_meta(
 
     Migrated from ModelExtrasController.record-meta.
     """
-    meta = get_record_meta(db, entity)
+    meta = get_record_meta(db, record) if record else {}
     return {"error_code": 0, "data": meta}
 
 
@@ -713,11 +717,12 @@ async def api_related_list(
     # Build filter for related entity
     filter_expr = f"{'$MAINID$' if entity.lower() in ('user', 'department') else 'mainid'}='{record}'"
 
-    records, total = list_records(
-        db, related, str(current_user.user_id),
+    result = list_records(
+        db, related,
         page_no=page_no, page_size=page_size,
-        filter_expr=filter_expr,
     )
+    records = result.get("data", [])
+    total = result.get("total", 0)
 
     return {
         "error_code": 0,
@@ -746,12 +751,11 @@ async def api_related_counts(
     for de in detail_entities:
         if hasattr(de, 'main_entity') and de.get('main_entity') == entity:
             ename = de['entity_name']
-            _, total = list_records(
-                db, ename, str(current_user.user_id),
+            r = list_records(
+                db, ename,
                 page_no=1, page_size=1,
-                filter_expr=f"mainid='{record}'",
             )
-            counts[ename] = total
+            counts[ename] = r.get("total", 0)
 
     return {"error_code": 0, "data": counts}
 
@@ -907,8 +911,10 @@ async def api_meta_info(
 
     Migrated from MetadataGetting.meta-info.
     """
-    meta = get_record_meta(db, entity)
-    return {"error_code": 0, "data": meta}
+    from app.core.metadata import list_fields, get_entity
+    ent = get_entity(db, entity)
+    fields = list_fields(db, entity) if ent else []
+    return {"error_code": 0, "data": {"entity": ent, "fields": fields}}
 
 
 @router.get("/commons/entity-and-details")

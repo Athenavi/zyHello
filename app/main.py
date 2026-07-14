@@ -17,6 +17,7 @@ from app.config import settings
 from app.logger import logger
 from app.router import router
 from app.api.gateway import router as api_gateway_router
+from app.router.websocket import router as websocket_router
 
 app = FastAPI(title=settings.PROJECT_NAME, version="0.1.0")
 
@@ -39,6 +40,9 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Include routers
 app.include_router(router)
 app.include_router(api_gateway_router)
+
+# WebSocket router (no prefix — uses /ws path directly)
+app.include_router(websocket_router)
 
 
 @app.get("/health")
