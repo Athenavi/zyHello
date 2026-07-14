@@ -205,3 +205,24 @@ async def api_report_template_delete(
     if not ok:
         return {"error_code": 400, "error_msg": "模板不存在"}
     return {"error_code": 0, "data": {"deleted": True}}
+@router.post("/admin/data/report-templates/toggle")
+async def api_report_template_toggle(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Toggle report template enabled/disabled."""
+    body = await request.json()
+    config_id = body.get("id", "")
+    enabled = body.get("enabled", True)
+    if not config_id:
+        return {"error_code": 400, "error_msg": "缺少模板ID"}
+    from app.models import DataReportConfig
+    cfg = db.query(DataReportConfig).filter(
+        DataReportConfig.config_id == config_id
+    ).first()
+    if not cfg:
+        return {"error_code": 400, "error_msg": "模板不存在"}
+    cfg.is_disabled = not enabled
+    db.commit()
+    return {"error_code": 0, "data": {"enabled": enabled}}

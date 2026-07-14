@@ -71,7 +71,7 @@ export default function ReportTemplatesPage() {
 
   const handleToggleEnabled = async (id: string, enabled: boolean) => {
     try {
-      await api.put(`/admin/data/report-templates/${id}`, { enabled: !enabled });
+      await api.post("/admin/data/report-templates/toggle", { id, enabled: !enabled });
       fetchTemplates();
     } catch {
       alert("操作失败");

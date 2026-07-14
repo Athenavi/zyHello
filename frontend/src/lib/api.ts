@@ -661,7 +661,7 @@ class ApiClient {
   }
 
   async deleteReportTemplate(templateId: string) {
-    return this.post("/admin/data/report-templates/delete", { id: templateId });
+    return this.post("/admin/data/report-templates/delete", { configId: templateId });
   }
 
   // ── Data Imports ───────────────────────────────────────────────────
@@ -681,11 +681,15 @@ class ApiClient {
   }
 
   async getApproval(approvalId: string) {
-    return this.get<Record<string, any>>(`/admin/robot/approval/${approvalId}`);
+    return this.get<Record<string, any>>(`/admin/robot/approval/${approvalId}/data`);
   }
 
   async saveApproval(data: Record<string, any>) {
     return this.post<Record<string, any>>("/admin/robot/approval/save", data);
+  }
+
+  async deleteApproval(approvalId: string) {
+    return this.post("/admin/robot/approval/delete", { id: approvalId });
   }
 
   async deleteApproval(approvalId: string) {

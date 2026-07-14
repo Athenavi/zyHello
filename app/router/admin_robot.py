@@ -109,6 +109,98 @@ async def api_approval_user_fields(
     return {"error_code": 0, "data": user_fields}
 
 
+@router.get("/admin/robot/approval/{id}/data")
+async def api_approval_get(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Get a single approval configuration as JSON."""
+    from app.models import RobotApprovalConfig
+    cfg = db.query(RobotApprovalConfig).filter(
+        RobotApprovalConfig.config_id == id
+    ).first()
+    if not cfg:
+        return {"error_code": 400, "error_msg": "审批不存在"}
+    import json
+    flow_def = {}
+    if cfg.flow_definition:
+        try:
+            flow_def = json.loads(cfg.flow_definition)
+        except Exception:
+            flow_def = {"raw": cfg.flow_definition}
+    return {
+        "error_code": 0,
+        "data": {
+            "id": cfg.config_id,
+            "name": cfg.name,
+            "applyEntity": cfg.belong_entity,
+            "isDisabled": cfg.is_disabled,
+            "flowDefinition": flow_def,
+        },
+    }
+
+
+@router.post("/admin/robot/approval/save")
+async def api_approval_save(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create or update an approval configuration."""
+    body = await request.json()
+    from app.models import RobotApprovalConfig
+    import uuid, json
+
+    config_id = body.get("id")
+    if config_id:
+        cfg = db.query(RobotApprovalConfig).filter(
+            RobotApprovalConfig.config_id == config_id
+        ).first()
+        if cfg:
+            cfg.name = body.get("name", cfg.name)
+            cfg.belong_entity = body.get("applyEntity", cfg.belong_entity)
+            if body.get("flowDefinition"):
+                cfg.flow_definition = json.dumps(body["flowDefinition"], ensure_ascii=False)
+            cfg.is_disabled = body.get("isDisabled", cfg.is_disabled)
+            db.commit()
+            return {"error_code": 0, "data": config_id}
+
+    new_id = uuid.uuid4().hex[:20]
+    cfg = RobotApprovalConfig(
+        config_id=new_id,
+        name=body.get("name", "未命名"),
+        belong_entity=body.get("applyEntity", ""),
+        flow_definition=json.dumps(body.get("flowDefinition", {}), ensure_ascii=False),
+        is_disabled=body.get("isDisabled", False),
+    )
+    db.add(cfg)
+    db.commit()
+    return {"error_code": 0, "data": new_id}
+
+
+@router.post("/admin/robot/approval/delete")
+async def api_approval_delete(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Delete an approval configuration."""
+    body = await request.json()
+    config_id = body.get("id", "")
+    if not config_id:
+        return {"error_code": 400, "error_msg": "缺少审批ID"}
+    from app.models import RobotApprovalConfig
+    cfg = db.query(RobotApprovalConfig).filter(
+        RobotApprovalConfig.config_id == config_id
+    ).first()
+    if not cfg:
+        return {"error_code": 400, "error_msg": "审批不存在"}
+    db.delete(cfg)
+    db.commit()
+    return {"error_code": 0, "data": {"deleted": True}}
+
+
 @router.post("/admin/robot/approval/copy")
 async def api_approval_copy(
     request: Request,

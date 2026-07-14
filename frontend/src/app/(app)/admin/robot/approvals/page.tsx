@@ -45,7 +45,7 @@ export default function ApprovalsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("确定删除此审批流程？")) return;
     try {
-      await api.delete(`/admin/robot/approval/${id}`);
+      await api.deleteApproval(id);
       fetchApprovals();
     } catch {
       alert("删除失败");
