@@ -26,6 +26,9 @@ const SECTION_DEFINITIONS: Record<string, { title: string; fields: Omit<ConfigSe
       ]},
       { key: "PageFooter", label: "页脚", type: "textarea", optional: true, tip: "支持 MD 语法" },
       { key: "LiveWallpaper", label: "登录页每日一图", type: "boolean" },
+      { key: "LOGO", label: "LOGO 图片", type: "text", optional: true, tip: "公司 LOGO 图片 URL" },
+      { key: "LOGOWhite", label: "LOGO 白色版", type: "text", optional: true, tip: "深色背景使用的白色 LOGO URL" },
+      { key: "CustomWallpaper", label: "自定义登录背景图", type: "text", optional: true, tip: "登录页背景图片 URL" },
     ],
   },
   security: {

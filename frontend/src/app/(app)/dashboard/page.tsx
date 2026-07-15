@@ -329,35 +329,37 @@ export default function DashboardPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {charts.slice(0, 6).map((chart) => (
-                  <Card key={chart.id} hover>
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-sm">{chart.title}</CardTitle>
-                        <div className="flex items-center gap-1">
-                          <Badge variant="outline" className="text-[10px]">
-                            {chart.type === "BAR" ? "柱状图" : chart.type === "LINE" ? "折线图" : chart.type === "PIE" ? "饼图" : chart.type}
-                          </Badge>
-                          <button
-                            onClick={(e) => { e.preventDefault(); handleDeleteChart(chart.id, chart.title); }}
-                            className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
-                            title="删除图表"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                  <Link key={chart.id} href={`/chart?id=${chart.id}`} className="block">
+                    <Card hover>
+                      <CardHeader className="pb-2">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-sm">{chart.title}</CardTitle>
+                          <div className="flex items-center gap-1">
+                            <Badge variant="outline" className="text-[10px]">
+                              {chart.type === "BAR" ? "柱状图" : chart.type === "LINE" ? "折线图" : chart.type === "PIE" ? "饼图" : chart.type}
+                            </Badge>
+                            <button
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteChart(chart.id, chart.title); }}
+                              className="p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-colors"
+                              title="删除图表"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="h-40 flex items-center justify-center bg-muted/30 rounded-lg">
-                        <div className="text-center text-muted-foreground">
-                          {chart.type === "BAR" ? <BarChart3 className="w-8 h-8 mx-auto mb-1 opacity-30" /> :
-                           chart.type === "PIE" ? <PieChart className="w-8 h-8 mx-auto mb-1 opacity-30" /> :
-                           <LineChart className="w-8 h-8 mx-auto mb-1 opacity-30" />}
-                          <p className="text-xs">图表预览</p>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="h-40 flex items-center justify-center bg-muted/30 rounded-lg">
+                          <div className="text-center text-muted-foreground">
+                            {chart.type === "BAR" ? <BarChart3 className="w-8 h-8 mx-auto mb-1 opacity-30" /> :
+                             chart.type === "PIE" ? <PieChart className="w-8 h-8 mx-auto mb-1 opacity-30" /> :
+                             <LineChart className="w-8 h-8 mx-auto mb-1 opacity-30" />}
+                            <p className="text-xs">点击查看图表</p>
+                          </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             )}

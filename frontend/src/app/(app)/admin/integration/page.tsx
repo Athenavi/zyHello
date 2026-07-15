@@ -10,6 +10,12 @@ export default function AdminIntegrationPage() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("system");
 
+  // AiBot config state
+  const [aibotConfig, setAibotConfig] = useState<Record<string, string>>({});
+  const [aibotEdit, setAibotEdit] = useState<Record<string, string>>({});
+  const [aibotEditing, setAibotEditing] = useState(false);
+  const [aibotSaving, setAibotSaving] = useState(false);
+
   useEffect(() => {
     Promise.all([
       api.getSystemConfig().catch(() => ({})),
@@ -22,6 +28,11 @@ export default function AdminIntegrationPage() {
       setStorageConfig(storageData);
       setLoading(false);
     });
+    // Load AiBot config
+    api.getAibotConfig().then((res) => {
+      const d = ((res as Record<string, unknown>)?.data || res || {}) as Record<string, unknown>;
+      setAibotConfig(d as Record<string, string>);
+    }).catch(() => {});
   }, []);
 
   const tabs = [
@@ -30,6 +41,7 @@ export default function AdminIntegrationPage() {
     { key: "dingtalk", label: "钉钉" },
     { key: "wxwork", label: "企业微信" },
     { key: "feishu", label: "飞书" },
+    { key: "aibot", label: "AI 助手" },
   ];
 
   return (
@@ -112,9 +124,21 @@ export default function AdminIntegrationPage() {
 
           {activeTab === "storage" && (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                存储配置
-              </h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  存储配置
+                </h3>
+                <a
+                  href="/admin/integration/storage-qiniu"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  前往修改
+                </a>
+              </div>
               <div className="space-y-4">
                 {Object.keys(storageConfig).length === 0 ? (
                   <p className="text-gray-400">暂无存储配置</p>
@@ -134,6 +158,105 @@ export default function AdminIntegrationPage() {
                       </span>
                     </div>
                   ))
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "aibot" && (
+            <div>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">
+                  AI 助手
+                </h3>
+                {!aibotEditing ? (
+                  <button
+                    onClick={() => { setAibotEdit({ ...aibotConfig }); setAibotEditing(true); }}
+                    className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+                  >
+                    修改
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => { setAibotEditing(false); setAibotEdit({}); }}
+                      className="px-3 py-1.5 bg-gray-100 text-gray-600 text-sm rounded-lg hover:bg-gray-200"
+                    >
+                      取消
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setAibotSaving(true);
+                        try {
+                          await api.saveAibotConfig(aibotEdit);
+                          setAibotConfig({ ...aibotEdit });
+                          setAibotEditing(false);
+                        } catch {
+                          alert("保存失败");
+                        }
+                        setAibotSaving(false);
+                      }}
+                      disabled={aibotSaving}
+                      className="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {aibotSaving ? "保存中..." : "保存"}
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center py-2 border-b border-gray-100">
+                  <span className="text-sm font-medium text-gray-600 w-40">API 地址</span>
+                  <div className="flex-1">
+                    {aibotEditing ? (
+                      <input
+                        type="text"
+                        value={aibotEdit["uri"] || ""}
+                        onChange={(e) => setAibotEdit({ ...aibotEdit, uri: e.target.value })}
+                        className="w-full max-w-md px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="https://api.openai.com/v1/chat/completions"
+                      />
+                    ) : (
+                      <span className="text-sm text-gray-800">{aibotConfig["uri"] || "未配置"}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center py-2 border-b border-gray-100">
+                  <span className="text-sm font-medium text-gray-600 w-40">API Key</span>
+                  <div className="flex-1">
+                    {aibotEditing ? (
+                      <input
+                        type="password"
+                        value={aibotEdit["key"] || ""}
+                        onChange={(e) => setAibotEdit({ ...aibotEdit, key: e.target.value })}
+                        className="w-full max-w-md px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="sk-..."
+                      />
+                    ) : (
+                      <span className="text-sm text-gray-800">{aibotConfig["key"] ? "••••••••" : "未配置"}</span>
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center py-2 border-b border-gray-100">
+                  <span className="text-sm font-medium text-gray-600 w-40">模型</span>
+                  <div className="flex-1">
+                    {aibotEditing ? (
+                      <input
+                        type="text"
+                        value={aibotEdit["model"] || ""}
+                        onChange={(e) => setAibotEdit({ ...aibotEdit, model: e.target.value })}
+                        className="w-full max-w-md px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="gpt-4o-mini"
+                      />
+                    ) : (
+                      <span className="text-sm text-gray-800">{aibotConfig["model"] || "未配置"}</span>
+                    )}
+                  </div>
+                </div>
+                {!aibotConfig["uri"] && !aibotConfig["key"] && (
+                  <p className="text-sm text-gray-400 mt-2">
+                    配置 API 地址和密钥后，AI 助手即可使用。
+                  </p>
                 )}
               </div>
             </div>

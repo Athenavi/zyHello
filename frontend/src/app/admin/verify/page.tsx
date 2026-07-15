@@ -31,12 +31,14 @@ function AdminVerifyContent() {
     setError("");
     try {
       const res = await api.adminVerify(password);
-      if ((res as any)?.success || (res as any)?.error_code === 0) {
-        // Set admin verification cookie so middleware lets the request through
-        document.cookie = "admin_token=verified; path=/; max-age=86400; SameSite=Lax";
+      const data = res as { success?: boolean; error_code?: number; token?: string; error_msg?: string };
+      if (data?.success || data?.error_code === 0) {
+        // Store the signed admin JWT token returned by backend
+        const adminToken = data.token || "verified";
+        document.cookie = `admin_token=${adminToken}; path=/; max-age=3600; SameSite=Lax;`;
         router.replace(nexturl);
       } else {
-        setError((res as any)?.error_msg || "验证失败，请检查密码");
+        setError(data?.error_msg || "验证失败，请检查密码");
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "验证请求失败");

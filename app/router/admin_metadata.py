@@ -1,10 +1,10 @@
-﻿"""Admin metadata routes — entities, fields, forms, classifications, i18n, CRUD APIs."""
+"""Admin metadata routes — entities, fields, forms, classifications, i18n, CRUD APIs."""
 from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import require_admin
 from app.models import User
 from app.template_deps import templates
 from app.core import (
@@ -30,7 +30,7 @@ router = APIRouter()
 @router.get("/admin/metadata/entities")
 async def entities_page(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render entities list page."""
     return templates.TemplateResponse(request, "admin/metadata/entities.html", {
@@ -42,7 +42,7 @@ async def entities_page(
 async def entity_edit(
     entity: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render entity base configuration page."""
     return templates.TemplateResponse(request, "admin/metadata/entity-edit.html", {
@@ -55,7 +55,7 @@ async def entity_edit(
 async def entity_fields(
     entity: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render entity fields list page."""
     return templates.TemplateResponse(request, "admin/metadata/fields.html", {
@@ -69,7 +69,7 @@ async def field_edit(
     entity: str,
     field: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render field edit page."""
     return templates.TemplateResponse(request, "admin/metadata/field-edit.html", {
@@ -83,7 +83,7 @@ async def field_edit(
 async def entity_advanced(
     entity: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render entity advanced settings page."""
     return templates.TemplateResponse(request, "admin/metadata/entity-advanced.html", {
@@ -96,7 +96,7 @@ async def entity_advanced(
 async def entity_overview(
     entity: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render entity overview page."""
     return templates.TemplateResponse(request, "admin/metadata/entity-overview.html", {
@@ -109,7 +109,7 @@ async def entity_overview(
 async def form_design(
     entity: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render form design page."""
     return templates.TemplateResponse(request, "admin/metadata/form-design.html", {
@@ -122,7 +122,7 @@ async def form_design(
 async def entity_i18n(
     entity: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render entity i18n page."""
     return templates.TemplateResponse(request, "admin/metadata/entity-i18n.html", {
@@ -134,7 +134,7 @@ async def entity_i18n(
 @router.get("/admin/metadata/classifications")
 async def classification_list(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render classification list page."""
     return templates.TemplateResponse(request, "admin/metadata/classification-list.html", {
@@ -146,7 +146,7 @@ async def classification_list(
 async def classification_editor(
     id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render classification editor page."""
     return templates.TemplateResponse(request, "admin/metadata/classification-editor.html", {
@@ -160,7 +160,7 @@ async def auto_fillin(
     entity: str,
     field: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render auto-fillin configuration page."""
     return templates.TemplateResponse(request, "admin/metadata/auto-fillin.html", {
@@ -178,7 +178,7 @@ async def auto_fillin(
 
 @router.get("/admin/metadata/entity-list")
 async def api_entity_list(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get all entities.
@@ -192,7 +192,7 @@ async def api_entity_list(
 @router.post("/admin/metadata/entity-create")
 async def api_entity_create(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create a new entity.
@@ -217,7 +217,7 @@ async def api_entity_create(
 @router.post("/admin/metadata/entity-update")
 async def api_entity_update(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Update an entity.
@@ -242,7 +242,7 @@ async def api_entity_update(
 @router.post("/admin/metadata/entity-delete")
 async def api_entity_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete an entity.
@@ -270,7 +270,7 @@ async def api_entity_delete(
 @router.get("/admin/metadata/field-list")
 async def api_field_list(
     entity: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get all fields for an entity.
@@ -284,7 +284,7 @@ async def api_field_list(
 @router.post("/admin/metadata/field-create")
 async def api_field_create(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create a new field.
@@ -313,7 +313,7 @@ async def api_field_create(
 @router.post("/admin/metadata/field-update")
 async def api_field_update(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Update a field.
@@ -339,7 +339,7 @@ async def api_field_update(
 @router.post("/admin/metadata/field-delete")
 async def api_field_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a field.
@@ -369,7 +369,7 @@ async def api_field_delete(
 async def api_form_layout(
     entity: str = Query(...),
     layout: Optional[str] = Query(None),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get form layout configuration.
@@ -383,7 +383,7 @@ async def api_form_layout(
 @router.post("/admin/metadata/form-layout")
 async def api_save_form_layout(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save form layout configuration.
@@ -407,7 +407,7 @@ async def api_save_form_layout(
 @router.get("/admin/metadata/list-config")
 async def api_list_config(
     entity: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get list configuration.
@@ -421,7 +421,7 @@ async def api_list_config(
 @router.post("/admin/metadata/list-config")
 async def api_save_list_config(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save list configuration.
@@ -444,7 +444,7 @@ async def api_save_list_config(
 @router.get("/admin/metadata/view-config")
 async def api_view_config(
     entity: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get view configuration.
@@ -458,7 +458,7 @@ async def api_view_config(
 @router.post("/admin/metadata/view-config")
 async def api_save_view_config(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save view configuration.
@@ -488,7 +488,7 @@ async def api_save_view_config(
 async def api_picklist(
     entity: str = Query(...),
     field: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get picklist options for a field.
@@ -502,7 +502,7 @@ async def api_picklist(
 @router.get("/admin/metadata/classification-data")
 async def api_classification_data(
     id: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get classification data by ID.
@@ -520,7 +520,7 @@ async def api_classification_data(
 
 @router.post("/admin/metadata/reload")
 async def api_reload_metadata(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Reload metadata registry from database.

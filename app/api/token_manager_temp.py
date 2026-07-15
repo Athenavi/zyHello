@@ -1,5 +1,5 @@
-"""
-Token management — access tokens, CSRF tokens, once tokens.
+﻿"""
+Token management 鈥?access tokens, CSRF tokens, once tokens.
 
 Migrated from Java AuthTokenManager.java.
 """
@@ -23,7 +23,7 @@ ACCESSTOKEN_EXPIRES = 60 * 60 * 24  # 24 hours
 CSRF_TOKEN_EXPIRES = 60 * 60 * 2     # 2 hours
 ONCE_TOKEN_EXPIRES = 60              # 1 minute
 
-# In-memory token store: token → (type, user_id, expire_ts)
+# In-memory token store: token 鈫?(type, user_id, expire_ts)
 _token_store: dict[str, tuple[str, str, float]] = {}
 
 
@@ -38,7 +38,7 @@ def _cleanup_expired() -> None:
 def _generate_token(user_id: str, seconds: int, token_type: str) -> str:
     """Generate and store a new token."""
     _cleanup_expired()
-    token = secrets.token_hex(32)
+    token = secrets.token_urlsafe(32)
     expire_ts = time.time() + seconds
     _token_store[token] = (token_type, user_id, expire_ts)
     log.debug("Generated %s token for user %s (expires in %ds)", token_type, user_id, seconds)
@@ -111,3 +111,4 @@ def revoke_user_tokens(user_id: str) -> int:
     for k in to_remove:
         _token_store.pop(k, None)
     return len(to_remove)
+

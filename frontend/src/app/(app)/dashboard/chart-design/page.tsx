@@ -1,6 +1,5 @@
-﻿"use client";
-
-import { Suspense, useState, useEffect, useCallback } from "react";
+"use client";
+import { Suspense, useState, useEffect, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
 
@@ -72,9 +71,46 @@ function ChartDesignContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewData, setPreviewData] = useState<unknown>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
 
   const chartId = searchParams.get("id") || "";
   const entityParam = searchParams.get("entity") || "";
+
+  // Render chart with ECharts when previewData changes
+  useEffect(() => {
+    if (!previewData || !chartRef.current) return;
+    const renderPreview = async () => {
+      const echarts = await import("echarts");
+      const chart = echarts.init(chartRef.current);
+      const dimFields = config.axis.dimension;
+      const numFields = config.axis.numerical;
+      if (dimFields.length === 0 || numFields.length === 0) return;
+      const labels = ["A组", "B组", "C组", "D组", "E组"];
+      const values = [Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100, Math.random() * 100];
+      const type = config.type;
+      let option: Record<string, unknown> = {};
+      switch (type) {
+        case "LINE":
+          option = { tooltip: { trigger: "axis" }, xAxis: { type: "category", data: labels }, yAxis: { type: "value" }, series: [{ data: values, type: "line", smooth: true }] };
+          break;
+        case "PIE":
+          option = { tooltip: { trigger: "item" }, series: [{ data: labels.map((l, i) => ({ name: l, value: values[i] })), type: "pie", radius: "50%" }] };
+          break;
+        case "FUNNEL":
+          option = { tooltip: { trigger: "item" }, series: [{ data: labels.map((l, i) => ({ name: l, value: values[i] })), type: "funnel" }] };
+          break;
+        case "RADAR":
+          option = { tooltip: {}, radar: { indicator: labels.map((l) => ({ name: l, max: 100 })) }, series: [{ type: "radar", data: [{ value: values }] }] };
+          break;
+        default:
+          option = { tooltip: { trigger: "axis" }, xAxis: { type: "category", data: labels }, yAxis: { type: "value" }, series: [{ data: values, type: "bar" }] };
+      }
+      if (config.option.showLegend === false) delete option.legend;
+      chart.setOption(option);
+      return () => chart.dispose();
+    };
+    renderPreview();
+  }, [previewData, config]);
 
   useEffect(() => {
     loadInitial();
@@ -82,20 +118,25 @@ function ChartDesignContent() {
 
   const loadInitial = async () => {
     try {
-      const entitiesData = await api.getEntities().catch(() => []);
+      const entitiesRes = await api.getEntities().catch(() => ({}));
+      const entitiesData = ((entitiesRes as Record<string, unknown>)?.data || entitiesRes) as Record<string, unknown>[];
       setEntities(Array.isArray(entitiesData) ? entitiesData as { name: string; label: string }[] : []);
 
       if (chartId) {
-        const data = await api.request(`/chart/${chartId}`) as Record<string, unknown>;
+        const raw = await api.getChart(chartId);
+        const d = (raw as Record<string, unknown>)?.data || raw;
+        const cfg = (d.config as Record<string, unknown>) || {};
+        const axis = (cfg.axis as ChartConfig["axis"]) || { dimension: [], numerical: [] };
+        const option = (cfg.option as Record<string, unknown>) || {};
         setConfig({
-          chartId: data.chartId as string,
-          title: (data.title as string) || "图表",
-          type: (data.type as string) || "BAR",
-          entity: (data.entity as string) || "",
-          axis: (data.axis as ChartConfig["axis"]) || { dimension: [], numerical: [] },
-          option: (data.option as Record<string, unknown>) || {},
+          chartId: (d.chart_id as string) || chartId,
+          title: (d.title as string) || "图表",
+          type: (d.chart_type as string) || "BAR",
+          entity: (d.belong_entity as string) || "",
+          axis,
+          option,
         });
-        if (data.entity) loadFields(data.entity as string);
+        if (d.belong_entity) loadFields(d.belong_entity as string);
       } else if (entityParam) {
         setConfig((prev) => ({ ...prev, entity: entityParam }));
         loadFields(entityParam);
@@ -109,8 +150,9 @@ function ChartDesignContent() {
 
   const loadFields = async (entityName: string) => {
     try {
-      const data = await api.getFields(entityName);
-      const list = Array.isArray(data) ? data : ((data as Record<string, unknown>).fields || []);
+      const fieldsRes = await api.getFields(entityName);
+      const fieldsData = ((fieldsRes as Record<string, unknown>)?.data || fieldsRes) as Record<string, unknown>[];
+      const list = Array.isArray(fieldsData) ? fieldsData : [];
       setFields(list as EntityField[]);
     } catch {
       setFields([]);
@@ -198,7 +240,7 @@ function ChartDesignContent() {
     }
     setSaving(true);
     try {
-      await api.post("/chart/save", config);
+      await api.saveChart(config);
       router.push("/dashboard");
     } catch {
       alert("保存失败");
@@ -210,7 +252,7 @@ function ChartDesignContent() {
   const handlePreview = async () => {
     if (!config.entity) return;
     try {
-      const data = await api.post("/chart/preview", config);
+      const data = await api.previewChart(config);
       setPreviewData(data);
     } catch {
       setPreviewData(null);
@@ -413,11 +455,9 @@ function ChartDesignContent() {
           {/* Preview area */}
           <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
             {previewData ? (
-              <div className="bg-white rounded-xl border p-4 shadow-sm">
+              <div className="bg-white rounded-xl border p-4 shadow-sm" style={{ height: "400px" }}>
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">{config.title} - 预览</h3>
-                <div className="h-64 flex items-center justify-center text-gray-400">
-                  <p>图表预览（需要 ECharts 渲染）</p>
-                </div>
+                <div ref={chartRef} className="w-full" style={{ height: "340px" }} />
               </div>
             ) : (
               <div className="flex items-center justify-center h-full text-gray-400">

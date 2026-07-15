@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import get_current_user, require_admin
 from app.models import User
 from app.services import configuration_service
 from app.services.user_service import (
@@ -24,7 +24,7 @@ router = APIRouter()
 @router.get("/admin/systems")
 async def system_cfg(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render system configuration page."""
     return templates.TemplateResponse(request, "admin/system-cfg.html", {
@@ -46,7 +46,7 @@ async def admin_verify(
 @router.get("/admin/admin-cli")
 async def admin_cli(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin CLI page."""
     return templates.TemplateResponse(request, "admin/admin-cli.html", {
@@ -67,12 +67,18 @@ async def api_admin_verify(
 ):
     """Verify admin identity by confirming login password.
 
-    Expects the raw password string as the request body.
+    Expects a JSON body with {"password": "..."}.
+    Returns a signed admin JWT token (short-lived, 1 hour).
     """
-    from app.services.auth_service import _hash_password
+    from app.services.auth_service import _hash_password, create_access_token
+    from app.core.privileges import is_admin
+    from datetime import timedelta
+
+    # Reject non-admin users
+    if not is_admin(db, current_user.user_id):
+        return {"error_code": 403, "error_msg": "非管理员用户"}
 
     body = await request.json()
-    # body may be a raw string or {"password": "..."}
     password = body if isinstance(body, str) else body.get("password", "")
     if not password:
         return {"error_code": 400, "error_msg": "请输入密码"}
@@ -80,7 +86,10 @@ async def api_admin_verify(
     if _hash_password(password) != current_user.password:
         return {"error_code": 400, "error_msg": "密码错误"}
 
-    return {"error_code": 0, "success": True}
+    # Issue a signed admin token (1 hour expiry)
+    admin_token = create_access_token(current_user.user_id, expires_delta=timedelta(hours=1))
+
+    return {"error_code": 0, "success": True, "token": admin_token}
 
 
 # ══════════════════════════════════════════════════════════════════════
@@ -273,7 +282,7 @@ async def api_external_user(
 
 @router.get("/admin/system/settings")
 async def api_get_system_settings(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get system configuration (frontend-compatible endpoint)."""
@@ -284,7 +293,7 @@ async def api_get_system_settings(
 @router.post("/admin/system/settings-save")
 async def api_save_system_settings(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save system configuration (frontend-compatible endpoint)."""

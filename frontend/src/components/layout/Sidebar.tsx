@@ -56,6 +56,8 @@ const adminItems: NavItem[] = [
   { href: "/admin/integration", label: "系统集成", icon: Link2 },
   { href: "/admin/data", label: "数据管理", icon: HardDrive },
   { href: "/admin/role-privileges", label: "权限管理", icon: Shield },
+  { href: "/admin/project", label: "项目管理", icon: FolderKanban },
+  { href: "/admin/feeds", label: "动态管理", icon: Rss },
 ];
 
 export default function Sidebar() {

@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Search,
@@ -151,6 +151,7 @@ export function CommandPalette() {
         className="p-0 gap-0 max-w-2xl overflow-hidden rounded-xl"
         onKeyDown={handleKeyDown}
       >
+        <DialogTitle className="sr-only">命令面板</DialogTitle>
         {/* Search Input */}
         <div className="flex items-center border-b px-4">
           <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />

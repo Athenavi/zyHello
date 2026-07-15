@@ -47,7 +47,10 @@ export default function AdminUsersPage() {
   useEffect(() => {
     api
       .getDepartmentTree()
-      .then((data) => setDepartments(Array.isArray(data) ? data : []))
+      .then((data) => {
+        const d = (data as Record<string, unknown>)?.data || data;
+        setDepartments(Array.isArray(d) ? d as DeptNode[] : []);
+      })
       .catch(() => {
         api
           .listDepartments()
@@ -92,8 +95,9 @@ export default function AdminUsersPage() {
       setShowCreateDept(false);
       setNewDeptName("");
       // Refresh tree
-      const data = await api.getDepartmentTree();
-      setDepartments(Array.isArray(data) ? data : []);
+      const treeData = await api.getDepartmentTree();
+      const treeList = (treeData as Record<string, unknown>)?.data || treeData;
+      setDepartments(Array.isArray(treeList) ? treeList as DeptNode[] : []);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "创建失败");
     }

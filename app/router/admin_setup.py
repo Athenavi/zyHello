@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import require_admin
 from app.models import User
 from app.template_deps import templates
 from app.services import setup_service
@@ -26,7 +26,7 @@ async def install(request: Request):
 @router.get("/admin/setup/rbsystem")
 async def rbsystem(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render RB system configuration page."""
     return templates.TemplateResponse(request, "admin/setup/rbsystem.html", {
@@ -91,7 +91,7 @@ async def api_request_sn(
 @router.post("/admin/setup/install-rbsystem")
 async def api_install_rbsystem(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Install/import an RB system definition file."""

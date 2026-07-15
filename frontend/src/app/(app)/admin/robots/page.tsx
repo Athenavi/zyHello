@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 
 export default function AdminRobotsPage() {
+  const router = useRouter();
   const [triggers, setTriggers] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -40,7 +42,10 @@ export default function AdminRobotsPage() {
           <h1 className="text-2xl font-bold text-gray-800">触发器</h1>
           <p className="text-gray-500 mt-1">管理自动化触发器和规则</p>
         </div>
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm">
+        <button
+          onClick={() => router.push("/admin/robot/trigger-design/new")}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm"
+        >
           + 新建触发器
         </button>
       </div>

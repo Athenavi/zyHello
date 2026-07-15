@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import require_admin
 from app.models import User
 from app.template_deps import templates
 from app.services import approval_service, trigger_service
@@ -18,7 +18,7 @@ router = APIRouter()
 @router.get("/admin/robot/transforms")
 async def transform_list(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render transform list page."""
     return templates.TemplateResponse(request, "admin/robot/transform-list.html", {
@@ -30,7 +30,7 @@ async def transform_list(
 async def transform_design(
     id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render transform design page."""
     return templates.TemplateResponse(request, "admin/robot/transform-design.html", {
@@ -46,7 +46,7 @@ async def transform_design(
 @router.get("/admin/robot/approvals")
 async def approval_list(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render approval list page (admin)."""
     return templates.TemplateResponse(request, "admin/robot/approval-list.html", {
@@ -58,7 +58,7 @@ async def approval_list(
 async def approval_design(
     id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render approval design page."""
     return templates.TemplateResponse(request, "admin/robot/approval-design.html", {
@@ -75,7 +75,7 @@ async def approval_design(
 async def api_approval_list(
     entity: str = None,
     valid_only: bool = False,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """List approval configurations, optionally filtered by entity."""
@@ -86,7 +86,7 @@ async def api_approval_list(
 @router.get("/admin/robot/approval/user-fields")
 async def api_approval_user_fields(
     entity: str = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get user-reference fields for an entity (for approval steps)."""
@@ -112,7 +112,7 @@ async def api_approval_user_fields(
 @router.get("/admin/robot/approval/{id}/data")
 async def api_approval_get(
     id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get a single approval configuration as JSON."""
@@ -144,7 +144,7 @@ async def api_approval_get(
 @router.post("/admin/robot/approval/save")
 async def api_approval_save(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create or update an approval configuration."""
@@ -182,7 +182,7 @@ async def api_approval_save(
 @router.post("/admin/robot/approval/delete")
 async def api_approval_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete an approval configuration."""
@@ -204,7 +204,7 @@ async def api_approval_delete(
 @router.post("/admin/robot/approval/copy")
 async def api_approval_copy(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Copy an approval configuration."""
@@ -237,7 +237,7 @@ async def api_approval_copy(
 @router.post("/admin/robot/approval/use-stats")
 async def api_approval_use_stats(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get approval usage statistics."""
@@ -259,7 +259,7 @@ async def api_approval_use_stats(
 @router.get("/admin/robot/trigger/{id}/data")
 async def api_trigger_get(
     id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get a single trigger configuration."""
@@ -272,7 +272,7 @@ async def api_trigger_get(
 @router.post("/admin/robot/trigger/save")
 async def api_trigger_save(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create or update a trigger configuration."""
@@ -316,7 +316,7 @@ async def api_trigger_save(
 @router.post("/admin/robot/trigger/delete")
 async def api_trigger_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a trigger configuration."""

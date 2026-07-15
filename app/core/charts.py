@@ -525,17 +525,22 @@ class ChartsFactory:
         axis_data = spec_dict.get("axis")
         if axis_data:
             dim = None
-            dim_data = axis_data.get("dimension")
-            if dim_data:
-                dim = Dimension(
-                    field=dim_data.get("field", ""),
-                    label=dim_data.get("label", ""),
-                    sort=FormatSort(dim_data.get("sort", "DEFAULT")),
-                    date_format=dim_data.get("dateFormat", ""),
-                )
+            dim_raw = axis_data.get("dimension")
+            if dim_raw:
+                # dimension can be an array [{field, label, sort}, ...] or a single object {field, label, sort}
+                dim_obj = dim_raw[0] if isinstance(dim_raw, list) and dim_raw else dim_raw
+                if isinstance(dim_obj, dict):
+                    dim = Dimension(
+                        field=dim_obj.get("field", ""),
+                        label=dim_obj.get("label", ""),
+                        sort=FormatSort(dim_obj.get("sort", "DEFAULT")),
+                        date_format=dim_obj.get("dateFormat", ""),
+                    )
 
             numericals = []
-            for n in (axis_data.get("numericals") or []):
+            # Accept both "numericals" (plural) and "numerical" (singular) key names
+            numerical_raw = axis_data.get("numericals") or axis_data.get("numerical") or []
+            for n in numerical_raw:
                 try:
                     calc = FormatCalc(n.get("calc", "COUNT"))
                 except ValueError:

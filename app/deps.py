@@ -1,4 +1,4 @@
-"""FastAPI dependencies — authentication, database injection."""
+"""FastAPI dependencies — authentication, admin verification, database injection."""
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -47,3 +47,22 @@ async def get_optional_user(
     if not user_id:
         return None
     return db.query(User).filter(User.user_id == user_id, User.is_disabled == False).first()
+
+
+async def require_admin(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> User:
+    """Require the current user to have admin privileges.
+
+    Wraps get_current_user and additionally checks is_admin().
+    Raises 403 if the user is not an admin.
+    """
+    from app.core.privileges import is_admin
+
+    if not is_admin(db, current_user.user_id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required",
+        )
+    return current_user

@@ -229,6 +229,27 @@ class ApiClient {
     return this.post("/dashboard/chart/delete", { chart_id: chartId });
   }
 
+  async saveChart(data: Record<string, any>) {
+    return this.post("/dashboard/chart/save", {
+      title: data.title,
+      chart_type: data.type,
+      belong_entity: data.entity,
+      config: JSON.stringify({ axis: data.axis, option: data.option }),
+    });
+  }
+
+  async previewChart(data: Record<string, any>) {
+    return this.post("/dashboard/chart/preview", {
+      chart_type: data.type,
+      belong_entity: data.entity,
+      config: JSON.stringify({ axis: data.axis, option: data.option }),
+    });
+  }
+
+  async getChart(chartId: string) {
+    return this.get<Record<string, any>>(`/dashboard/chart/data/${chartId}`);
+  }
+
   // ── Admin: Metadata ───────────────────────────────────────────────
   async listEntities() {
     return this.get<Record<string, any>[]>("/admin/metadata/entity-list");
@@ -414,7 +435,7 @@ class ApiClient {
   }
 
   async getTrigger(triggerId: string) {
-    return this.get<Record<string, any>>(`/admin/robot/trigger/${triggerId}`);
+    return this.get<Record<string, any>>(`/admin/robot/trigger/${triggerId}/data`);
   }
 
   async saveTrigger(data: Record<string, any>) {
@@ -541,6 +562,15 @@ class ApiClient {
 
   async saveIntegrationConfig(type: string, data: Record<string, any>) {
     return this.post<Record<string, any>>(`/admin/integration/${type}/save`, data);
+  }
+
+  // ── AiBot Config ───────────────────────────────────────────────────
+  async getAibotConfig() {
+    return this.get<Record<string, any>>("/admin/integration/aibot-data");
+  }
+
+  async saveAibotConfig(data: Record<string, any>) {
+    return this.post<Record<string, any>>("/admin/integration/aibot", data);
   }
 
   // ── Classifications ────────────────────────────────────────────────
@@ -746,6 +776,27 @@ class ApiClient {
     return this.post<{ success: boolean; error?: string }>(
       `/setup/install-rbsystem?file=${encodeURIComponent(file)}`
     );
+  }
+
+  // ── File Upload (FormData / multipart) ───────────────────────────
+  async uploadFile(file: File): Promise<{ attachment_id: string; file_name: string; file_path: string }> {
+    const token = this.getToken();
+    const formData = new FormData();
+    formData.append("files", file);
+    const res = await fetch(`${this.baseUrl}/files/post-files`, {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) throw new Error("上传失败");
+    const data = await res.json();
+    if (data?.data?.[0]) return data.data[0];
+    throw new Error("上传失败");
+  }
+
+  // ── Backup ────────────────────────────────────────────────────────
+  async backupNow() {
+    return this.post("/admin/system/backup-now");
   }
 }
 

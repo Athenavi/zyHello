@@ -99,7 +99,9 @@ export default function AdminRolePrivilegesPage() {
     try {
       const data = await api.getRolePrivileges(roleId);
       if (data && typeof data === "object") {
-        const d = data as Record<string, unknown>;
+        // Unwrap { error_code, data: { ... } } response
+        const raw = data as Record<string, unknown>;
+        const d = (raw.data || raw) as Record<string, unknown>;
         // Entity privileges
         const entities = (d.entities || d.entityPrivileges || []) as Record<string, unknown>[];
         setEntityPrivs(entities.map((e) => ({

@@ -31,6 +31,8 @@ const adminNavItems: AdminNavItem[] = [
   { href: "/admin/integration", label: "系统集成", icon: Link2, description: "API密钥与外部服务" },
   { href: "/admin/data", label: "数据管理", icon: HardDrive, description: "导入、导出与报表" },
   { href: "/admin/role-privileges", label: "权限管理", icon: Shield, description: "角色与权限配置" },
+  { href: "/admin/project", label: "项目管理", icon: FolderKanban, description: "项目与任务管理" },
+  { href: "/admin/feeds", label: "动态管理", icon: Rss, description: "动态、公告、日程管理" },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

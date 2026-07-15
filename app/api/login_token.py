@@ -41,7 +41,7 @@ class LoginToken(BaseApi):
             if u is None:
                 return self.format_failure("Wrong username or password")
 
-            token = generate_access_token(str(u.id))
+            token = generate_access_token(str(u.user_id))
             return self.format_success({"token": token})
 
 
@@ -58,4 +58,4 @@ def check_user(user: str, password: str) -> str | None:
         u = authenticate_user(db, user, password)
         if u is None:
             return None
-        return generate_access_token(str(u.id))
+        return generate_access_token(str(u.user_id))

@@ -9,6 +9,8 @@ function DockViewContent() {
   const [iframeUrl, setIframeUrl] = useState("");
   const [title, setTitle] = useState("");
   const [maximized, setMaximized] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const tabLabels = ["基本信息", "相关记录", "修改历史"];
 
   useEffect(() => {
     const entity = searchParams.get("entity") || "";
@@ -83,10 +85,20 @@ function DockViewContent() {
       <div className="flex-shrink-0 bg-white border-b">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex gap-0">
-            {["基本信息", "相关记录", "修改历史"].map((tab) => (
+            {tabLabels.map((tab, i) => (
               <button
                 key={tab}
-                className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 border-b-2 border-transparent hover:border-blue-500 transition"
+                onClick={() => {
+                  setActiveTab(i);
+                  const base = iframeUrl.split("?")[0];
+                  const url = i === 0 ? base : `${base}?tab=${["related","history"][i-1]}`;
+                  setIframeUrl(url);
+                }}
+                className={`px-4 py-2 text-sm border-b-2 transition ${
+                  activeTab === i
+                    ? "text-blue-600 border-blue-600"
+                    : "text-gray-500 border-transparent hover:text-gray-700 hover:border-blue-500"
+                }`}
               >
                 {tab}
               </button>

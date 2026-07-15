@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import require_admin
 from app.models import User
 from app.template_deps import templates
 from app.services import configuration_service, apis_manager_service
@@ -20,7 +20,7 @@ router = APIRouter()
 @router.get("/admin/integration/storage")
 async def storage(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render cloud storage configuration page."""
     return templates.TemplateResponse(request, "admin/integration/storage-qiniu.html", {
@@ -31,7 +31,7 @@ async def storage(
 @router.get("/admin/integration/submail")
 async def submail(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render Submail (SMS/Email) configuration page."""
     return templates.TemplateResponse(request, "admin/integration/submail.html", {
@@ -42,7 +42,7 @@ async def submail(
 @router.get("/admin/integration/dingtalk")
 async def dingtalk(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render DingTalk integration page."""
     return templates.TemplateResponse(request, "admin/integration/dingtalk.html", {
@@ -53,7 +53,7 @@ async def dingtalk(
 @router.get("/admin/integration/wxwork")
 async def wxwork(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render WeChat Work integration page."""
     return templates.TemplateResponse(request, "admin/integration/wxwork.html", {
@@ -64,7 +64,7 @@ async def wxwork(
 @router.get("/admin/integration/feishu")
 async def feishu(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render Feishu integration page."""
     return templates.TemplateResponse(request, "admin/integration/feishu.html", {
@@ -75,7 +75,7 @@ async def feishu(
 @router.get("/admin/integration/aibot")
 async def aibot(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render AiBot integration page."""
     return templates.TemplateResponse(request, "admin/integration/aibot.html", {
@@ -86,7 +86,7 @@ async def aibot(
 @router.get("/admin/integration/apis-manager")
 async def apis_manager(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render APIs manager page."""
     return templates.TemplateResponse(request, "admin/integration/apis-manager.html", {
@@ -100,7 +100,7 @@ async def apis_manager(
 
 @router.get("/admin/integration/systems")
 async def api_get_system_config(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get all system configuration."""
@@ -111,7 +111,7 @@ async def api_get_system_config(
 @router.post("/admin/integration/systems")
 async def api_save_system_config(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save system configuration."""
@@ -125,7 +125,7 @@ async def api_save_system_config(
 @router.post("/admin/integration/systems/backup")
 async def api_backup(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Perform database/file backup."""
@@ -141,7 +141,7 @@ async def api_backup(
 
 @router.get("/admin/integration/storage-data")
 async def api_get_storage(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get storage configuration."""
@@ -152,7 +152,7 @@ async def api_get_storage(
 @router.post("/admin/integration/storage")
 async def api_save_storage(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save storage configuration."""
@@ -169,7 +169,7 @@ async def api_save_storage(
 
 @router.get("/admin/integration/submail-data")
 async def api_get_submail(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get SMS/email configuration."""
@@ -180,7 +180,7 @@ async def api_get_submail(
 @router.post("/admin/integration/submail")
 async def api_save_submail(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save SMS/email configuration."""
@@ -194,7 +194,7 @@ async def api_save_submail(
 @router.post("/admin/integration/submail/test")
 async def api_test_submail(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Test SMS or email send."""
@@ -209,7 +209,7 @@ async def api_test_submail(
 
 @router.get("/admin/integration/submail/stats")
 async def api_submail_stats(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get SMS/email sending statistics."""
@@ -223,7 +223,7 @@ async def api_submail_stats(
 
 @router.get("/admin/integration/dingtalk-data")
 async def api_get_dingtalk(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get DingTalk configuration."""
@@ -234,7 +234,7 @@ async def api_get_dingtalk(
 @router.post("/admin/integration/dingtalk")
 async def api_save_dingtalk(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save DingTalk configuration."""
@@ -249,7 +249,7 @@ async def api_save_dingtalk(
 
 @router.get("/admin/integration/wxwork-data")
 async def api_get_wxwork(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get WeChat Work configuration."""
@@ -260,7 +260,7 @@ async def api_get_wxwork(
 @router.post("/admin/integration/wxwork")
 async def api_save_wxwork(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save WeChat Work configuration."""
@@ -275,7 +275,7 @@ async def api_save_wxwork(
 
 @router.get("/admin/integration/feishu-data")
 async def api_get_feishu(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get Feishu configuration."""
@@ -286,7 +286,7 @@ async def api_get_feishu(
 @router.post("/admin/integration/feishu")
 async def api_save_feishu(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save Feishu configuration."""
@@ -301,7 +301,7 @@ async def api_save_feishu(
 
 @router.get("/admin/integration/aibot-data")
 async def api_get_aibot(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get AiBot configuration."""
@@ -312,7 +312,7 @@ async def api_get_aibot(
 @router.post("/admin/integration/aibot")
 async def api_save_aibot(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save AiBot configuration."""
@@ -327,7 +327,7 @@ async def api_save_aibot(
 
 @router.get("/admin/integration/maintenance-mode")
 async def api_get_maintenance(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Get current maintenance mode."""
     mm = configuration_service.get_maintenance_mode()
@@ -337,7 +337,7 @@ async def api_get_maintenance(
 @router.post("/admin/integration/maintenance-mode")
 async def api_set_maintenance(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Set or cancel maintenance mode."""
@@ -373,7 +373,7 @@ async def api_set_maintenance(
 
 @router.get("/admin/integration/apis-manager/app-list")
 async def api_app_list(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """List all API apps."""
@@ -384,7 +384,7 @@ async def api_app_list(
 @router.post("/admin/integration/apis-manager/reset-secret")
 async def api_reset_secret(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Reset API app secret."""
@@ -401,7 +401,7 @@ async def api_reset_secret(
 @router.get("/admin/integration/apis-manager/request-times")
 async def api_request_times(
     appids: str = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get request count and last request time for app IDs."""
@@ -417,7 +417,7 @@ async def api_request_logs(
     q: str = None,
     page_no: int = 1,
     page_size: int = 40,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get API request logs for an app."""

@@ -1,10 +1,10 @@
-﻿"""Admin bizuser routes — user, department, role, team management with CRUD APIs."""
+"""Admin bizuser routes — user, department, role, team management with CRUD APIs."""
 from fastapi import APIRouter, Depends, Request, Query
 from sqlalchemy.orm import Session
 from typing import Optional
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import require_admin
 from app.models import User, Department
 from app.template_deps import templates
 from app.core import (
@@ -27,7 +27,7 @@ router = APIRouter()
 @router.get("/admin/bizuser/users")
 async def user_list(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin user list page."""
     return templates.TemplateResponse(request, "admin/bizuser/user-list.html", {
@@ -39,7 +39,7 @@ async def user_list(
 async def user_view(
     id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin user detail page."""
     return templates.TemplateResponse(request, "admin/bizuser/user-view.html", {
@@ -51,7 +51,7 @@ async def user_view(
 @router.get("/admin/bizuser/departments")
 async def dept_list(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin department list page."""
     return templates.TemplateResponse(request, "admin/bizuser/dept-list.html", {
@@ -63,7 +63,7 @@ async def dept_list(
 async def dept_view(
     id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin department detail page."""
     return templates.TemplateResponse(request, "admin/bizuser/dept-view.html", {
@@ -75,7 +75,7 @@ async def dept_view(
 @router.get("/admin/bizuser/role-privileges")
 async def role_privileges(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render role privileges page."""
     return templates.TemplateResponse(request, "admin/bizuser/role-privileges.html", {
@@ -87,7 +87,7 @@ async def role_privileges(
 async def role_view(
     id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin role detail page."""
     return templates.TemplateResponse(request, "admin/bizuser/role-view.html", {
@@ -99,7 +99,7 @@ async def role_view(
 @router.get("/admin/bizuser/teams")
 async def team_list(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin team list page."""
     return templates.TemplateResponse(request, "admin/bizuser/team-list.html", {
@@ -111,7 +111,7 @@ async def team_list(
 async def team_view(
     id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render admin team detail page."""
     return templates.TemplateResponse(request, "admin/bizuser/team-view.html", {
@@ -130,7 +130,7 @@ async def api_user_list(
     page_no: int = Query(1, alias="pageNo"),
     page_size: int = Query(20, alias="pageSize"),
     q: Optional[str] = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get paginated user list.
@@ -182,7 +182,7 @@ async def api_user_list(
 @router.get("/admin/bizuser/user-search")
 async def api_user_search(
     q: Optional[str] = Query(None),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Search users.
@@ -196,7 +196,7 @@ async def api_user_search(
 @router.get("/admin/bizuser/user/{id}")
 async def api_user_get(
     id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get a single user by ID.
@@ -227,7 +227,7 @@ async def api_user_get(
 @router.post("/admin/bizuser/user/disable")
 async def api_user_disable(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Disable or enable a user."""
@@ -245,7 +245,7 @@ async def api_user_disable(
 @router.post("/admin/bizuser/user-save")
 async def api_user_save(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create or update a user."""
@@ -299,7 +299,7 @@ async def api_user_save(
 @router.post("/admin/bizuser/user/reset-password")
 async def api_user_reset_password(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Reset a user's password."""
@@ -318,7 +318,7 @@ async def api_user_reset_password(
 @router.post("/admin/bizuser/user-delete")
 async def api_user_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Soft-delete a user."""
@@ -337,7 +337,7 @@ async def api_user_delete(
 @router.post("/admin/bizuser/user/change-dept")
 async def api_user_change_dept(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Change a user's department."""
@@ -355,7 +355,7 @@ async def api_user_change_dept(
 @router.post("/admin/bizuser/user/change-role")
 async def api_user_change_role(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Change a user's role."""
@@ -377,7 +377,7 @@ async def api_user_change_role(
 
 @router.get("/admin/bizuser/dept-list")
 async def api_dept_list(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get all departments.
@@ -399,7 +399,7 @@ async def api_dept_list(
 
 @router.get("/admin/bizuser/dept-tree")
 async def api_dept_tree(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get department tree structure.
@@ -430,7 +430,7 @@ async def api_dept_tree(
 @router.post("/admin/bizuser/dept-save")
 async def api_dept_save(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create or update a department.
@@ -463,7 +463,7 @@ async def api_dept_save(
 @router.post("/admin/bizuser/dept-delete")
 async def api_dept_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a department.
@@ -498,7 +498,7 @@ async def api_dept_delete(
 
 @router.get("/admin/bizuser/role-list")
 async def api_role_list(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get all roles.
@@ -512,7 +512,7 @@ async def api_role_list(
 @router.post("/admin/bizuser/role-save")
 async def api_role_save(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create or update a role.
@@ -541,7 +541,7 @@ async def api_role_save(
 @router.post("/admin/bizuser/role-delete")
 async def api_role_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a role.
@@ -563,7 +563,7 @@ async def api_role_delete(
 @router.get("/admin/bizuser/role-privileges-data")
 async def api_role_privileges(
     role: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get role privileges in frontend format."""
@@ -596,7 +596,7 @@ async def api_role_privileges(
 @router.post("/admin/bizuser/role-privileges-save")
 async def api_save_role_privileges(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Save role privileges from frontend format."""
@@ -636,7 +636,7 @@ async def api_save_role_privileges(
 
 @router.get("/admin/bizuser/team-list-data")
 async def api_team_list(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get all teams.
@@ -650,7 +650,7 @@ async def api_team_list(
 @router.post("/admin/bizuser/team-save")
 async def api_team_save(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create or update a team.
@@ -677,7 +677,7 @@ async def api_team_save(
 @router.post("/admin/bizuser/team-delete")
 async def api_team_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a team.
@@ -699,7 +699,7 @@ async def api_team_delete(
 @router.get("/admin/bizuser/team-members")
 async def api_team_members(
     team: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get team members.
@@ -713,7 +713,7 @@ async def api_team_members(
 @router.post("/admin/bizuser/team-add-member")
 async def api_team_add_member(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Add member(s) to a team.
@@ -738,7 +738,7 @@ async def api_team_add_member(
 @router.post("/admin/bizuser/team-remove-member")
 async def api_team_remove_member(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Remove member(s) from a team.
@@ -763,7 +763,7 @@ async def api_team_remove_member(
 @router.get("/admin/bizuser/user-teams")
 async def api_user_teams(
     user: str = Query(...),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get teams a user belongs to.

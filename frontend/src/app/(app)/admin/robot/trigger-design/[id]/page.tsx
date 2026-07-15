@@ -51,6 +51,7 @@ export default function TriggerDesignPage() {
   const [sourceEntityLabel, setSourceEntityLabel] = useState("");
   const [actionType, setActionType] = useState("");
   const [actionTypeLabel, setActionTypeLabel] = useState("");
+  const [entities, setEntities] = useState<{ name: string; label: string }[]>([]);
   const [when, setWhen] = useState(0);
   const [whenTimer, setWhenTimer] = useState("");
   const [whenFilter, setWhenFilter] = useState<Record<string, unknown> | null>(null);
@@ -70,19 +71,33 @@ export default function TriggerDesignPage() {
   // Update fields filter state
   const [updateFields, setUpdateFields] = useState<string[]>([]);
 
+  const loadEntities = useCallback(async () => {
+    try {
+      const res = await api.getEntities();
+      const d = (res as Record<string, unknown>)?.data || res;
+      const list = (Array.isArray(d) ? d : []) as { name: string; label: string }[];
+      setEntities(list);
+    } catch { /* ignore */ }
+  }, []);
+
+  useEffect(() => { loadEntities(); }, [loadEntities]);
+
   const fetchTrigger = useCallback(async () => {
     if (isNew) return;
     setLoading(true);
     try {
       const data = await api.getTrigger(triggerId);
-      const d = data as Record<string, unknown>;
+      const rawData = data as Record<string, unknown>;
+      // Backend may wrap in { error_code, data } or return directly
+      const d = (rawData.data || rawData) as Record<string, unknown>;
       setName((d.name as string) || "未命名");
       setIsDisabled(!!d.isDisabled);
-      setSourceEntity((d.sourceEntity as string) || "");
-      setSourceEntityLabel((d.sourceEntityLabel as string) || (d.sourceEntity as string) || "");
-      setActionType((d.actionType as string) || "");
-      setActionTypeLabel(ACTION_TYPES[(d.actionType as string) || ""] || (d.actionType as string) || "");
-      setWhen((d.when as number) || 0);
+      setSourceEntity((d.belongEntity as string) || (d.sourceEntity as string) || "");
+      setSourceEntityLabel(d.belongEntity as string || d.sourceEntity as string || "");
+      const at = String(d.actionType || "");
+      setActionType(at);
+      setActionTypeLabel(ACTION_TYPES[at] || at || "");
+      setWhen((d.whenType as number) || (d.when as number) || 0);
       setWhenTimer((d.whenTimer as string) || "");
       setWhenFilter((d.whenFilter as Record<string, unknown>) || null);
       setActionContent((d.actionContent as Record<string, unknown>) || null);
@@ -134,16 +149,14 @@ export default function TriggerDesignPage() {
     setSaving(true);
     try {
       const data: Record<string, unknown> = {
-        id: isNew ? undefined : triggerId,
+        ...(isNew ? {} : { configId: triggerId }),
         name,
-        sourceEntity,
+        belongEntity: sourceEntity,
         actionType,
-        when,
+        whenType: when,
         whenTimer: buildWhenTimer(),
         whenFilter,
         actionContent,
-        priority,
-        asyncMode,
         isDisabled,
       };
       await api.saveTrigger(data);
@@ -219,7 +232,16 @@ export default function TriggerDesignPage() {
                   <div className="flex items-start">
                     <label className="w-28 text-sm text-gray-600 text-right pr-3 pt-2">源实体</label>
                     <div className="flex-1">
-                      <div className="text-sm font-bold text-gray-800 pt-2">{sourceEntityLabel || sourceEntity || "-"}</div>
+                      <select
+                        value={sourceEntity}
+                        onChange={(e) => { setSourceEntity(e.target.value); setSourceEntityLabel(e.target.value); }}
+                        className="w-full max-w-xs px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">选择实体</option>
+                        {entities.map((e) => (
+                          <option key={e.name} value={e.name}>{e.label || e.name}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 
@@ -392,9 +414,16 @@ export default function TriggerDesignPage() {
                   <div className="flex items-start">
                     <label className="w-28 text-sm text-gray-600 text-right pr-3 pt-2">执行操作</label>
                     <div className="flex-1">
-                      <div className="text-sm font-bold text-gray-800 pt-2">
-                        {actionTypeLabel || "-"}
-                      </div>
+                      <select
+                        value={actionType}
+                        onChange={(e) => { setActionType(e.target.value); setActionTypeLabel(ACTION_TYPES[e.target.value] || e.target.value); }}
+                        className="w-full max-w-xs px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">选择操作</option>
+                        {Object.entries(ACTION_TYPES).map(([k, v]) => (
+                          <option key={k} value={k}>{v}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
 

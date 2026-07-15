@@ -21,6 +21,7 @@ export default function ReportTemplatesPage() {
   const [selectedEntity, setSelectedEntity] = useState("ALL");
   const [entities, setEntities] = useState<string[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<ReportTemplate | null>(null);
   const [formData, setFormData] = useState({ name: "", entity: "", templateType: "EXCEL" });
   const [availableEntities, setAvailableEntities] = useState<{ name: string; label: string }[]>([]);
   const [saving, setSaving] = useState(false);
@@ -78,23 +79,37 @@ export default function ReportTemplatesPage() {
     }
   };
 
-  const handleAdd = async () => {
+  const handleOpenEdit = (tpl: ReportTemplate) => {
+    setEditingTemplate(tpl);
+    const typeMap: Record<string, string> = { "1": "EXCEL", "3": "WORD", "4": "HTML5", "EXCEL": "EXCEL", "WORD": "WORD", "HTML5": "HTML5" };
+    setFormData({
+      name: tpl.name,
+      entity: tpl.entity,
+      templateType: typeMap[(tpl.templateType || "EXCEL").toUpperCase()] || "EXCEL",
+    });
+    setShowForm(true);
+  };
+
+  const handleSave = async () => {
     if (!formData.name || !formData.entity) {
       alert("请填写名称并选择实体");
       return;
     }
     setSaving(true);
     try {
-      await api.post("/admin/data/report-templates/save", {
+      const body: Record<string, any> = {
         name: formData.name,
         belongEntity: formData.entity,
         templateType: formData.templateType === "EXCEL" ? 1 : formData.templateType === "WORD" ? 3 : 4,
-      });
+      };
+      if (editingTemplate) body.configId = editingTemplate.id;
+      await api.post("/admin/data/report-templates/save", body);
       setShowForm(false);
+      setEditingTemplate(null);
       setFormData({ name: "", entity: "", templateType: "EXCEL" });
       fetchTemplates();
     } catch {
-      alert("创建失败");
+      alert("保存失败");
     }
     setSaving(false);
   };
@@ -227,7 +242,7 @@ export default function ReportTemplatesPage() {
                       <td className="px-4 py-3 text-sm text-gray-500">{tpl.modifiedOn || "-"}</td>
                       <td className="px-4 py-3 text-sm text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <button className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑">
+                          <button onClick={() => handleOpenEdit(tpl)} className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded" title="编辑">
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -257,7 +272,7 @@ export default function ReportTemplatesPage() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50" onClick={() => setShowForm(false)}>
           <div className="bg-white rounded-xl shadow-xl max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
             <div className="px-5 py-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">新建报表模板</h3>
+              <h3 className="text-lg font-semibold text-gray-900">{editingTemplate ? "编辑报表模板" : "新建报表模板"}</h3>
               <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -302,10 +317,10 @@ export default function ReportTemplatesPage() {
               </div>
             </div>
             <div className="px-5 py-3 border-t flex justify-end gap-2">
-              <button onClick={() => setShowForm(false)} className="px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200">取消</button>
-              <button onClick={handleAdd} disabled={saving}
+              <button onClick={() => { setShowForm(false); setEditingTemplate(null); }} className="px-4 py-2 bg-gray-100 rounded-lg text-sm hover:bg-gray-200">取消</button>
+              <button onClick={handleSave} disabled={saving}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50">
-                {saving ? "创建中..." : "创建"}
+                {saving ? "保存中..." : (editingTemplate ? "保存" : "创建")}
               </button>
             </div>
           </div>

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.deps import get_current_user
+from app.deps import require_admin
 from app.models import User
 from app.template_deps import templates
 from app.services import data_import_service, report_template_service
@@ -18,7 +18,7 @@ router = APIRouter()
 @router.get("/admin/data/data-imports")
 async def data_imports(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render data imports page."""
     return templates.TemplateResponse(request, "admin/data/data-imports.html", {
@@ -29,7 +29,7 @@ async def data_imports(
 @router.get("/admin/data/report-templates")
 async def report_templates(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     """Render report templates page."""
     return templates.TemplateResponse(request, "admin/data/report-templates.html", {
@@ -44,7 +44,7 @@ async def report_templates(
 @router.post("/admin/data/data-imports/check-file")
 async def api_check_file(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Validate an import file and return row count + preview."""
@@ -59,7 +59,7 @@ async def api_check_file(
 @router.post("/admin/data/data-imports/check-user")
 async def api_check_user(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Check if user can create/update records for an entity."""
@@ -72,7 +72,7 @@ async def api_check_user(
 @router.post("/admin/data/data-imports/import-fields")
 async def api_import_fields(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get list of fields available for import on an entity."""
@@ -85,7 +85,7 @@ async def api_import_fields(
 @router.post("/admin/data/data-imports/import-submit")
 async def api_import_submit(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Submit a data import task."""
@@ -97,7 +97,7 @@ async def api_import_submit(
 @router.get("/admin/data/data-imports/import-trace")
 async def api_import_trace(
     taskid: str = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Get import task trace logs."""
@@ -117,7 +117,7 @@ async def api_import_trace(
 async def api_report_templates_list(
     entity: str = None,
     q: str = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """List report templates."""
@@ -128,7 +128,7 @@ async def api_report_templates_list(
 @router.post("/admin/data/report-templates/check-template")
 async def api_check_template(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Validate a report template."""
@@ -145,7 +145,7 @@ async def api_check_template(
 @router.post("/admin/data/report-templates/preview")
 async def api_report_template_preview(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Preview a report template (generates sample output)."""
@@ -160,7 +160,7 @@ async def api_report_template_preview(
 @router.get("/admin/data/report-templates/download")
 async def api_report_template_download(
     config: str = None,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Download a report template."""
@@ -181,7 +181,7 @@ async def api_report_template_download(
 @router.post("/admin/data/report-templates/save")
 async def api_report_template_save(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Create or update a report template."""
@@ -193,7 +193,7 @@ async def api_report_template_save(
 @router.post("/admin/data/report-templates/delete")
 async def api_report_template_delete(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Delete a report template."""
@@ -208,7 +208,7 @@ async def api_report_template_delete(
 @router.post("/admin/data/report-templates/toggle")
 async def api_report_template_toggle(
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     """Toggle report template enabled/disabled."""

@@ -18,6 +18,8 @@ function ChartContent() {
   const [chartTitle, setChartTitle] = useState("");
   const [chartType, setChartType] = useState("");
   const [error, setError] = useState("");
+  const [hasData, setHasData] = useState(true);
+  const [tableRows, setTableRows] = useState<Record<string, unknown>[]>([]);
   const chartRef = useRef<HTMLDivElement>(null);
   const echartsRef = useRef<unknown>(null);
 
@@ -36,15 +38,16 @@ function ChartContent() {
   const loadChart = async () => {
     setLoading(true);
     try {
-      const data = await api.request(`/chart/data/${chartId}`) as Record<string, unknown>;
-      setChartTitle((data.title as string) || "图表");
-      setChartType((data.type as string) || "BAR");
+      const data = await api.getChart(chartId) as Record<string, unknown>;
+      const d = (data?.data || data) as Record<string, unknown>;
+      setChartTitle((d.title as string) || "图表");
+      setChartType((d.chart_type as string) || "BAR");
 
       // Load ECharts dynamically
       if (typeof window !== "undefined") {
         const echarts = await import("echarts");
         echartsRef.current = echarts;
-        renderChart(echarts, data);
+        renderChart(echarts, d);
       }
     } catch (e) {
       setError("加载图表失败");
@@ -57,28 +60,34 @@ function ChartContent() {
     if (!chartRef.current) return;
 
     const chart = echarts.init(chartRef.current);
-    const type = data.type as string;
-    const chartData = data.data as { items?: Record<string, unknown>[] } | undefined;
-    const option = data.option as Record<string, unknown> | undefined;
+    const type = (data.chart_type as string) || (data.type as string) || "BAR";
+    const chartData = data as { rows?: Record<string, unknown>[] } | undefined;
+    const config = (data.config as Record<string, unknown>) || {};
+    const option = (config.option || data.option || {}) as Record<string, unknown> | undefined;
 
-    if (!chartData?.items?.length) return;
+    if (!chartData?.rows?.length) {
+      setHasData(false);
+      return;
+    }
 
-    const items = chartData.items;
-    const firstItem = items[0];
+    setHasData(true);
+    const rows = chartData.rows;
+    const firstItem = rows[0];
     const keys = Object.keys(firstItem);
     const labelKey = keys[0];
     const valueKey = keys[1];
 
-    const labels = items.map((r) => String(r[labelKey] || ""));
-    const values = items.map((r) => Number(r[valueKey]) || 0);
+    const labels = rows.map((r) => String(r[labelKey] || ""));
+    const values = rows.map((r) => Number(r[valueKey]) || 0);
 
     let chartOption: Record<string, unknown> = {};
 
     switch (type) {
       case "TABLE":
       case "DATALIST2":
-        // No chart rendering for table type
-        break;
+        // Table type: store rows for inline rendering
+        setTableRows(rows);
+        return;
       case "LINE":
         chartOption = {
           tooltip: { trigger: "axis" },
@@ -168,12 +177,59 @@ function ChartContent() {
             </svg>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-full text-red-400">
-            <p>{error}</p>
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <p className="text-red-400 mb-2">{error}</p>
+              <button
+                onClick={() => loadChart()}
+                className="text-sm text-blue-500 hover:text-blue-700 underline"
+              >
+                重试
+              </button>
+            </div>
+          </div>
+        ) : !hasData ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-gray-400">
+              <svg className="w-16 h-16 mx-auto mb-4 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <p className="text-sm">暂无图表数据</p>
+              <p className="text-xs text-gray-300 mt-1">请检查图表配置或数据源</p>
+            </div>
           </div>
         ) : (chartType === "TABLE" || chartType === "DATALIST2") ? (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            <p>表格类型图表请在数据列表中查看</p>
+          <div className="h-full overflow-auto p-6">
+            {tableRows.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-gray-400">
+                <p>暂无数据</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-lg border">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b">
+                      {Object.keys(tableRows[0]).map((key) => (
+                        <th key={key} className="px-4 py-3 text-left font-medium text-gray-600 whitespace-nowrap">
+                          {key}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {tableRows.map((row, i) => (
+                      <tr key={i} className="hover:bg-gray-50">
+                        {Object.values(row).map((val, j) => (
+                          <td key={j} className="px-4 py-2.5 text-gray-700 whitespace-nowrap">
+                            {String(val ?? "")}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         ) : (
           <div ref={chartRef} className="w-full h-full" />
