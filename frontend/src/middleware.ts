@@ -80,7 +80,9 @@ export function middleware(request: NextRequest) {
       request.cookies.get("rb_admin_token")?.value;
 
     if (!adminToken) {
-      return NextResponse.redirect(new URL("/admin/verify", request.url));
+      const verifyUrl = new URL("/admin/verify", request.url);
+      verifyUrl.searchParams.set("nexturl", pathname);
+      return NextResponse.redirect(verifyUrl);
     }
   }
 
