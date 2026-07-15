@@ -96,8 +96,8 @@ class BulkBatchUpdate(BulkOperator):
         affected, errors = 0, []
         for rid in ctx.record_ids:
             try:
-                payload = {**self._data, "id": rid}
-                save_record(self._db, ctx.entity_name, payload, ctx.operator_id)
+                payload = {**self._data}
+                save_record(self._db, ctx.entity_name, payload, ctx.operator_id, rid)
                 affected += 1
             except Exception as e:
                 errors.append(f"{rid}: {e}")

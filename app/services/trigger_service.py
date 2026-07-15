@@ -18,17 +18,18 @@ def list_triggers(db: Session, entity: str = None, search: str = None) -> list[d
     triggers = query.order_by(RobotTriggerConfig.modified_on.desc()).all()
     return [
         {
-            "config_id": t.config_id,
-            "belong_entity": t.belong_entity,
+            "id": t.config_id,
+            "configId": t.config_id,
+            "belongEntity": t.belong_entity,
             "name": t.name,
-            "action_type": t.action_type,
+            "actionType": t.action_type,
             "when": t.when,
-            "when_filter": t.when_filter,
-            "action_content": t.action_content,
+            "whenFilter": t.when_filter,
+            "actionContent": t.action_content,
             "priority": t.priority,
-            "is_disabled": t.is_disabled,
-            "modified_on": t.modified_on.isoformat() if t.modified_on else None,
-            "created_on": t.created_on.isoformat() if t.created_on else None,
+            "isDisabled": t.is_disabled,
+            "modifiedOn": t.modified_on.isoformat() if t.modified_on else None,
+            "createdOn": t.created_on.isoformat() if t.created_on else None,
         }
         for t in triggers
     ]

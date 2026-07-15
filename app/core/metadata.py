@@ -516,6 +516,28 @@ def list_entities(db: Session, include_disabled: bool = False) -> list[MetaEntit
     return query.order_by(MetaEntity.entity_name).all()
 
 
+def list_entity_as_dict(ent: MetaEntity) -> dict:
+    """Convert a MetaEntity ORM object to a frontend-friendly dict."""
+    return {
+        "id": ent.entity_id,
+        "name": ent.entity_name,
+        "label": ent.entity_label,
+        "entity": ent.entity_name,
+        "entityName": ent.entity_name,
+        "entityLabel": ent.entity_label,
+        "entityType": ent.entity_type,
+        "physicalName": ent.physical_name,
+        "parentEntity": ent.parent_entity,
+        "isDisabled": ent.is_disabled,
+        "comments": ent.comments,
+    }
+
+
+def list_entities_as_dicts(db: Session, include_disabled: bool = False) -> list[dict]:
+    """List entities and return as frontend-friendly dict list."""
+    return [list_entity_as_dict(e) for e in list_entities(db, include_disabled)]
+
+
 def get_picklist(db: Session, entity_name: str, field_name: str) -> list[dict]:
     """Get picklist items for a field."""
     items = db.query(PickList).filter(

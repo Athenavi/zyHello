@@ -41,7 +41,7 @@ export default function Sidebar() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-700">
         {!collapsed && (
-          <span className="text-lg font-bold text-blue-400">Rebuild</span>
+          <span className="text-lg font-bold text-blue-400">ZyHello</span>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}

@@ -30,7 +30,17 @@ export const useAppStore = create<AppState>((set) => ({
   setSidebarCollapsed: (v) => set({ sidebarCollapsed: v }),
   toggleMobileSidebar: () => set((s) => ({ sidebarMobileOpen: !s.sidebarMobileOpen })),
   setCommandPaletteOpen: (v) => set({ commandPaletteOpen: v }),
-  setTheme: (t) => set({ theme: t }),
+  setTheme: (t) => {
+    set({ theme: t });
+    if (typeof window !== "undefined") {
+      localStorage.setItem("theme", t);
+      const root = document.documentElement;
+      const isDark =
+        t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      root.classList.remove("light", "dark");
+      root.classList.add(isDark ? "dark" : "light");
+    }
+  },
   setSearchQuery: (q) => set({ searchQuery: q }),
   setBreadcrumbs: (items) => set({ breadcrumbs: items }),
 }));

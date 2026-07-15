@@ -285,11 +285,15 @@ class ApiClient {
   }
 
   async getRolePrivileges(roleId: string) {
-    return this.get<Record<string, any>>(`/admin/bizuser/role-privileges?role=${roleId}`);
+    return this.get<Record<string, any>>(`/admin/bizuser/role-privileges-data?role=${roleId}`);
   }
 
   async saveRolePrivileges(roleId: string, privileges: Record<string, any>) {
-    return this.post("/admin/bizuser/role-privileges-save", { roleId, ...privileges });
+    return this.post("/admin/bizuser/role-privileges-save", {
+      role: roleId,
+      privileges: privileges.entities || [],
+      zeros: privileges.zeros || {},
+    });
   }
 
   // ── Admin: Audit ──────────────────────────────────────────────────

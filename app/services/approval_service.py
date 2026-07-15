@@ -100,7 +100,14 @@ def get_approval_list(db: Session, entity: str, valid_only: bool = False) -> lis
     )
     approvals = query.order_by(RobotApprovalConfig.name).all()
     return [
-        {"id": a.config_id, "text": a.name}
+        {
+            "id": a.config_id,
+            "name": a.name,
+            "entity": a.belong_entity,
+            "enabled": not a.is_disabled,
+            "isDisabled": a.is_disabled,
+            "modifiedOn": a.modified_on.isoformat() if a.modified_on else None,
+        }
         for a in approvals
     ]
 

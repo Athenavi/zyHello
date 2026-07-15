@@ -8,7 +8,8 @@ import api from "@/lib/api";
 type ListMode = "DEFAULT" | "TREE" | "DETAIL";
 
 export default function EntityAdvancedPage() {
-  const { entity } = useParams<{ entity: string }>();
+  const { entity: rawEntity } = useParams<{ entity: string }>();
+  const entity = rawEntity ? decodeURIComponent(rawEntity) : "";
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

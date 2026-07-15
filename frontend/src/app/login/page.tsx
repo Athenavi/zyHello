@@ -134,7 +134,7 @@ export default function LoginPage() {
               <Sparkles className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold gradient-text">Rebuild</h1>
+              <h1 className="text-2xl font-bold gradient-text">ZyHello</h1>
               <p className="text-xs text-muted-foreground">下一代业务管理平台</p>
             </div>
           </div>
@@ -188,7 +188,7 @@ export default function LoginPage() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold gradient-text">Rebuild</span>
+            <span className="text-xl font-bold gradient-text">ZyHello</span>
           </div>
 
           <div className="bg-card/80 backdrop-blur-xl rounded-2xl shadow-xl border p-8">
@@ -349,7 +349,7 @@ export default function LoginPage() {
 
           {/* Footer */}
           <p className="text-center text-xs text-muted-foreground mt-8">
-            © {new Date().getFullYear()} Rebuild. All rights reserved.
+            © {new Date().getFullYear()} ZyHello. All rights reserved.
           </p>
         </div>
       </div>

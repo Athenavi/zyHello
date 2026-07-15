@@ -151,13 +151,22 @@ async def api_user_list(
 
     result = []
     for u in users:
+        # Look up department name
+        dept_name = None
+        if u.dept_id:
+            dept = db.query(Department).filter(Department.dept_id == u.dept_id).first()
+            if dept:
+                dept_name = dept.name
         result.append({
             "id": str(u.user_id),
             "fullName": u.full_name,
             "loginName": u.login_name,
             "email": u.email,
             "deptId": str(u.dept_id) if u.dept_id else None,
+            "department": dept_name,
+            "deptName": dept_name,
             "isDisabled": u.is_disabled,
+            "disabled": u.is_disabled,
             "createdOn": str(u.created_on) if u.created_on else None,
         })
 
@@ -233,6 +242,60 @@ async def api_user_disable(
     return {"error_code": 0, "data": True}
 
 
+@router.post("/admin/bizuser/user-save")
+async def api_user_save(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Create or update a user."""
+    body = await request.json()
+    user_id = body.get("id")
+    login_name = body.get("loginName") or body.get("login_name")
+    full_name = body.get("fullName") or body.get("full_name")
+    email = body.get("email")
+    password = body.get("password")
+    dept_id = body.get("deptId") or body.get("dept_id")
+    role_id = body.get("roleId") or body.get("role_id")
+
+    if not login_name or not full_name:
+        return {"error_code": 400, "error_msg": "登录名和姓名不能为空"}
+
+    if user_id:
+        user = db.query(User).filter(User.user_id == user_id).first()
+        if not user:
+            return {"error_code": 404, "error_msg": "用户不存在"}
+        user.login_name = login_name
+        user.full_name = full_name
+        if email is not None:
+            user.email = email
+        if dept_id is not None:
+            user.dept_id = dept_id
+        if role_id is not None:
+            user.role_id = role_id
+        if password:
+            from app.services.auth_service import _hash_password
+            user.password = _hash_password(password)
+        db.commit()
+        return {"error_code": 0, "data": str(user.user_id)}
+    else:
+        import uuid
+        from app.services.auth_service import _hash_password
+        new_id = "001-" + uuid.uuid4().hex[:16]
+        user = User(
+            user_id=new_id,
+            login_name=login_name,
+            full_name=full_name,
+            email=email or "",
+            password=_hash_password(password or "123456"),
+            dept_id=dept_id,
+            role_id=role_id,
+        )
+        db.add(user)
+        db.commit()
+        return {"error_code": 0, "data": new_id}
+
+
 @router.post("/admin/bizuser/user/reset-password")
 async def api_user_reset_password(
     request: Request,
@@ -248,6 +311,25 @@ async def api_user_reset_password(
         return {"error_code": 404, "error_msg": "User not found"}
     from app.services.auth_service import _hash_password
     user.password = _hash_password(new_passwd)
+    db.commit()
+    return {"error_code": 0, "data": True}
+
+
+@router.post("/admin/bizuser/user-delete")
+async def api_user_delete(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Soft-delete a user."""
+    body = await request.json()
+    user_id = body.get("id")
+    if not user_id:
+        return {"error_code": 400, "error_msg": "缺少用户ID"}
+    user = db.query(User).filter(User.user_id == user_id).first()
+    if not user:
+        return {"error_code": 404, "error_msg": "用户不存在"}
+    user.is_disabled = True
     db.commit()
     return {"error_code": 0, "data": True}
 
@@ -445,13 +527,15 @@ async def api_role_save(
         return {"error_code": 400, "error_msg": "Role name required"}
 
     if role_id:
-        result = update_role(db, role_id, name, str(current_user.user_id))
+        result = update_role(db, role_id, name=name)
     else:
-        result = create_role(db, name, str(current_user.user_id))
+        result = create_role(db, name)
 
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
-    return {"error_code": 0, "data": result}
+    if result is None:
+        return {"error_code": 400, "error_msg": "角色不存在"}
+    return {"error_code": 0, "data": {"id": str(result.role_id), "name": result.name}}
 
 
 @router.post("/admin/bizuser/role-delete")
@@ -470,9 +554,9 @@ async def api_role_delete(
     if not role_id:
         return {"error_code": 400, "error_msg": "Role ID required"}
 
-    result = delete_role(db, role_id, str(current_user.user_id))
-    if isinstance(result, str):
-        return {"error_code": 400, "error_msg": result}
+    result = delete_role(db, role_id)
+    if not result:
+        return {"error_code": 400, "error_msg": "角色不存在"}
     return {"error_code": 0, "data": True}
 
 
@@ -482,12 +566,31 @@ async def api_role_privileges(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Get role privileges.
-
-    Migrated from RolePrivilegesController.
-    """
-    result = get_role_privileges(db, role)
-    return {"error_code": 0, "data": result}
+    """Get role privileges in frontend format."""
+    from app.core.metadata import get_entities
+    raw = get_role_privileges(db, role)
+    # Convert {entity, definition: {C:bool, R:bool}} to frontend {entityName, entityLabel, C:number, R:number, ...}
+    priv_map = {r["entity"]: r["definition"] for r in raw}
+    entities = []
+    for em in get_entities():
+        defn = priv_map.get(em.entity_name, {})
+        entities.append({
+            "entityName": em.entity_name,
+            "entityLabel": em.entity_label,
+            "C": 4 if defn.get("C") else 0,
+            "R": 4 if defn.get("R") else 0,
+            "U": 4 if defn.get("U") else 0,
+            "D": 4 if defn.get("D") else 0,
+            "A": 4 if defn.get("A") else 0,
+            "S": 4 if defn.get("S") else 0,
+        })
+    # Zero privileges (not stored in backend, default all disabled)
+    zeros = {}
+    for name in ["AllowLogin","AllowCustomNav","AllowCustomChart","AllowCustomDataList",
+                 "AllowBatchUpdate","AllowRecordMerge","AllowRevokeApproval","AllowDataImport",
+                 "AllowDataExport","AllowNoDesensitized","AllowAtAllUsers","EnableBizzPart","AllowUseAiBot"]:
+        zeros[name] = 0
+    return {"error_code": 0, "data": {"entities": entities, "zeroPrivileges": zeros}}
 
 
 @router.post("/admin/bizuser/role-privileges-save")
@@ -496,10 +599,7 @@ async def api_save_role_privileges(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Save role privileges.
-
-    Migrated from RolePrivilegesController.
-    """
+    """Save role privileges from frontend format."""
     body = await request.json()
     role_id = body.get("role")
     privileges = body.get("privileges", [])
@@ -507,9 +607,24 @@ async def api_save_role_privileges(
     if not role_id:
         return {"error_code": 400, "error_msg": "Role ID required"}
 
-    result = set_role_privileges(db, role_id, privileges, str(current_user.user_id))
-    if isinstance(result, str):
-        return {"error_code": 400, "error_msg": result}
+    for priv in privileges:
+        entity_name = priv.get("entityName")
+        if not entity_name:
+            continue
+        # Convert scope levels (0=不允, 4=全部) to boolean
+        definition = {
+            "C": bool(priv.get("C", 0)),
+            "R": bool(priv.get("R", 0)),
+            "U": bool(priv.get("U", 0)),
+            "D": bool(priv.get("D", 0)),
+            "A": bool(priv.get("A", 0)),
+            "S": bool(priv.get("S", 0)),
+        }
+        try:
+            set_role_privileges(db, role_id, entity_name, definition)
+        except Exception as e:
+            return {"error_code": 400, "error_msg": str(e)}
+    db.commit()
     return {"error_code": 0, "data": True}
 
 

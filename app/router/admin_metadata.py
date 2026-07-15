@@ -11,6 +11,7 @@ from app.core import (
     contains_entity, get_entity, get_entities, get_detail_entities,
     get_reference_entities, is_bizz_entity, has_privileges_field,
     create_entity, update_entity, delete_entity, list_entities,
+    list_entities_as_dicts,
     create_field, update_field, delete_field, list_fields,
     get_picklist, get_classification, reload_metadata,
     get_form_layout, save_form_layout,
@@ -184,7 +185,7 @@ async def api_entity_list(
 
     Migrated from MetadataGetting.entities.
     """
-    entities = list_entities(db)
+    entities = list_entities_as_dicts(db)
     return {"error_code": 0, "data": entities}
 
 

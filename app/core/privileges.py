@@ -182,7 +182,7 @@ def delete_role(db: Session, role_id: str) -> bool:
 
 def list_roles(db: Session) -> list[dict]:
     roles = db.query(Role).filter(Role.is_disabled == False).order_by(Role.name).all()
-    return [{"role_id": r.role_id, "name": r.name} for r in roles]
+    return [{"id": r.role_id, "name": r.name} for r in roles]
 
 
 def get_role_privileges(db: Session, role_id: str) -> list[dict]:

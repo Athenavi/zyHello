@@ -5,6 +5,7 @@ from app.core.metadata import (  # noqa: F401
     contains_entity, get_entity, get_entities, get_detail_entities, get_reference_entities,
     is_bizz_entity, has_privileges_field,
     create_entity, update_entity, delete_entity, list_entities,
+    list_entities_as_dicts,
     create_field, update_field, delete_field, list_fields,
     meta_field_to_dict, list_fields_as_dicts, entity_meta_to_dict,
     get_picklist, get_classification, reload_metadata,

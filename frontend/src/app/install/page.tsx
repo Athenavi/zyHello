@@ -77,7 +77,7 @@ export default function InstallPage() {
         dbType,
         dbHost,
         dbPort,
-        dbName: dbType === "sqlite" ? dbName || "rebuild.db" : dbName,
+        dbName: dbType === "sqlite" ? dbName || "ZyHello.db" : dbName,
         dbUser,
         dbPassword,
       });
@@ -122,11 +122,11 @@ export default function InstallPage() {
     setStep("installing");
     setInstallError("");
     try {
-      const res = await api.installRebuild({
+      const res = await api.installZyHello({
         dbType,
         dbHost,
         dbPort,
-        dbName: dbType === "sqlite" ? dbName || "rebuild.db" : dbName,
+        dbName: dbType === "sqlite" ? dbName || "ZyHello.db" : dbName,
         dbUser,
         dbPassword,
       });
@@ -164,7 +164,7 @@ export default function InstallPage() {
             系统已安装
           </h1>
           <p className="text-gray-500 mb-6">
-            Rebuild 已经完成安装，无需重复操作。
+            ZyHello 已经完成安装，无需重复操作。
           </p>
           <button
             onClick={() => router.push("/login")}
@@ -229,7 +229,7 @@ export default function InstallPage() {
           {/* Header */}
           <div className="text-center mb-6">
             <h1 className="text-3xl font-bold text-gray-800">
-              Rebuild 安装向导
+              ZyHello 安装向导
             </h1>
             <p className="text-gray-500 mt-2">业务管理系统初始化配置</p>
           </div>
@@ -241,7 +241,7 @@ export default function InstallPage() {
             <div className="text-center space-y-6">
               <div className="text-5xl mb-4">🚀</div>
               <h2 className="text-xl font-semibold text-gray-700">
-                欢迎使用 Rebuild
+                欢迎使用 ZyHello
               </h2>
               <p className="text-gray-500 max-w-md mx-auto">
                 接下来的步骤将引导您完成数据库配置和系统初始化。整个过程大约需要
@@ -338,7 +338,7 @@ export default function InstallPage() {
                   onChange={(e) => setDbName(e.target.value)}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                   placeholder={
-                    dbType === "sqlite" ? "rebuild.db" : "rebuild"
+                    dbType === "sqlite" ? "ZyHello.db" : "ZyHello"
                   }
                 />
               </div>
@@ -559,7 +559,7 @@ export default function InstallPage() {
 
         {/* Footer */}
         <p className="text-center text-xs text-gray-400 mt-6">
-          Rebuild CRM — Python FastAPI + Next.js
+          ZyHello CRM — Python FastAPI + Next.js
         </p>
       </div>
     </div>

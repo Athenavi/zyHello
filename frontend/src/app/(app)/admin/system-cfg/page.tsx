@@ -331,8 +331,8 @@ export default function AdminSystemCfgPage() {
               <hr />
               <div className="space-y-1">
                 <a href="/server-status" className="block text-blue-500 hover:underline">系统状态</a>
-                <a href="https://getrebuild.com/docs/" target="_blank" rel="noopener noreferrer" className="block text-blue-500 hover:underline">帮助文档</a>
-                <a href="https://getrebuild.com/" target="_blank" rel="noopener noreferrer" className="block text-blue-500 hover:underline">技术支持</a>
+                <a href="https://marklume.cn/docs/" target="_blank" rel="noopener noreferrer" className="block text-blue-500 hover:underline">帮助文档</a>
+                <a href="https://marklume.cn/" target="_blank" rel="noopener noreferrer" className="block text-blue-500 hover:underline">技术支持</a>
               </div>
             </div>
           </div>

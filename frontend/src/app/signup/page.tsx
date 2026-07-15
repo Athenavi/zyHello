@@ -87,7 +87,7 @@ export default function SignupPage() {
 
           <div className="p-8">
             <div className="text-center mb-8">
-              <h1 className="text-3xl font-bold text-gray-800">Rebuild</h1>
+              <h1 className="text-3xl font-bold text-gray-800">ZyHello</h1>
               <p className="text-gray-500 mt-2">创建新账号</p>
             </div>
 

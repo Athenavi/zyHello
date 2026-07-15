@@ -25,8 +25,8 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Rebuild — 业务管理系统",
-    template: "%s | Rebuild",
+    default: "ZyHello — 业务管理系统",
+    template: "%s | ZyHello",
   },
   description:
     "企业级 CRM / 低代码平台，基于 Python FastAPI + Next.js 构建。支持元数据驱动、工作流自动化、AI 助手等功能。",
@@ -41,16 +41,16 @@ export const metadata: Metadata = {
     "workflow",
     "low-code",
   ],
-  authors: [{ name: "Rebuild Team" }],
-  creator: "Rebuild",
-  publisher: "Rebuild",
+  authors: [{ name: "ZyHello Team" }],
+  creator: "ZyHello",
+  publisher: "ZyHello",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://getrebuild.com"
+    process.env.NEXT_PUBLIC_APP_URL || "https://marklume.cn"
   ),
   alternates: {
     canonical: "/",
@@ -58,8 +58,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "zh_CN",
-    siteName: "Rebuild",
-    title: "Rebuild — 企业级 CRM / 低代码平台",
+    siteName: "ZyHello",
+    title: "ZyHello — 企业级 CRM / 低代码平台",
     description:
       "基于 FastAPI + Next.js 构建的开源企业级 CRM / 低代码平台。元数据驱动，开箱即用。",
     images: [
@@ -67,13 +67,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Rebuild CRM",
+        alt: "ZyHello CRM",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Rebuild — 企业级 CRM / 低代码平台",
+    title: "ZyHello — 企业级 CRM / 低代码平台",
     description:
       "基于 FastAPI + Next.js 构建的开源企业级 CRM / 低代码平台。",
     images: ["/og-image.png"],

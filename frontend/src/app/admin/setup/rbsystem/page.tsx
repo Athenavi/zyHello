@@ -97,7 +97,7 @@ export default function RbsystemPage() {
             <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 py-8 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iLjA1Ij48cGF0aCBkPSJNMzYgMzRhMiAyIDAgMSAxLTQgMCAyIDIgMCAwIDEgNCAwIi8+PC9nPjwvZz48L3N2Zz4=')] opacity-30" />
               <div className="text-white text-3xl font-bold tracking-wider relative">
-                REBUILD
+                ZyHello
               </div>
               <p className="text-white/70 text-sm mt-1">低代码平台 · 系统模板安装</p>
             </div>
@@ -225,12 +225,12 @@ export default function RbsystemPage() {
           <div className="text-center mt-6 text-xs text-muted-foreground">
             Powered by{" "}
             <a
-              href="https://getrebuild.com/apps/"
+              href="https://marklume.cn/apps/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary/70 hover:text-primary transition-colors"
             >
-              REBUILD Apps
+              ZyHello Apps
             </a>
           </div>
         </div>
