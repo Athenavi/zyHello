@@ -75,7 +75,7 @@ class MetaschemaExporter:
             raise ValueError(f"Entity not found: {entity_name}")
 
         fields = self.db.execute(text(
-            "SELECT * FROM meta_field WHERE belongs_entity = :e ORDER BY field_id"
+            "SELECT * FROM meta_field WHERE entity_name = :e ORDER BY field_id"
         ), {"e": entity_name}).fetchall()
 
         field_list = []
@@ -91,11 +91,8 @@ class MetaschemaExporter:
                 "repeatable": bool(fd.get("repeatable", 0)),
                 "queryable": bool(fd.get("queryable", 1)),
                 "defaultValue": fd.get("default_value", ""),
-                "maxLength": fd.get("max_length"),
                 "refEntity": fd.get("ref_entity", ""),
             }
-            # Include extra attrs if present
-            extra = fd.get("extra_attrs")
             if extra:
                 try:
                     field_entry["extraAttrs"] = json.loads(extra) if isinstance(extra, str) else extra
@@ -107,14 +104,12 @@ class MetaschemaExporter:
         schema = {
             "entityName": ed.get("entity_name", ""),
             "entityLabel": ed.get("entity_label", ""),
-            "entityCode": ed.get("entity_code"),
-            "nameField": ed.get("name_field", ""),
             "fields": field_list,
         }
 
         # Include details (child entities) if any
         details = self.db.execute(text(
-            "SELECT entity_name FROM meta_entity WHERE main_entity = :m"
+            "SELECT entity_name FROM meta_entity WHERE parent_entity = :m"
         ), {"m": entity_name}).fetchall()
         if details:
             schema["detailEntities"] = [d.entity_name for d in details]
@@ -218,16 +213,14 @@ class MetaschemaImporter:
 
         self.db.execute(text(
             "INSERT INTO meta_entity "
-            "(entity_id, entity_name, entity_label, entity_code, name_field, physical_name, main_entity, disabled, created_on, modified_on) "
-            "VALUES (:eid, :en, :el, :ec, :nf, :pn, :me, 0, :now, :now)"
+            "(entity_id, entity_name, entity_label, physical_name, entity_type, parent_entity, is_disabled, created_on, modified_on) "
+            "VALUES (:eid, :en, :el, :pn, 0, :pe, 0, :now, :now)"
         ), {
             "eid": entity_id,
             "en": entity_name,
             "el": schema.get("entityLabel", entity_name),
-            "ec": entity_code,
-            "nf": schema.get("nameField", ""),
             "pn": entity_name.lower(),
-            "me": schema.get("mainEntity", ""),
+            "pe": schema.get("mainEntity", ""),
             "now": datetime.utcnow(),
         })
 
@@ -238,26 +231,26 @@ class MetaschemaImporter:
         field_id = uuid.uuid4().hex
         self.db.execute(text(
             "INSERT INTO meta_field "
-            "(field_id, field_name, field_label, display_type, belongs_entity, physical_name, "
-            "nullable, creatable, updatable, repeatable, queryable, default_value, max_length, "
-            "ref_entity, extra_attrs, builtin, disabled, created_on, modified_on) "
-            "VALUES (:fid, :fn, :fl, :dt, :be, :pn, :nul, :cr, :up, :rep, :q, :dv, :ml, :re, :ea, 0, 0, :now, :now)"
+            "(field_id, entity_name, field_name, field_label, display_type, field_type, "
+            "nullable, creatable, updatable, repeatable, queryable, default_value, "
+            "ref_entity, ref_field, comments, is_disabled, created_on, modified_on) "
+            "VALUES (:fid, :en, :fn, :fl, :dt, :ft, :nul, :cr, :up, :rep, :q, :dv, :re, :rf, :cm, 0, :now, :now)"
         ), {
             "fid": field_id,
             "fn": field_def.get("fieldName", ""),
             "fl": field_def.get("fieldLabel", ""),
             "dt": field_def.get("displayType", "TEXT"),
-            "be": entity_name,
-            "pn": field_def.get("fieldName", "").lower(),
+            "ft": field_def.get("fieldType", "TEXT"),
+            "en": entity_name,
             "nul": 1 if field_def.get("nullable", True) else 0,
             "cr": 1 if field_def.get("creatable", True) else 0,
             "up": 1 if field_def.get("updatable", True) else 0,
             "rep": 1 if field_def.get("repeatable", False) else 0,
             "q": 1 if field_def.get("queryable", True) else 0,
             "dv": field_def.get("defaultValue", ""),
-            "ml": field_def.get("maxLength"),
             "re": field_def.get("refEntity", ""),
-            "ea": json.dumps(field_def.get("extraAttrs", {})),
+            "rf": field_def.get("refField", ""),
+            "cm": field_def.get("comments", ""),
             "now": datetime.utcnow(),
         })
 
@@ -265,7 +258,7 @@ class MetaschemaImporter:
         for f in fields:
             fname = f.get("fieldName", "")
             existing = self.db.execute(text(
-                "SELECT field_id FROM meta_field WHERE belongs_entity = :e AND field_name = :f"
+                "SELECT field_id FROM meta_field WHERE entity_name = :e AND field_name = :f"
             ), {"e": entity_name, "f": fname}).fetchone()
 
             if not existing:
