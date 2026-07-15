@@ -80,7 +80,7 @@ export default function NotificationsPage() {
   const fetchApprovals = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await api.listApprovals();
+      const res = await api.listNotificationApprovals();
       const data = (res as Record<string, unknown>)?.data ?? res;
       const items = Array.isArray(data) ? data : ((data as Record<string, unknown>).data || []) as TodoItem[];
       setApprovals(items as TodoItem[]);

@@ -43,7 +43,7 @@ def read_excel(path: str | Path, max_rows: int = MAX_UNLIMIT, has_head: bool = T
     row_no = 0
 
     for row in ws.iter_rows(values_only=True):
-        if not has_head and row_no == 0:
+        if has_head and row_no == 0:
             row_no += 1
             continue
         if max_rows > 0 and len(rows) >= max_rows:

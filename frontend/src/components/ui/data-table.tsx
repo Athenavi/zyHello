@@ -128,9 +128,9 @@ export function DataTable<T extends Record<string, unknown>>({
                   col.sortable && "cursor-pointer select-none hover:text-foreground transition-colors",
                   col.align === "center" && "text-center",
                   col.align === "right" && "text-right",
-                  col.width && `w-[${col.width}]`,
                   col.className
                 )}
+                style={col.width ? { width: col.width, minWidth: col.width } : undefined}
                 onClick={() => col.sortable && handleSort(col.key)}
               >
                 <div className="flex items-center gap-1">

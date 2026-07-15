@@ -393,6 +393,8 @@ def do_revoke(db: Session, record_id: str, user_id: str) -> dict:
     ).first()
     if not status:
         return {"error": "未找到已批准的审批"}
+    if status.submitter != user_id:
+        return {"error": "只能撤回自己的审批"}
     status.state = STATE_DRAFT
     db.commit()
     return {"state": STATE_DRAFT}
@@ -403,6 +405,8 @@ def do_referral(db: Session, step_id: str, to_user_id: str, user_id: str) -> dic
     step = db.query(RobotApprovalStep).filter(RobotApprovalStep.step_id == step_id).first()
     if not step:
         return {"error": "步骤不存在"}
+    if step.approver != user_id:
+        return {"error": "只能转审自己的步骤"}
     step.approver = to_user_id
     db.commit()
     return {"referred_to": to_user_id}
@@ -413,6 +417,8 @@ def do_countersign(db: Session, step_id: str, user_id: str, remark: str = "") ->
     step = db.query(RobotApprovalStep).filter(RobotApprovalStep.step_id == step_id).first()
     if not step:
         return {"error": "步骤不存在"}
+    if step.approver != user_id:
+        return {"error": "只能会签自己的步骤"}
     step.state = STATE_APPROVED
     step.remark = remark
     db.commit()

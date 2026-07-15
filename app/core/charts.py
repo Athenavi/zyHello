@@ -276,7 +276,6 @@ class BaseChart(ABC):
 
         sql = ChartsHelper.build_group_sql(
             self.spec.entity, axis.dimension, axis.numericals,
-            json.dumps(self.spec.filter_json) if self.spec.filter_json else None,
         )
         rows = self._execute_query(db, sql)
 

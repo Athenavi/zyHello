@@ -53,8 +53,10 @@ export default function AdminRecycleBinPage() {
     api
       .getEntityList()
       .then((data) => {
-        if (Array.isArray(data)) {
-          const names = data.map((e: Record<string, unknown>) => (e.entityName || e.name) as string).filter(Boolean);
+        const raw = data as Record<string, unknown>;
+        const list = (raw.data || raw) as Record<string, unknown>[];
+        if (Array.isArray(list)) {
+          const names = list.map((e: Record<string, unknown>) => (e.entityName || e.name) as string).filter(Boolean);
           setEntities(names);
         }
       })

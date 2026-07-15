@@ -12,7 +12,7 @@ from app.models import User, LoginLog
 from app.config import settings
 
 # JWT config
-SECRET_KEY = getattr(settings, "SECRET_KEY", "rebuild-secret-key-change-in-production")
+SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480
 

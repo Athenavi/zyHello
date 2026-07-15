@@ -62,7 +62,10 @@ export default function EntityFieldsPage() {
   const handleDelete = async (fieldId: string) => {
     if (!confirm("确定删除此字段？")) return;
     try {
-      await api.delete(`/admin/metadata/fields/${entity}/${fieldId}`);
+      await api.post("/admin/metadata/field-delete", {
+        entityName: entity,
+        fieldName: fieldId,
+      });
       fetchFields();
     } catch {
       alert("删除失败");

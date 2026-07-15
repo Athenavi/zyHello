@@ -29,7 +29,7 @@ export default function DataImportsPage() {
       const formData = new FormData();
       formData.append("file", uploadFile);
       formData.append("entity", selectedEntity);
-      await api.post("/admin/data/imports", formData);
+      await api.post("/admin/data/data-imports/import-submit", formData);
       alert("导入任务已提交");
       setUploadFile(null);
     } catch {

@@ -25,6 +25,7 @@ def list_triggers(db: Session, entity: str = None, search: str = None) -> list[d
             "actionType": t.action_type,
             "when": t.when,
             "whenFilter": t.when_filter,
+            "whenTimer": t.when_timer,
             "actionContent": t.action_content,
             "priority": t.priority,
             "isDisabled": t.is_disabled,

@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "Rebuild FastAPI"
     DEBUG: bool = False
     DATABASE_URL: str = "sqlite:///./test.db"
+    SECRET_KEY: str = "rebuild-secret-key-change-in-production"
 
     class Config:
         env_file = ".env"

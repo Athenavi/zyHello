@@ -23,6 +23,21 @@ export default function AdminRobotsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const whenLabels: Record<number, string> = {
+    1: "新建时",
+    2: "删除时",
+    4: "更新时",
+    16: "分配时",
+    32: "共享时",
+    64: "取消共享时",
+    128: "审批通过时",
+    256: "审批撤销时",
+    1024: "审批提交时",
+    2048: "审批驳回/撤回时",
+    512: "定期执行",
+  };
+  const whenBits = [1,2,4,16,32,64,128,256,1024,2048,512];
+
   const actionLabels: Record<string, string> = {
     "1": "新建时触发",
     "2": "删除时触发",
@@ -102,7 +117,15 @@ export default function AdminRobotsPage() {
                       {(t.belongEntity as string) || "-"}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
-                      {actionLabels[(t.when as string) || ""] || (t.when as string) || "-"}
+                      {(() => {
+                        const w = t.when as number;
+                        if (!w) return "-";
+                        const labels = whenBits
+                          .filter(b => (w & b) === b)
+                          .map(b => whenLabels[b])
+                          .filter(Boolean);
+                        return labels.length > 0 ? labels.join(", ") : String(w);
+                      })()}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {(t.actionType as string) || "-"}

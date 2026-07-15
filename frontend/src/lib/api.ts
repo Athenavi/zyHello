@@ -273,7 +273,7 @@ class ApiClient {
   }
 
   async listDepartments() {
-    return this.get<Record<string, any>[]>("/admin/bizuser/dept-list");
+    return this.get<Record<string, any>[]>("/contacts/departments");
   }
 
   async getDepartmentTree() {
@@ -557,11 +557,11 @@ class ApiClient {
 
   // ── Integration Config ─────────────────────────────────────────────
   async getIntegrationConfig(type: string) {
-    return this.get<Record<string, any>>(`/admin/integration/${type}`);
+    return this.get<Record<string, any>>(`/admin/integration/${type}-data`);
   }
 
   async saveIntegrationConfig(type: string, data: Record<string, any>) {
-    return this.post<Record<string, any>>(`/admin/integration/${type}/save`, data);
+    return this.post<Record<string, any>>(`/admin/integration/${type}`, data);
   }
 
   // ── AiBot Config ───────────────────────────────────────────────────
@@ -624,7 +624,7 @@ class ApiClient {
   }
 
   async saveFormDesign(entityName: string, data: Record<string, any>) {
-    return this.post("/admin/metadata/form-layout", { entity: entityName, config: data });
+    return this.post("/admin/metadata/form-layout", { entityName, config: data });
   }
 
   async getEntityI18n(entityName: string) {
@@ -716,6 +716,10 @@ class ApiClient {
     const params = new URLSearchParams();
     if (entity) params.set("entity", entity);
     return this.get<Record<string, any>>(`/admin/robot/approval/list?${params}`);
+  }
+
+  async listNotificationApprovals() {
+    return this.get<Record<string, any>>("/notification/approvals");
   }
 
   async getApproval(approvalId: string) {

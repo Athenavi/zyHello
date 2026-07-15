@@ -34,7 +34,7 @@ class IncreasingVar(SeriesVar):
     def evaluate(self, seq_no: int = 0, current_value: str = "") -> str:
         if current_value:
             try:
-                seq_no = int(re.sub(r"[0-9]", "", current_value))
+                seq_no = int(re.sub(r"[^0-9]", "", current_value))
             except ValueError:
                 seq_no = 0
         val = seq_no if seq_no > 0 else self._seed

@@ -105,7 +105,7 @@ export default function AdminUsersPage() {
 
   const handleToggleUser = async (userId: string, disabled: boolean) => {
     try {
-      await api.enableUser(userId, !disabled);
+      await api.enableUser(userId, disabled);
       fetchUsers();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "操作失败");

@@ -34,7 +34,8 @@ export default function ApprovalDesignPage() {
     setLoading(true);
     try {
       const data = await api.getApproval(approvalId);
-      const d = data as Record<string, unknown>;
+      const rawData = data as Record<string, unknown>;
+      const d = (rawData.data || rawData) as Record<string, unknown>;
       setName((d.name as string) || "未命名");
       setIsDisabled(!!d.isDisabled);
       setApplyEntity((d.applyEntity as string) || "");

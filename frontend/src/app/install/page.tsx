@@ -122,7 +122,7 @@ export default function InstallPage() {
     setStep("installing");
     setInstallError("");
     try {
-      const res = await api.installZyHello({
+      const res = await api.installRebuild({
         dbType,
         dbHost,
         dbPort,

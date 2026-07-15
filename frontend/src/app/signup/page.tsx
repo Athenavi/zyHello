@@ -65,8 +65,8 @@ export default function SignupPage() {
     setLoading(true);
     try {
       await api.signupConfirm({
-        loginName: username,
-        fullName: fullName,
+        login_name: username,
+        full_name: fullName,
         email: email,
         vcode: vcode,
       });

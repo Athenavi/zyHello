@@ -50,8 +50,9 @@ export default function EntityEditPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await api.post(`/admin/metadata/entity/${entity}`, {
-        entityLabel: form.entityLabel,
+      await api.post("/admin/metadata/entity-update", {
+        entityName: entity,
+        label: form.entityLabel,
         comments: form.comments,
         icon: form.icon,
       });
