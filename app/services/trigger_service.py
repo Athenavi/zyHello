@@ -41,16 +41,16 @@ def get_trigger(db: Session, config_id: str) -> Optional[dict]:
     if not t:
         return None
     return {
-        "config_id": t.config_id,
-        "belong_entity": t.belong_entity,
+        "configId": t.config_id,
+        "belongEntity": t.belong_entity,
         "name": t.name,
-        "action_type": t.action_type,
+        "actionType": t.action_type,
         "when": t.when,
-        "when_filter": t.when_filter,
-        "when_timer": t.when_timer,
-        "action_content": t.action_content,
+        "whenFilter": t.when_filter,
+        "whenTimer": t.when_timer,
+        "actionContent": t.action_content,
         "priority": t.priority,
-        "is_disabled": t.is_disabled,
+        "isDisabled": t.is_disabled,
     }
 
 

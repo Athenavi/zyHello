@@ -97,7 +97,7 @@ export default function TriggerDesignPage() {
       const at = String(d.actionType || "");
       setActionType(at);
       setActionTypeLabel(ACTION_TYPES[at] || at || "");
-      setWhen((d.whenType as number) || (d.when as number) || 0);
+      setWhen((d.when as number) || 0);
       setWhenTimer((d.whenTimer as string) || "");
       setWhenFilter((d.whenFilter as Record<string, unknown>) || null);
       setActionContent((d.actionContent as Record<string, unknown>) || null);
@@ -153,7 +153,7 @@ export default function TriggerDesignPage() {
         name,
         belongEntity: sourceEntity,
         actionType,
-        whenType: when,
+        when,
         whenTimer: buildWhenTimer(),
         whenFilter,
         actionContent,
@@ -431,15 +431,22 @@ export default function TriggerDesignPage() {
                   <div className="flex items-start">
                     <label className="w-28 text-sm text-gray-600 text-right pr-3 pt-1">操作内容</label>
                     <div className="flex-1">
-                      <div className="p-3 bg-white border rounded-lg min-h-[100px]">
-                        {actionContent ? (
-                          <pre className="text-xs text-gray-700 whitespace-pre-wrap">
-                            {JSON.stringify(actionContent, null, 2)}
-                          </pre>
-                        ) : (
-                          <p className="text-sm text-gray-400">请配置操作内容</p>
-                        )}
-                      </div>
+                      <textarea
+                        className="w-full p-3 bg-white border rounded-lg text-xs font-mono min-h-[120px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder={'请输入 JSON 格式的操作内容，例如：\n{\n  "message": "你好 {{currentUser}}",\n  "targetField": "fieldName"\n}'}
+                        value={actionContent ? JSON.stringify(actionContent, null, 2) : ""}
+                        onChange={(e) => {
+                          try {
+                            const val = e.target.value.trim();
+                            setActionContent(val ? JSON.parse(val) : null);
+                          } catch {
+                            // Keep current value while editing, parse errors are expected
+                          }
+                        }}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        根据不同操作类型填写对应 JSON 配置。发送通知需包含 templateId；发送 Webhook 需包含 url。
+                      </p>
                     </div>
                   </div>
 

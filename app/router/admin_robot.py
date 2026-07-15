@@ -286,9 +286,10 @@ async def api_trigger_save(
             RobotTriggerConfig.config_id == config_id
         ).first()
         if cfg:
+            cfg.name = body.get("name", cfg.name)
             cfg.belong_entity = body.get("belongEntity", cfg.belong_entity)
             cfg.action_type = body.get("actionType", cfg.action_type)
-            cfg.when_type = body.get("whenType", cfg.when_type)
+            cfg.when = body.get("when", cfg.when)
             cfg.when_timer = body.get("whenTimer", cfg.when_timer)
             cfg.when_filter = body.get("whenFilter", cfg.when_filter)
             cfg.action_content = body.get("actionContent", cfg.action_content)
@@ -300,9 +301,10 @@ async def api_trigger_save(
     new_id = uuid.uuid4().hex[:20]
     cfg = RobotTriggerConfig(
         config_id=new_id,
+        name=body.get("name", "未命名"),
         belong_entity=body.get("belongEntity", ""),
         action_type=body.get("actionType", 0),
-        when_type=body.get("whenType", 0),
+        when=body.get("when", 0),
         when_timer=body.get("whenTimer"),
         when_filter=body.get("whenFilter"),
         action_content=body.get("actionContent"),

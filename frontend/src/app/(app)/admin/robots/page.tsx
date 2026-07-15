@@ -99,23 +99,23 @@ export default function AdminRobotsPage() {
                       {(t.name || t.triggerName || "未命名") as string}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600 font-mono">
-                      {(t.entity || t.bindEntity || "-") as string}
+                      {(t.belongEntity as string) || "-"}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {actionLabels[(t.when as string) || ""] || (t.when as string) || "-"}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-500">
-                      {actionLabels[(t.action as string) || ""] || (t.actionType as string) || "-"}
+                      {(t.actionType as string) || "-"}
                     </td>
                     <td className="px-4 py-3 text-sm">
                       <span
                         className={`px-2 py-0.5 text-xs rounded-full ${
-                          t.disabled
+                          t.isDisabled
                             ? "bg-red-100 text-red-700"
                             : "bg-green-100 text-green-700"
                         }`}
                       >
-                        {t.disabled ? "禁用" : "启用"}
+                        {t.isDisabled ? "禁用" : "启用"}
                       </span>
                     </td>
                   </tr>

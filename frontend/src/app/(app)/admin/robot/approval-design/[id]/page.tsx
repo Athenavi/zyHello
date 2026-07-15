@@ -60,6 +60,7 @@ export default function ApprovalDesignPage() {
         name,
         applyEntity,
         flowDefinition: { nodes: flowNodes },
+        isDisabled,
       };
       await api.saveApproval(data);
       if (isNew) {

@@ -730,10 +730,6 @@ class ApiClient {
     return this.post("/admin/robot/approval/delete", { id: approvalId });
   }
 
-  async deleteApproval(approvalId: string) {
-    return this.post("/admin/robot/approval/delete", { id: approvalId });
-  }
-
   // ── Transforms ─────────────────────────────────────────────────────
   async listTransforms(sourceEntity?: string) {
     const params = new URLSearchParams();
