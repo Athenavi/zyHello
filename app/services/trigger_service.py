@@ -51,6 +51,8 @@ def get_trigger(db: Session, config_id: str) -> Optional[dict]:
         "actionContent": t.action_content,
         "priority": t.priority,
         "isDisabled": t.is_disabled,
+        "modifiedOn": t.modified_on.isoformat() if t.modified_on else None,
+        "createdOn": t.created_on.isoformat() if t.created_on else None,
     }
 
 

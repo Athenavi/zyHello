@@ -19,7 +19,7 @@ for yaml_file in ["src/main/resources/application.yml", "src/main/resources/appl
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Rebuild FastAPI"
-    DEBUG: bool = True
+    DEBUG: bool = False
     DATABASE_URL: str = "sqlite:///./test.db"
 
     class Config:
