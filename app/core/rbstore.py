@@ -93,7 +93,8 @@ class MetaschemaExporter:
                 "defaultValue": fd.get("default_value", ""),
                 "refEntity": fd.get("ref_entity", ""),
             }
-            if extra:
+            if fd.get("extra_attrs"):
+                extra = fd["extra_attrs"]
                 try:
                     field_entry["extraAttrs"] = json.loads(extra) if isinstance(extra, str) else extra
                 except (json.JSONDecodeError, TypeError):

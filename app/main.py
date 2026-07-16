@@ -66,8 +66,12 @@ async def global_exception_handler(request: Request, exc: Exception):
 @app.on_event("startup")
 async def startup_event():
     """Load entity metadata from DB into memory on startup."""
-    from app.database import SessionLocal
+    from app.database import SessionLocal, engine
+    from app.models import Base
     from app.core.metadata import reload_metadata
+
+    # Ensure all tables exist (safe no-op if already created)
+    Base.metadata.create_all(bind=engine)
 
     db = SessionLocal()
     try:

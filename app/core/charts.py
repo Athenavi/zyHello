@@ -181,21 +181,34 @@ class ChartsHelper:
     """Helper for constructing chart data queries."""
 
     @staticmethod
+    def _json_field(field_name: str) -> str:
+        if field_name in ("record_id", "entity_name", "owning_user", "owning_dept",
+                          "created_by", "created_on", "modified_by", "modified_on", "is_deleted"):
+            return f'"{field_name}"'
+        return f"json_extract(data, '$.{field_name}')"
+
+    @staticmethod
+    def _build_entity_where(entity: str) -> str:
+        return f"entity_name = '{entity}' AND is_deleted = 0"
+
+    @staticmethod
     def build_group_sql(entity: str, dimension: Dimension, numericals: list[Numerical],
                         filter_sql: str = None, limit: int = 100) -> str:
-        """Build a GROUP BY SQL query for chart data."""
+        """Build a GROUP BY SQL query for chart data against entity_record."""
         dim_field = dimension.field
-        select_parts = [f'"{dim_field}" AS "dim"']
-        group_parts = [f'"{dim_field}"']
+        dim_ref = ChartsHelper._json_field(dim_field)
+        select_parts = [f'{dim_ref} AS "dim"']
+        group_parts = [dim_ref]
         order_parts = []
 
         for i, num in enumerate(numericals):
             alias = f"v{i}"
+            num_ref = ChartsHelper._json_field(num.field)
             func = num.calc.value
             if func in ("SUM", "AVG", "MAX", "MIN"):
-                select_parts.append(f'{func}("{num.field}") AS "{alias}"')
+                select_parts.append(f'{func}(CAST({num_ref} AS REAL)) AS "{alias}"')
             elif func == "COUNT_DISTINCT":
-                select_parts.append(f'COUNT(DISTINCT "{num.field}") AS "{alias}"')
+                select_parts.append(f'COUNT(DISTINCT {num_ref}) AS "{alias}"')
             else:
                 select_parts.append(f'COUNT(*) AS "{alias}"')
 
@@ -209,13 +222,12 @@ class ChartsHelper:
         elif dimension.sort == FormatSort.DESC:
             order_parts.insert(0, f'"dim" DESC')
 
-        sql = f'SELECT {", ".join(select_parts)} FROM "{entity}"'
+        sql = f'SELECT {", ".join(select_parts)} FROM entity_record'
 
-        where_parts = [f'"is_deleted" = 0'] if True else []
+        where_parts = [ChartsHelper._build_entity_where(entity)]
         if filter_sql:
             where_parts.append(filter_sql)
-        if where_parts:
-            sql += f' WHERE {" AND ".join(where_parts)}'
+        sql += f' WHERE {" AND ".join(where_parts)}'
 
         sql += f' GROUP BY {", ".join(group_parts)}'
 
@@ -347,7 +359,7 @@ class FunnelChart(BaseChart):
 class RadarChart(BaseChart):
     def build_data(self, db: Session, user_id: str = None) -> ChartData:
         axis = self.spec.axis
-        if not axis or not axis.numericals:
+        if not axis or not axis.dimension or not axis.numericals:
             return ChartData()
 
         sql = ChartsHelper.build_group_sql(
@@ -382,15 +394,15 @@ class ScatterChart(BaseChart):
         if not axis or not axis.dimension or len(axis.numericals) < 2:
             return ChartData()
 
-        dim_field = axis.dimension.field
-        x_field = axis.numericals[0].field
-        y_field = axis.numericals[1].field
+        dim_ref = ChartsHelper._json_field(axis.dimension.field)
+        x_ref = ChartsHelper._json_field(axis.numericals[0].field)
+        y_ref = ChartsHelper._json_field(axis.numericals[1].field)
 
         sql = (
-            f'SELECT "{dim_field}" AS "dim", '
-            f'"{x_field}" AS "x", "{y_field}" AS "y" '
-            f'FROM "{self.spec.entity}" '
-            f'WHERE "is_deleted" = 0 LIMIT 500'
+            f'SELECT {dim_ref} AS "dim", '
+            f'{x_ref} AS "x", {y_ref} AS "y" '
+            f'FROM entity_record '
+            f'WHERE {ChartsHelper._build_entity_where(self.spec.entity)} LIMIT 500'
         )
         rows = self._execute_query(db, sql)
 
@@ -429,15 +441,16 @@ class TableChart(BaseChart):
 
         fields = []
         for num in axis.numericals:
+            num_ref = ChartsHelper._json_field(num.field)
             func = num.calc.value
             if func in ("SUM", "AVG", "MAX", "MIN"):
-                fields.append(f'{func}("{num.field}") AS "{num.label or num.field}"')
+                fields.append(f'{func}(CAST({num_ref} AS REAL)) AS "{num.label or num.field}"')
             elif func == "COUNT_DISTINCT":
-                fields.append(f'COUNT(DISTINCT "{num.field}") AS "{num.label or num.field}"')
+                fields.append(f'COUNT(DISTINCT {num_ref}) AS "{num.label or num.field}"')
             else:
                 fields.append(f'COUNT(*) AS "{num.label or num.field}"')
 
-        sql = f'SELECT {", ".join(fields)} FROM "{self.spec.entity}" WHERE "is_deleted" = 0'
+        sql = f'SELECT {", ".join(fields)} FROM entity_record WHERE {ChartsHelper._build_entity_where(self.spec.entity)}'
         rows = self._execute_query(db, sql)
 
         return ChartData(data=rows, axis=axis)
@@ -452,14 +465,15 @@ class IndexChart(BaseChart):
 
         num = axis.numericals[0]
         func = num.calc.value
+        num_ref = ChartsHelper._json_field(num.field)
         if func in ("SUM", "AVG", "MAX", "MIN"):
-            expr = f'{func}("{num.field}")'
+            expr = f'{func}(CAST({num_ref} AS REAL))'
         elif func == "COUNT_DISTINCT":
-            expr = f'COUNT(DISTINCT "{num.field}")'
+            expr = f'COUNT(DISTINCT {num_ref})'
         else:
             expr = "COUNT(*)"
 
-        sql = f'SELECT {expr} AS "v" FROM "{self.spec.entity}" WHERE "is_deleted" = 0'
+        sql = f'SELECT {expr} AS "v" FROM entity_record WHERE {ChartsHelper._build_entity_where(self.spec.entity)}'
         rows = self._execute_query(db, sql)
 
         value = rows[0].get("v", 0) if rows else 0

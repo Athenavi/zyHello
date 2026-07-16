@@ -60,10 +60,10 @@ def unescape_html(text: str) -> str:
 
 
 _SANITIZE_PATTERNS = [
-    (re.compile(r"(?i)</?script[^>]*>", re.IGNORECASE), "script"),
-    (re.compile(r"(?i)</?style[^>]*>", re.IGNORECASE), "style"),
-    (re.compile(r"(?i)</?iframe[^>]*>", re.IGNORECASE), "iframe"),
-    (re.compile(r"(?i)<img\s", re.IGNORECASE), "img"),
+    (re.compile(r"(?i)</?script[^>]*>", re.IGNORECASE), ""),
+    (re.compile(r"(?i)</?style[^>]*>", re.IGNORECASE), ""),
+    (re.compile(r"(?i)</?iframe[^>]*>", re.IGNORECASE), ""),
+    (re.compile(r"(?i)<img\s[^>]*>", re.IGNORECASE), ""),
 ]
 
 

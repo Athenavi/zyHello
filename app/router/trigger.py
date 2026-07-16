@@ -185,6 +185,21 @@ async def field_aggregation_entities(
     }
 
 
+@router.get("/admin/robot/trigger/field-aggregation-fields")
+async def field_aggregation_fields(
+    entity: str = Query(...),
+    current_user: User = Depends(get_current_user),
+):
+    """Get target fields for field aggregation."""
+    return {
+        "ok": True,
+        "data": [
+            {"field": "amount", "label": "Amount", "type": "decimal"},
+            {"field": "totalCount", "label": "Total Count", "type": "integer"},
+        ],
+    }
+
+
 # ── Trigger editor (parameterized route — MUST come after all named routes) ──
 
 
@@ -200,18 +215,3 @@ async def page_editor(
         "user": current_user,
         "triggerId": id,
     })
-
-
-@router.get("/admin/robot/trigger/field-aggregation-fields")
-async def field_aggregation_fields(
-    entity: str = Query(...),
-    current_user: User = Depends(get_current_user),
-):
-    """Get target fields for field aggregation."""
-    return {
-        "ok": True,
-        "data": [
-            {"field": "amount", "label": "Amount", "type": "decimal"},
-            {"field": "totalCount", "label": "Total Count", "type": "integer"},
-        ],
-    }

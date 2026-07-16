@@ -63,7 +63,7 @@ def get_request_times(db: Session, app_ids: str) -> dict:
 
         result[app_id] = [
             count,
-            last_req.request_time.strftime("%Y-%m-%d %H:%M") if last_req else None,
+            last_req.request_time.strftime("%Y-%m-%d %H:%M") if last_req and last_req.request_time else None,
         ]
 
     return result

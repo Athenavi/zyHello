@@ -1,7 +1,7 @@
 """File management routes — upload, download, delete, move, list."""
 import os
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, UploadFile, File
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 
@@ -115,7 +115,7 @@ async def check_readable(
 
 @router.post("/files/batch-download")
 async def download_batch(
-    file_ids: list[str],
+    file_ids: list[str] = Body(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):

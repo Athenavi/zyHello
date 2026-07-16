@@ -21,8 +21,6 @@ from sqlalchemy import func
 # Chart engine imports
 from app.core.charts import ChartsFactory, ChartData, ChartType, BaseChart
 
-router = APIRouter()
-
 
 def _chart_data_to_rows(chart_data: ChartData) -> list[dict]:
     """Convert a ChartData object to a flat rows array for the frontend.

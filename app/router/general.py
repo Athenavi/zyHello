@@ -194,11 +194,11 @@ async def api_record_delete(
     deleted = 0
     errors = []
     for rid in record_ids:
-        err = delete_record(db, rid, user_id=str(current_user.user_id))
-        if err:
-            errors.append(err)
-        else:
+        try:
+            delete_record(db, rid, user_id=str(current_user.user_id))
             deleted += 1
+        except ValueError as e:
+            errors.append(str(e))
 
     if errors:
         return {"error_code": 400, "error_msg": "; ".join(errors), "data": deleted}
@@ -229,8 +229,11 @@ async def api_record_assign(
 
     results = []
     for rid in record_ids:
-        err = assign_record(db, entity, rid, assign_to, str(current_user.user_id))
-        results.append({"id": rid, "error": err} if err else {"id": rid, "success": True})
+        try:
+            assign_record(db, rid, assign_to, str(current_user.user_id))
+            results.append({"id": rid, "success": True})
+        except ValueError as e:
+            results.append({"id": rid, "error": str(e)})
 
     return {"error_code": 0, "data": results}
 
@@ -262,8 +265,11 @@ async def api_record_share(
     results = []
     for rid in record_ids:
         for uid in share_to:
-            err = share_record(db, entity, rid, uid, str(current_user.user_id))
-            results.append({"id": rid, "to": uid, "error": err} if err else {"id": rid, "to": uid, "success": True})
+            try:
+                share_record(db, rid, uid, user_id=str(current_user.user_id))
+                results.append({"id": rid, "to": uid, "success": True})
+            except ValueError as e:
+                results.append({"id": rid, "to": uid, "error": str(e)})
 
     return {"error_code": 0, "data": results}
 
@@ -291,8 +297,11 @@ async def api_record_unshare(
     results = []
     for rid in record_ids:
         for uid in unshare_from:
-            err = unshare_record(db, entity, rid, uid, str(current_user.user_id))
-            results.append({"id": rid, "to": uid, "error": err} if err else {"id": rid, "to": uid, "success": True})
+            try:
+                unshare_record(db, rid, uid, user_id=str(current_user.user_id))
+                results.append({"id": rid, "to": uid, "success": True})
+            except ValueError as e:
+                results.append({"id": rid, "to": uid, "error": str(e)})
 
     return {"error_code": 0, "data": results}
 
@@ -320,9 +329,11 @@ async def api_record_unshare_batch(
     count = 0
     for rid in record_ids:
         for uid in unshare_from:
-            err = unshare_record(db, entity, rid, uid, str(current_user.user_id))
-            if not err:
+            try:
+                unshare_record(db, rid, uid, user_id=str(current_user.user_id))
                 count += 1
+            except ValueError:
+                pass
 
     return {"error_code": 0, "data": count}
 
@@ -338,7 +349,7 @@ async def api_shared_list(
 
     Migrated from GeneralOperatingController.shared-list.
     """
-    result = get_shared_list(db, entity, record_id)
+    result = get_shared_list(db, record_id)
     return {"error_code": 0, "data": result}
 
 
@@ -654,7 +665,7 @@ async def api_record_history(
 
     Migrated from ModelExtrasController.record-history.
     """
-    history = get_record_history(db, entity, record)
+    history = get_record_history(db, record)
     return {"error_code": 0, "data": history}
 
 
@@ -747,16 +758,15 @@ async def api_related_counts(
 
     Migrated from RelatedListController.related-counts.
     """
-    detail_entities = get_entities(db)
+    detail_entities = get_detail_entities(entity)
     counts = {}
     for de in detail_entities:
-        if hasattr(de, 'main_entity') and de.get('main_entity') == entity:
-            ename = de['entity_name']
-            r = list_records(
-                db, ename,
-                page_no=1, page_size=1,
-            )
-            counts[ename] = r.get("total", 0)
+        ename = de.entity_name
+        r = list_records(
+            db, ename,
+            page_no=1, page_size=1,
+        )
+        counts[ename] = r.get("total", 0)
 
     return {"error_code": 0, "data": counts}
 
@@ -797,7 +807,7 @@ async def api_advfilter_save(
     filter_items = body.get("filter", [])
     share_to = body.get("shareTo")
 
-    result = save_adv_filter(db, entity, name, filter_items, str(current_user.user_id), share_to)
+    result = save_adv_filter(db, name, entity, filter_items, share_to=share_to, user_id=str(current_user.user_id))
     if isinstance(result, str):
         return {"error_code": 400, "error_msg": result}
     return {"error_code": 0, "data": result}
