@@ -98,7 +98,7 @@ async def do_submit(
     current_user: User = Depends(get_current_user),
 ):
     """Submit a record for approval."""
-    result = approval_service.do_submit(db, body.record_id, body.approval_id, current_user.user_id)
+    result = approval_service.do_submit(db, body.record_id, body.approval_id, current_user.user_id, approver=body.approver)
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
     return {"ok": True, "data": result}

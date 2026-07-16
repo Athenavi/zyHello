@@ -235,16 +235,16 @@ class QueryParser:
             
             # LIKE variants
             if op == "LK":
-                conditions.append(f"{field} LIKE '%{self._escape(value)}%'")
+                conditions.append(f"{field} LIKE '%{self._escape_like(value)}%' ESCAPE '\\'")
                 continue
             if op == "NLK":
-                conditions.append(f"{field} NOT LIKE '%{self._escape(value)}%'")
+                conditions.append(f"{field} NOT LIKE '%{self._escape_like(value)}%' ESCAPE '\\'")
                 continue
             if op == "SW":
-                conditions.append(f"{field} LIKE '{self._escape(value)}%'")
+                conditions.append(f"{field} LIKE '{self._escape_like(value)}%' ESCAPE '\\'")
                 continue
             if op == "EW":
-                conditions.append(f"{field} LIKE '%{self._escape(value)}'")
+                conditions.append(f"{field} LIKE '%{self._escape_like(value)}' ESCAPE '\\'")
                 continue
             
             # BETWEEN
@@ -305,6 +305,12 @@ class QueryParser:
             return ""
         s = str(value)
         return s.replace("'", "''")
+
+    @staticmethod
+    def _escape_like(value: Any) -> str:
+        """Escape a value for SQL LIKE, including wildcards."""
+        s = QueryParser._escape(value)
+        return s.replace("%", "\\%").replace("_", "\\_")
 
 
 # ── ProtocolFilterParser ─────────────────────────────────────────────────────

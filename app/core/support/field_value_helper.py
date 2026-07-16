@@ -403,7 +403,7 @@ def eval_calc_formula(formula: str, variables: dict[str, Any] | None = None,
     if result is not None and field_meta:
         ft = (field_meta.field_type or "").upper()
         if ft == "NUMBER":
-            precision = getattr(field_meta, "precision", 2) or 2
+            precision = field_meta.extra_attrs.get("precision") or field_meta.extra_attrs.get("decimalDigits") or 2
             if isinstance(result, float):
                 result = round(result, precision)
     

@@ -6,6 +6,7 @@ from typing import Optional
 class ApprovalSubmitRequest(BaseModel):
     record_id: str
     approval_id: str
+    approver: Optional[str] = None
 
 
 class ApprovalActionRequest(BaseModel):
